@@ -1,6 +1,8 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
 
+const debug = true
+
 const flames = () => {
 	return {
 		x: 0,
@@ -62,6 +64,7 @@ export const spaceship = () => {
 		y: 0,
 		vx: 0,
 		vy: 0,
+		heightWithFlame: 0,
 		image: new Image(),
 		imageLoaded: false,
 		flames: flames(),
@@ -77,13 +80,14 @@ export const spaceship = () => {
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
 			this.flames.spawn({ offsetx: 23, offsety: 74 })
+			this.heightWithFlame = canvas.height - this.flames.height
 		},
 		outOfBoundsTop() {
-			if (this.y >= canvas.height) return true
+			if (this.y <= 0) return true
 			return false;
 		},
 		outOfBoundsBottom() {
-			if (this.y <= 0) return true
+			if (this.y >= this.heightWithFlame) return true
 			return false;
 		},
 		outOfBoundsLeft() {
@@ -91,41 +95,36 @@ export const spaceship = () => {
 			return false
 		},
 		outOfBoundsRight() {
-			if (this.x >= canvas.width) return true
+			if (this.x >= (canvas.width - this.width)) return true
 			return false
 		},
-		outOfBoundsV() {
-			return this.outOfBoundsTop() || this.outOfBoundsBottom()
-		},
-		outOfBoundsH() {
-			return this.outOfBoundsLeft() || this.outOfBoundsRight()
-		},
 		update(/*dt*/) {
-			if (this.flameOn) {
-				if (!this.outOfBoundsV()) {
-					this.vy = -3
-					if (game.speed < 10) game.speed *= 1.025
-				}
+			if (this.outOfBoundsTop()) {
+				this.y = 0
+				this.vy = 0
+			} else if (this.outOfBoundsBottom()) {
+				this.y = this.heightWithFlame
+				this.vy = 0
 			}
-			if (!this.flameOn) {
-				if (this.outOfBoundsV()) {
-					this.vy = 0
-				}
-				else this.vy = 4
+			if (this.flameOn) {
+				this.vy = -3
+				if (game.speed < 10) game.speed *= 1.025
+			} else {
+				this.vy = 4
 				if (game.speed > 1) game.speed *= 0.99
 			}
-			if (this.turn !== 0) {
-				if (!this.outOfBoundsH()) {
-					this.x += this.turn
-				}
+			this.x += this.turn
+			if (this.outOfBoundsLeft()) {
+				this.x = 0
+				this.vx = 0
+			} else if (this.outOfBoundsRight()) {
+				this.x = canvas.width - this.width
+				this.vx = 0
 			}
 
 			this.y += this.vy;
 			this.x += this.vx;
 
-			if (this.outOfBoundsH()) {
-				this.vx = 0
-			}
 			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
 		},
 		draw() {
@@ -133,8 +132,14 @@ export const spaceship = () => {
 				ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 				this.flames.draw()
 			}
-			ctx.strokeStyle = "rgb(255 0 0 / 100%)";
-			ctx.strokeRect(this.x, this.y, this.width, this.height)
+			if (debug) {
+				ctx.strokeStyle = "rgb(255 0 0 / 100%)";
+				ctx.font = "16px sans-serif";
+				ctx.fillStyle = "#ff0000";
+				ctx.fillText(`Ship: x: ${this.x} y: ${this.y}  vx: ${this.vx} vy: ${this.vy} speed: ${Math.round(game.speed)} turn: ${this.turn}`, 5, 20);
+				ctx.strokeRect(this.x, this.y, this.width, this.height)
+			}
+
 		},
 	}
 }
