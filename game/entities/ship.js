@@ -1,14 +1,14 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
-
-const debug = true
+import { bullet } from "./bullet.js";
+const debug = false
 
 const flames = () => {
 	return {
 		x: 0,
 		y: 0,
-		width: 20,
-		height: 100,
+		width: 15,
+		height: 75,
 		offsetx: 0,
 		offsety: 0,
 		flameOn: false,
@@ -29,8 +29,8 @@ const flames = () => {
 			this.flame2.onload = () => {
 				this.flame2Loaded = true
 			}
-			this.flame1.src = "images/flame1.png"
-			this.flame2.src = "images/flame2.png"
+			this.flame1.src = "images/flame-1.png"
+			this.flame2.src = "images/flame-2.png"
 		},
 		update({ parentx, parenty, flameOn }) {
 			this.flameOn = flameOn
@@ -65,22 +65,67 @@ export const spaceship = () => {
 		vx: 0,
 		vy: 0,
 		heightWithFlame: 0,
-		image: new Image(),
-		imageLoaded: false,
+		image1: new Image(),
+		image2: new Image(),
+		image3: new Image(),
+		image1Loaded: false,
+		image2Loaded: false,
+		image3Loaded: false,
 		flames: flames(),
 		flameOn: false,
+		flickerCounter: 0,
 		turn: 0,
+		bullet: null,
+		maxbullets: 10,
+		bullets: [],
 		spawn() {
-			this.width = 66
-			this.height = 85
-			this.image.onload = () => {
-				this.imageLoaded = true
+			this.width = 50
+			this.height = 64
+			this.image1.onload = () => {
+				this.image1Loaded = true
 			}
-			this.image.src = "images/ship.png"
+			this.image2.onload = () => {
+				this.image2Loaded = true
+			}
+			this.image3.onload = () => {
+				this.image3Loaded = true
+			}
+			this.image1.src = "images/ship-stealth-1.png"
+			this.image2.src = "images/ship-stealth-2.png"
+			this.image3.src = "images/ship-stealth-3.png"
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
-			this.flames.spawn({ offsetx: 23, offsety: 74 })
+			this.flames.spawn({ offsetx: 17.25, offsety: 55.5 })
 			this.heightWithFlame = canvas.height - this.flames.height
+		},
+		fire() {
+			if (this.bullets.length < this.maxbullets) {
+				let newbullet = bullet()
+				this.bullets.push(newbullet)
+				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
+			}
+			if (this.bullets.length < this.maxbullets) {
+				let newbullet = bullet()
+				this.bullets.push(newbullet)
+				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
+			}
+			if (this.bullets.length < this.maxbullets) {
+				let newbullet = bullet()
+				this.bullets.push(newbullet)
+				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
+			}
+		},
+		removeBullet() {
+			delete (this.bullet)
+		},
+		flicker() {
+			this.flickerCounter += 1
+			if (this.flickerCounter === 10)
+				this.flickerCounter = 0
+			if (this.flickerCounter >= 4)
+				return true
+
+			return false
 		},
 		outOfBoundsTop() {
 			if (this.y <= 0) return true
@@ -126,10 +171,20 @@ export const spaceship = () => {
 			this.x += this.vx;
 
 			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
+			this.bullets = this.bullets.filter((b) => { return b.dead !== true })
+			this.bullets.forEach((b) => b.update())
 		},
 		draw() {
-			if (this.imageLoaded) {
-				ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+			if (this.image1Loaded && this.image2Loaded && this.image3Loaded) {
+				this.bullets.forEach((b) => b.draw())
+				if (this.flameOn)
+					ctx.drawImage(this.image3, this.x, this.y, this.width, this.height);
+				else
+					if (this.flicker())
+						ctx.drawImage(this.image1, this.x, this.y, this.width, this.height);
+					else
+						ctx.drawImage(this.image2, this.x, this.y, this.width, this.height);
+
 				this.flames.draw()
 			}
 			if (debug) {
