@@ -43,15 +43,6 @@ export const bullet = () => {
 			if (this.imageLoaded) {
 				ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 			}
-			// 			if (debug) {
-			// 				ctx.font = "16px sans-serif";
-			// 				ctx.fillStyle = "#00ff00";
-			// 				ctx.fillText(`Bullet: x: ${this.x} y: ${this.y}  vx: ${this.vx} vy: ${this.vy}`, 5, 40);
-			// 				ctx.strokeStyle = "rgb(255 0 0 / 100%)";
-			//
-			// 				ctx.strokeRect(this.x, this.y, this.width, this.height)
-			// 			}
-
 		},
 	}
 }

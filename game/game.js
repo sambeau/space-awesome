@@ -1,4 +1,8 @@
 
+import { asteroids } from "./entities/asteroids.js";
+import { defenders } from "./entities/defenders.js";
+import { galaxians } from "./entities/galaxians.js";
+import { mines } from "./entities/mines.js";
 import { spaceship } from "./entities/ship.js";
 import { starfield } from "./entities/stars.js";
 
@@ -14,10 +18,18 @@ let running = false;
 
 let stars
 let ship
+let baddies1
+let baddies2
+let baddies3
+let baddies4
 
 const gameLoop = (dt) => {
 	// update
 	stars.update(dt)
+	baddies1.update(dt)
+	baddies2.update(dt)
+	baddies3.update(dt)
+	baddies4.update(dt)
 	ship.update(dt)
 
 	// clear
@@ -34,6 +46,10 @@ const gameLoop = (dt) => {
 
 	// draw entities
 	stars.draw()
+	baddies1.draw()
+	baddies2.draw()
+	baddies3.draw()
+	baddies4.draw()
 	ship.draw()
 
 	raf = window.requestAnimationFrame(gameLoop);
@@ -46,6 +62,19 @@ const main = () => {
 
 	ship = spaceship()
 	ship.spawn()
+
+	baddies1 = asteroids()
+	baddies1.spawn()
+
+	baddies2 = mines()
+	baddies2.spawn()
+
+	baddies3 = defenders()
+	baddies3.spawn()
+
+	baddies4 = galaxians()
+	baddies4.spawn()
+
 
 	window.addEventListener(
 		"keydown",

@@ -1,6 +1,6 @@
+import { ctx, game } from "../game.js";
+import { randInt } from "../utils.js";
 import { makeN } from "./entity.js";
-import {randInt} from "../utils.js";
-import {ctx, game} from "../game.js";
 
 const star = () => {
 	return {
@@ -52,9 +52,9 @@ const starfield = () => {
 		stars2: [],
 		stars3: [],
 		spawn() {
-			this.stars1 = makeN(star, 200)
-			this.stars2 = makeN(star, 50)
-			this.stars3 = makeN(star, 12)
+			this.stars1 = makeN(star, 64)
+			this.stars2 = makeN(star, 32)
+			this.stars3 = makeN(star, 32)
 			this.stars1.forEach((b) => b.spawn({ color: "#ffdddd44", size: 2, speed: 0.125 }))
 			this.stars2.forEach((b) => b.spawn({ color: "#ddddff66", size: 3, speed: 0.25 }))
 			this.stars3.forEach((b) => b.spawn({ color: "#ffffee66", size: 4, speed: 0.5 }))
@@ -72,4 +72,4 @@ const starfield = () => {
 	}
 }
 
-export {starfield};
+export { starfield };

@@ -90,20 +90,20 @@ export const spaceship = () => {
 			this.image3.onload = () => {
 				this.image3Loaded = true
 			}
-			this.image1.src = "images/ship-stealth-1.png"
-			this.image2.src = "images/ship-stealth-2.png"
-			this.image3.src = "images/ship-stealth-3.png"
+			this.image1.src = "images/ship-l-1.png"
+			this.image2.src = "images/ship-l-2.png"
+			this.image3.src = "images/ship-l-3.png"
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
 			this.flames.spawn({ offsetx: 17.25, offsety: 55.5 })
 			this.heightWithFlame = canvas.height - this.flames.height
 		},
 		fire() {
-			if (this.bullets.length < this.maxbullets) {
-				let newbullet = bullet()
-				this.bullets.push(newbullet)
-				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
-			}
+			// if (this.bullets.length < this.maxbullets) {
+			// 	let newbullet = bullet()
+			// 	this.bullets.push(newbullet)
+			// 	newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
+			// }
 			if (this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
