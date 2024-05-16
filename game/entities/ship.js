@@ -1,7 +1,6 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
 import { bullet } from "./bullet.js";
-const debug = false
 
 const flames = () => {
 	return {
@@ -75,7 +74,7 @@ export const spaceship = () => {
 		flameOn: false,
 		flickerCounter: 0,
 		turn: 0,
-		bullet: null,
+		guns: 2,
 		maxbullets: 10,
 		bullets: [],
 		spawn() {
@@ -99,17 +98,17 @@ export const spaceship = () => {
 			this.heightWithFlame = canvas.height - this.flames.height
 		},
 		fire() {
-			// if (this.bullets.length < this.maxbullets) {
-			// 	let newbullet = bullet()
-			// 	this.bullets.push(newbullet)
-			// 	newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
-			// }
-			if (this.bullets.length < this.maxbullets) {
+			if ((this.guns == 1 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+				let newbullet = bullet()
+				this.bullets.push(newbullet)
+				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
+			}
+			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
 			}
-			if (this.bullets.length < this.maxbullets) {
+			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
@@ -187,14 +186,6 @@ export const spaceship = () => {
 
 				this.flames.draw()
 			}
-			if (debug) {
-				ctx.strokeStyle = "rgb(255 0 0 / 100%)";
-				ctx.font = "16px sans-serif";
-				ctx.fillStyle = "#ff0000";
-				ctx.fillText(`Ship: x: ${this.x} y: ${this.y}  vx: ${this.vx} vy: ${this.vy} speed: ${Math.round(game.speed)} turn: ${this.turn}`, 5, 20);
-				ctx.strokeRect(this.x, this.y, this.width, this.height)
-			}
-
 		},
 	}
 }
