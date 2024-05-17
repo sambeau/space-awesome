@@ -18,6 +18,7 @@ export const bullet = () => {
 		vy: 0,
 		width: 6,
 		height: 70,
+		collider: { type: "circle", ox: 3, oy: 5, r: 3, colliding: false },
 		speed: 20,
 		image: bulletImage,
 		imageLoaded: false,
@@ -28,12 +29,16 @@ export const bullet = () => {
 			this.y = aty + this.height / 3
 			this.vy = -this.speed
 			this.ship = ship
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 		},
 		outOfBoundsTop() {
 			if (this.y <= 0 - this.height) return true
 			return false;
 		},
 		update(/*dt*/) {
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 			if (this.outOfBoundsTop()) {
 				this.y = 0
 				this.vy = 0

@@ -1,6 +1,7 @@
-import { ctx, game, canvas } from "../game.js";
+import { canvas, ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
 import { makeN } from "./entity.js";
+import { explode } from "./explosions.js";
 
 
 const defender = () => {
@@ -12,6 +13,13 @@ const defender = () => {
 		rotation: Math.random() * 10,
 		width: 48,
 		height: 48,
+		collider: {
+			type: "circle",
+			ox: (5.5 + (55 / 2)) * 48 / 66,
+			oy: (6 + (55 / 2)) * 48 / 66,
+			r: ((55 / 2)) * 48 / 66,
+			colliding: false,
+		},
 		image1: new Image(),
 		image2: new Image(),
 		image3: new Image(),
@@ -26,7 +34,7 @@ const defender = () => {
 				this.ticks = 0
 			return this.tick
 		},
-		spawn({ship}) {
+		spawn({ ship }) {
 			this.image1.src = "images/defender1.png"
 			this.image2.src = "images/defender2.png"
 			this.image3.src = "images/defender3.png"
@@ -43,14 +51,17 @@ const defender = () => {
 		},
 		update(/*dt*/) {
 			this.tick()
-			this.y += this.vy + game.speed + Math.random()*6-3;
+			this.y += this.vy + game.speed + Math.random() * 6 - 3;
 
 			//seek!
 			if (this.x > this.ship.x) this.vx = -this.vy
 			else if (this.x < this.ship.x) this.vx = this.vy
 			else this.vx = 0
 
-			this.x += this.vx + Math.random()*6-3
+			this.x += this.vx + Math.random() * 6 - 3
+
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 
 			if (this.outOfBoundsV()) {
 				this.x = randInt(canvas.width)
@@ -72,6 +83,15 @@ const defender = () => {
 					ctx.drawImage(this.image3, this.x, this.y, this.width, this.height)
 			}
 		},
+		onHit() {
+			this.dead = true
+			explode({
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				styles: ["white", "white", "#FFB301", "#06BA01", "#06BA01"],
+				size: 6,
+			})
+		}
 	}
 };
 
@@ -79,11 +99,12 @@ const defender = () => {
 export const defenders = () => {
 	return {
 		defenders: [],
-		spawn({ship:ship}) {
+		spawn({ ship: ship }) {
 			this.defenders = makeN(defender, 4)
-			this.defenders.forEach((x) => x.spawn({ship:ship}))
+			this.defenders.forEach((x) => x.spawn({ ship: ship }))
 		},
 		update(dt) {
+			this.defenders = this.defenders.filter((b) => { return b.dead !== true })
 			this.defenders.forEach((x) => x.update(dt))
 		},
 		draw() {

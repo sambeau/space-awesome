@@ -1,6 +1,7 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
 import { bullet } from "./bullet.js";
+import { collisionBetweenCircles } from "./entity.js";
 
 const flames = () => {
 	return {
@@ -74,7 +75,7 @@ export const spaceship = () => {
 		flameOn: false,
 		flickerCounter: 0,
 		turn: 0,
-		guns: 2,
+		guns: 1,
 		maxbullets: 10,
 		bullets: [],
 		spawn() {
@@ -187,5 +188,21 @@ export const spaceship = () => {
 				this.flames.draw()
 			}
 		},
+		collide(entities) {
+			// console.log(entities)
+			this.bullets.forEach((b) => {
+				entities.forEach((e) => {
+					if (collisionBetweenCircles(
+						e.collider.x, e.collider.y, e.collider.r,
+						b.collider.x, b.collider.y, b.collider.r
+					)) {
+						e.collider.colliding = true
+						b.collider.colliding = true
+						b.dead = true
+						e.onHit()
+					}
+				})
+			})
+		}
 	}
 }

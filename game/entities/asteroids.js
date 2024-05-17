@@ -1,7 +1,7 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
 import { makeN } from "./entity.js";
-
+import { explode } from "./explosions.js";
 
 const asteroid = () => {
 	return {
@@ -12,6 +12,7 @@ const asteroid = () => {
 		rotation: Math.random() * 10,
 		width: 64,
 		height: 64,
+		collider: { type: "circle", ox: 33, oy: 33, r: 30, colliding: false },
 		image1: new Image(),
 		image2: new Image(),
 		image3: new Image(),
@@ -25,27 +26,32 @@ const asteroid = () => {
 				this.ticks = 0
 			return this.tick
 		},
+		outOfBoundsV() {
+			if (this.y > canvas.height + this.height) return true
+			return false;
+		},
 		spawn() {
 			this.image1.src = "images/asteroid1.png"
 			this.image2.src = "images/asteroid2.png"
 			this.image3.src = "images/asteroid3.png"
 			this.x = randInt(canvas.width)
 			this.y = 0 - randInt(canvas.height)
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 			this.image1.onload = () => { this.image1Loaded = true }
 			this.image2.onload = () => { this.image2Loaded = true }
 			this.image3.onload = () => { this.image3Loaded = true }
-		},
-		outOfBoundsV() {
-			if (this.y > canvas.height + this.height) return true
-			return false;
 		},
 		update(/*dt*/) {
 			this.tick()
 			this.y += this.vy + game.speed;
 			this.x += this.vx;
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 			if (this.outOfBoundsV()) {
 				this.x = randInt(canvas.width)
 				this.y = 0 - randInt(canvas.height)
+				this.collider.colliding = false
 			}
 		},
 		draw() {
@@ -75,6 +81,16 @@ const asteroid = () => {
 
 			}
 		},
+		onHit() {
+			this.dead = true;
+			// console.log("game:", game)
+			explode({
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				styles: ["white", "white", "#FFFF00", "#00FFFF", "#FF00FF"],
+				size: 10
+			})
+		}
 	}
 };
 
@@ -87,6 +103,7 @@ export const asteroids = () => {
 			this.asteroids.forEach((x) => x.spawn())
 		},
 		update(dt) {
+			this.asteroids = this.asteroids.filter((b) => { return b.dead !== true })
 			this.asteroids.forEach((x) => x.update(dt))
 		},
 		draw() {

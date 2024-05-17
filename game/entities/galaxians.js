@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
-import { makeN } from "./entity.js";
+import { explode } from "./explosions.js";
 import { shot } from "./shot.js";
 
 let maxShots = 4
@@ -15,6 +15,14 @@ const galaxian = () => {
 		rotation: Math.random() * 10,
 		width: 56,
 		height: 56,
+		collider: {
+			type: "circle",
+			ox: (9.5 + 23.5) * 56 / 66,
+			oy: (11 + 23.5) * 56 / 66,
+			r: (23.5) * 56 / 66,
+			colliding: false
+		},
+
 		imageS1: new Image(),
 		imageS2: new Image(),
 		imageS3: new Image(),
@@ -100,9 +108,9 @@ const galaxian = () => {
 				newshot.spawn({ atx: this.x + this.width / 2, aty: this.y, shooter: this })
 			}
 		},
-		removeShot() {
-			delete (this.shot)
-		},
+		// removeShot() {
+		// 	delete (this.shot)
+		// },
 		update(/*dt*/) {
 			this.tick()
 			this.y += this.vy + game.speed;
@@ -117,6 +125,9 @@ const galaxian = () => {
 			else { this.vx = 0 }
 
 			this.x += this.vx
+
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 
 			if (this.outOfBoundsV()) {
 				this.x = randInt(canvas.width)
@@ -172,6 +183,16 @@ const galaxian = () => {
 				}
 			}
 		},
+		onHit() {
+			this.dead = true
+			explode({
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				styles: ["white", "white", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#272DFF", "#272DFF", "#DFDF10"],
+				size: 8,
+			})
+
+		}
 	}
 };
 
@@ -180,13 +201,21 @@ export const galaxians = () => {
 	return {
 		galaxians: [],
 		noShots: 0,
+		spawnSingle({ ship }) {
+			let x = galaxian()
+			this.galaxians.push(x)
+			x.spawn({ ship: ship })
+		},
 		spawn({ ship }) {
-			this.galaxians = makeN(galaxian, 4)
-			this.galaxians.forEach((x) => x.spawn({ ship: ship }))
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
 		},
 		update(dt) {
-			this.galaxians.forEach((x) => x.update(dt))
 			shots = shots.filter((b) => { return b.dead !== true })
+			this.galaxians = this.galaxians.filter((b) => { return b.dead !== true })
+			this.galaxians.forEach((x) => x.update(dt))
 			shots.forEach((s) => s.update())
 			this.noShots = shots.length
 		},

@@ -35,7 +35,7 @@ export const shot = () => {
 				this.y = 0
 				this.vy = 0
 				this.dead = true
-				this.shooter.removeShot()
+				// this.shooter.removeShot()
 			} else
 				this.y += this.vy + game.speed;
 		},
