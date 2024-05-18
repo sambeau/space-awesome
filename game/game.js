@@ -13,6 +13,7 @@ canvas.height = window.screen.availHeight - 32;
 
 export const ctx = canvas.getContext("2d");
 export const game = {
+	score: 0,
 	speed: 1,
 	particles: null
 }
@@ -74,13 +75,15 @@ const gameLoop = (dt) => {
 	if (debug) {
 		const noStars = stars.stars1.length + stars.stars2.length + stars.stars3.length
 		const noGalaxians = galaxians.galaxians.length
-		const noShots = galaxians.noShots < 10 ? "0" + galaxians.noShots : galaxians.noShots
+		const noShots = galaxians.noShots.toString().padStart(2, "0")
 		const noDefenders = defenders.defenders.length
 		const noMines = mines.mines.length
 		const noAsteroids = asteroids.asteroids.length
-		const noBullets = ship.bullets.length < 10 ? "0" + ship.bullets.length : ship.bullets.length
+		const noBullets = ship.bullets.length.toString().padStart(2, "0")
 		const noGuns = ship.guns
 		const fps = (1000 / frameTime).toFixed(0) + " fps"
+		const score = game.score.toString().padStart(8, "0")
+		const noParticles = game.particles.noParticles.toString().padStart(4, "0")
 
 		ctx.font = "16px sans-serif";
 		ctx.fillStyle = "#00ff00";
@@ -93,6 +96,16 @@ const gameLoop = (dt) => {
 		ctx.fillText(`${fps}`, 14, 28);
 		ctx.beginPath();
 		ctx.roundRect(6, 6, 64, 32, 8);
+		ctx.stroke();
+
+		ctx.fillText(`Particles: ${noParticles}`, 14, 70);
+		ctx.beginPath();
+		ctx.roundRect(6, 50, 124, 32, 8);
+		ctx.stroke();
+
+		ctx.fillText(`Score: ${score}`, 150, 70);
+		ctx.beginPath();
+		ctx.roundRect(140, 50, 142, 32, 8);
 		ctx.stroke();
 
 		if (showColliders) {
@@ -165,12 +178,12 @@ const main = () => {
 				case "KeyA":
 				case "ArrowLeft":
 					// Handle "turn left"
-					ship.turn = -10
+					ship.turn = -15 //move to ship
 					break;
 				case "KeyD":
 				case "ArrowRight":
 					// Handle "turn right"
-					ship.turn = 10
+					ship.turn = 15 //move to ship
 					break;
 				case "Space":
 					ship.fire()

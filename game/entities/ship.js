@@ -152,8 +152,8 @@ export const spaceship = () => {
 				this.vy = 0
 			}
 			if (this.flameOn) {
-				this.vy = -3
-				if (game.speed < 10) game.speed *= 1.025
+				this.vy = -5
+				if (game.speed < 15) game.speed *= 1.033
 			} else {
 				this.vy = 4
 				if (game.speed > 1) game.speed *= 0.99

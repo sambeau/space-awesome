@@ -46,6 +46,7 @@ export const Particle = () => {
 export const Particles = () => {
 	return {
 		particles: [],
+		noParticles: 0,
 		spawnSingle({ x, y, width, height, vx, vy, lifespan, style }) {
 			const particle = Particle()
 			this.particles.push(particle)

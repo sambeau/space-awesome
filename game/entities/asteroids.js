@@ -5,6 +5,7 @@ import { explode } from "./explosions.js";
 
 const asteroid = () => {
 	return {
+		score: 100,
 		x: 0,
 		y: 0,
 		vx: Math.random() - 0.5,
@@ -83,7 +84,7 @@ const asteroid = () => {
 		},
 		onHit() {
 			this.dead = true;
-			// console.log("game:", game)
+			game.score += this.score
 			explode({
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,

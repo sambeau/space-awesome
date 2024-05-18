@@ -6,6 +6,7 @@ import { explode } from "./explosions.js";
 
 const mine = () => {
 	return {
+		score: 1000,
 		x: 0,
 		y: 0,
 		vx: Math.random() - 0.5,
@@ -96,6 +97,7 @@ const mine = () => {
 		},
 		onHit() {
 			this.dead = true
+			game.score += this.score
 			explode({
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,
