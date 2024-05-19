@@ -2,6 +2,7 @@
 import { asteroids as Asteroids } from "./entities/asteroids.js";
 import { defenders as Defenders } from "./entities/defenders.js";
 import { galaxians as Galaxians } from "./entities/galaxians.js";
+import { Hud } from "./entities/hud.js";
 import { mines as Mines } from "./entities/mines.js";
 import { Particles } from "./entities/particles.js";
 import { spaceship as Spaceship } from "./entities/ship.js";
@@ -11,12 +12,26 @@ export const canvas = document.getElementById("canvas");
 canvas.width = window.screen.availWidth - 32;
 canvas.height = window.screen.availHeight - 32;
 
+
 export const ctx = canvas.getContext("2d");
 export const game = {
 	score: 0,
 	speed: 1,
-	particles: null
+	particles: null,
+	fontLoaded: false,
 }
+
+let font1 = new FontFace("Robotron", "url(fonts/WilliamsRobotron.woff2)");
+let font2 = new FontFace("Defender", "url(fonts/Defender.woff2)");
+
+font1.load().then(() => {
+	document.fonts.add(font1);
+	font2.load().then(() => {
+		document.fonts.add(font2);
+		console.log('Fonts loaded');
+		game.fontLoaded = true
+	});
+});
 
 let raf;
 let debug = false
@@ -28,6 +43,7 @@ let asteroids
 let mines
 let defenders
 let galaxians
+let hud
 
 let score = 0
 
@@ -50,6 +66,7 @@ const gameLoop = (dt) => {
 	galaxians.update(dt)
 	ship.update(dt)
 	game.particles.update(dt)
+	hud.update(dt)
 
 	// clear
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -71,6 +88,7 @@ const gameLoop = (dt) => {
 	galaxians.draw()
 	ship.draw()
 	game.particles.draw()
+	hud.draw()
 
 	if (debug) {
 		const noStars = stars.stars1.length + stars.stars2.length + stars.stars3.length
@@ -85,29 +103,30 @@ const gameLoop = (dt) => {
 		const score = game.score.toString().padStart(8, "0")
 		const noParticles = game.particles.noParticles.toString().padStart(4, "0")
 
-		ctx.font = "16px sans-serif";
-		ctx.fillStyle = "#00ff00";
-		ctx.fillText(`Stars: ${noStars} | Galaxians: ${noGalaxians} | Defenders: ${noDefenders} | Mines: ${noMines} | Asteroids: ${noAsteroids} | Bullets: ${noBullets} | Shots: ${noShots} | Guns: ${noGuns}`, 88, 28);
-		ctx.strokeStyle = "#00ff00";
-		ctx.beginPath();
-		ctx.roundRect(80, 6, 708, 32, 8);
-		ctx.stroke();
+		if (game.fontLoaded) {
+			ctx.font = "16px sans-serif";
+			ctx.fillStyle = "#00ff00";
+			ctx.fillText(`Stars: ${noStars} | Galaxians: ${noGalaxians} | Defenders: ${noDefenders} | Mines: ${noMines} | Asteroids: ${noAsteroids} | Bullets: ${noBullets} | Shots: ${noShots} | Guns: ${noGuns}`, 88, 28);
+			ctx.strokeStyle = "#00ff00";
+			ctx.beginPath();
+			ctx.roundRect(80, 6, 708, 32, 8);
+			ctx.stroke();
 
-		ctx.fillText(`${fps}`, 14, 28);
-		ctx.beginPath();
-		ctx.roundRect(6, 6, 64, 32, 8);
-		ctx.stroke();
+			ctx.fillText(`${fps}`, 14, 28);
+			ctx.beginPath();
+			ctx.roundRect(6, 6, 64, 32, 8);
+			ctx.stroke();
 
-		ctx.fillText(`Particles: ${noParticles}`, 14, 70);
-		ctx.beginPath();
-		ctx.roundRect(6, 50, 124, 32, 8);
-		ctx.stroke();
+			ctx.fillText(`Particles: ${noParticles}`, 14, 70);
+			ctx.beginPath();
+			ctx.roundRect(6, 50, 124, 32, 8);
+			ctx.stroke();
 
-		ctx.fillText(`Score: ${score}`, 150, 70);
-		ctx.beginPath();
-		ctx.roundRect(140, 50, 142, 32, 8);
-		ctx.stroke();
-
+			ctx.fillText(`Score: ${score}`, 150, 70);
+			ctx.beginPath();
+			ctx.roundRect(140, 50, 142, 32, 8);
+			ctx.stroke();
+		}
 		if (showColliders) {
 			ctx.fillStyle = "rgba(0,255,0,0.5)";
 			ctx.lineWidth = 2;
@@ -157,6 +176,9 @@ const main = () => {
 
 	galaxians = Galaxians()
 	galaxians.spawn({ ship: ship })
+
+	hud = Hud()
+	hud.init()
 
 	window.addEventListener(
 		"keydown",
@@ -210,6 +232,9 @@ const main = () => {
 					break;
 				case "KeyQ":
 					galaxians.spawnSingle({ ship: ship })
+					break;
+				case "Slash":
+					ship.boostShields()
 					break;
 			}
 		}

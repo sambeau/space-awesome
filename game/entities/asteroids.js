@@ -1,10 +1,32 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
-import { makeN } from "./entity.js";
 import { explode } from "./explosions.js";
+
+let numImagesLoaded = 0
+const image = {}
+const asteroidSizes = ['S', 'M', 'L']
+const asteroidColors = [0, 1, 2]
+const allAsteroidsLoadedCount = asteroidSizes.length * asteroidColors.length
+
+asteroidSizes.forEach((s) => {
+	console.log(s)
+	image[s] = []
+	asteroidColors.forEach((i) => {
+		image[s][i] = new Image()
+		image[s][i].onload = () => { numImagesLoaded++ }
+		image[s][i].src = `images/asteroid-${s}-${i + 1}.png`
+	})
+})
+
+const colliders = {
+	S: { type: "circle", ox: 21 / 2 + 21.5, oy: 23 / 2 + 3, r: 21 / 2, colliding: false },
+	M: { type: "circle", ox: 40.43 / 2 + 11.79, oy: 40.43 / 2 + 13.29, r: 40.43 / 2, colliding: false },
+	L: { type: "circle", ox: 60 / 2 + 3, oy: 60 / 2 + 3, r: 60 / 2, colliding: false },
+}
 
 const asteroid = () => {
 	return {
+		asteroids: null,
 		score: 100,
 		x: 0,
 		y: 0,
@@ -13,13 +35,8 @@ const asteroid = () => {
 		rotation: Math.random() * 10,
 		width: 64,
 		height: 64,
-		collider: { type: "circle", ox: 33, oy: 33, r: 30, colliding: false },
-		image1: new Image(),
-		image2: new Image(),
-		image3: new Image(),
-		image1Loaded: false,
-		image2Loaded: false,
-		image3Loaded: false,
+		size: 'L',
+		collider: null,
 		ticks: 0,
 		tick() {
 			this.ticks += 1
@@ -31,17 +48,25 @@ const asteroid = () => {
 			if (this.y > canvas.height + this.height) return true
 			return false;
 		},
-		spawn() {
-			this.image1.src = "images/asteroid1.png"
-			this.image2.src = "images/asteroid2.png"
-			this.image3.src = "images/asteroid3.png"
-			this.x = randInt(canvas.width)
-			this.y = 0 - randInt(canvas.height)
+		spawn({ asteroids, size, x, y, vx, vy }) {
+			this.asteroids = asteroids
+
+			if (size) this.size = size
+			this.collider = { ...colliders[this.size] }
+
+			if (x) this.x = x
+			else
+				this.x = randInt(canvas.width)
+
+			if (y) this.y = y
+			else
+				this.y = 0 - randInt(canvas.height)
+
+			if (vx) this.vx = vx
+			if (vy) this.vy = vy
+
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
-			this.image1.onload = () => { this.image1Loaded = true }
-			this.image2.onload = () => { this.image2Loaded = true }
-			this.image3.onload = () => { this.image3Loaded = true }
 		},
 		update(/*dt*/) {
 			this.tick()
@@ -57,10 +82,7 @@ const asteroid = () => {
 		},
 		draw() {
 
-			if (this.image1Loaded
-				&& this.image2Loaded
-				&& this.image3Loaded
-			) {
+			if (numImagesLoaded >= allAsteroidsLoadedCount) {
 				const canvas = document.createElement("canvas")
 				canvas.width = this.width;
 				canvas.height = this.height;
@@ -70,26 +92,66 @@ const asteroid = () => {
 				context.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
 				context.translate(0 - (this.width / 2), 0 - (this.height / 2))
 
-				let tick = (this.ticks % 48) / 16
-				if (tick < 1)
-					context.drawImage(this.image1, 0, 0, this.width + 0, this.height + 0)
-				else if (tick < 2)
-					context.drawImage(this.image2, 0, 0, this.width + 0, this.height + 0)
-				else
-					context.drawImage(this.image3, 0, 0, this.width + 0, this.height + 0)
+				let tick = Math.floor((this.ticks % 48) / 16)
+				context.drawImage(image[this.size][tick], 0, 0, this.width + 0, this.height + 0)
 
 				ctx.drawImage(canvas, this.x - 0, this.y - 0, this.width, this.height)
-
 			}
 		},
 		onHit() {
 			this.dead = true;
 			game.score += this.score
+			let explosionSize = 0
+			switch (this.size) {
+				case 'L':
+					explosionSize = 11
+					this.asteroids.spawnSingle({
+						size: 'M',
+						x: this.x,
+						y: this.y,
+						vx: Math.random() - 2,
+						vy: this.vy + 2,
+					})
+					this.asteroids.spawnSingle({
+						size: 'M',
+						x: this.x,
+						y: this.y,
+						vx: Math.random() + 2,
+						vy: this.vy + 2,
+					})
+					break;
+				case 'M':
+					explosionSize = 7
+					this.asteroids.spawnSingle({
+						size: 'S',
+						x: this.x,
+						y: this.y,
+						vx: Math.random() + 2,
+						vy: this.vy + 2,
+					})
+					this.asteroids.spawnSingle({
+						size: 'S',
+						x: this.x,
+						y: this.y,
+						vx: Math.random() - 2,
+						vy: this.vy + 2,
+					})
+					this.asteroids.spawnSingle({
+						size: 'S',
+						x: this.x,
+						y: this.y,
+						vx: Math.random(),
+						vy: this.vy + 2,
+					})
+					break;
+				case 'S':
+					explosionSize = 5
+			}
 			explode({
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,
 				styles: ["white", "white", "#FFFF00", "#00FFFF", "#FF00FF"],
-				size: 10
+				size: explosionSize,
 			})
 		}
 	}
@@ -99,9 +161,16 @@ const asteroid = () => {
 export const asteroids = () => {
 	return {
 		asteroids: [],
+		spawnSingle({ size, x, y, vx, vy }) {
+			let a = asteroid()
+			this.asteroids.push(a)
+			a.spawn({ asteroids: this, size: size, x: x, y: y, vx: vx, vy: vy })
+		},
 		spawn() {
-			this.asteroids = makeN(asteroid, 4)
-			this.asteroids.forEach((x) => x.spawn())
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
 		},
 		update(dt) {
 			this.asteroids = this.asteroids.filter((b) => { return b.dead !== true })

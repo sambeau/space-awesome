@@ -3,6 +3,46 @@ import { randInt } from "../utils.js";
 import { bullet } from "./bullet.js";
 import { collisionBetweenCircles } from "./entity.js";
 
+const shield = () => {
+	return {
+		x: 0,
+		y: 0,
+		offset: 50,
+		width: 0,
+		height: 0,
+		image: new Image(),
+		imageLoaded: false,
+		ticker: 0,
+		tick() {
+			this.ticker++
+			if (this.ticker == 30) {
+				this.ticker = 0
+				this.offset--
+				if (this.offset < 0) this.offset = 0
+
+			}
+		},
+		spawn({ height }) {
+			this.width = height
+			this.height = height
+			this.image.onload = () => {
+				this.imageLoaded = true
+			}
+			this.image.src = "images/shield.png"
+		},
+		update({ parentCX, parentCY, health }) {
+			this.tick()
+			this.x = parentCX - this.width / 2 - this.offset
+			this.y = parentCY - this.height / 2 - this.offset
+		},
+		draw() {
+			ctx.save()
+			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.offset / 50
+			ctx.drawImage(this.image, this.x, this.y, this.width + this.offset * 2, this.height + this.offset * 2);
+			ctx.restore()
+		},
+	}
+}
 const flames = () => {
 	return {
 		x: 0,
@@ -78,6 +118,7 @@ export const spaceship = () => {
 		guns: 1,
 		maxbullets: 10,
 		bullets: [],
+		shield: shield(),
 		spawn() {
 			this.width = 50
 			this.height = 64
@@ -93,10 +134,17 @@ export const spaceship = () => {
 			this.image1.src = "images/ship-l-1.png"
 			this.image2.src = "images/ship-l-2.png"
 			this.image3.src = "images/ship-l-3.png"
+
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
+
 			this.flames.spawn({ offsetx: 17.25, offsety: 55.5 })
 			this.heightWithFlame = canvas.height - this.flames.height
+
+			this.shield.spawn({ height: this.height })
+		},
+		boostShields() {
+			this.shield.offset += 25
 		},
 		fire() {
 			if ((this.guns == 1 || this.guns == 3) && this.bullets.length < this.maxbullets) {
@@ -171,10 +219,32 @@ export const spaceship = () => {
 			this.x += this.vx;
 
 			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
+
+			this.shield.update({
+				parentCX: this.x + (this.width / 2),
+				parentCY: this.y + (this.height / 2),
+				health: 1000,
+			})
+
 			this.bullets = this.bullets.filter((b) => { return b.dead !== true })
 			this.bullets.forEach((b) => b.update())
 		},
 		draw() {
+			// draw shields
+			// ctx.save()
+			// ctx.setLineDash([4,10]);
+			// ctx.lineWidth = 2;
+			// ctx.strokeStyle = "#ffffffff";
+			// ctx.beginPath();
+			// ctx.arc(this.x + this.width / 2, this.y + this.height / 2, (this.width / 2) + 40, 0, 2 * Math.PI);
+			// ctx.stroke();
+			// ctx.restore()
+			// if (Math.random() > 0.1) {
+			// 	ctx.fillStyle = "#6666ff66";
+			// 	ctx.fill();
+			// }
+
+			// draw ship
 			if (this.image1Loaded && this.image2Loaded && this.image3Loaded) {
 				this.bullets.forEach((b) => b.draw())
 				if (this.flameOn)
@@ -187,6 +257,9 @@ export const spaceship = () => {
 
 				this.flames.draw()
 			}
+			// draw shield
+			this.shield.draw()
+
 		},
 		collide(entities) {
 			// console.log(entities)
