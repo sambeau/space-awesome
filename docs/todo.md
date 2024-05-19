@@ -22,7 +22,7 @@
 - [ ] Mother Ship
 	- [ ] Fire round bombs at angles
 	- [ ] Shields
-- [ ] Shrinking Asteroids
+- [x] Shrinking Asteroids
 - [ ] Pods & Swarmers
 - [ ] Levels
 - [ ] Sound

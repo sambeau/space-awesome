@@ -188,21 +188,17 @@ const main = () => {
 			}
 			console.log(event.code)
 			switch (event.code) {
-				case "KeyS":
 				case "ArrowDown":
 					ship.fire()
 					break;
-				case "KeyW":
 				case "ArrowUp":
 					// Handle "forward"
 					ship.flameOn = true
 					break;
-				case "KeyA":
 				case "ArrowLeft":
 					// Handle "turn left"
 					ship.turn = -15 //move to ship
 					break;
-				case "KeyD":
 				case "ArrowRight":
 					// Handle "turn right"
 					ship.turn = 15 //move to ship
@@ -229,6 +225,9 @@ const main = () => {
 				case "KeyZ":
 					if (showColliders) showColliders = false
 					else showColliders = true
+					break;
+				case "KeyW":
+					asteroids.spawnSingle({})
 					break;
 				case "KeyQ":
 					galaxians.spawnSingle({ ship: ship })

@@ -19,7 +19,7 @@ asteroidSizes.forEach((s) => {
 })
 
 const colliders = {
-	S: { type: "circle", ox: 21 / 2 + 21.5, oy: 23 / 2 + 3, r: 21 / 2, colliding: false },
+	S: { type: "circle", ox: 21 / 2 + 21.5, oy: 21 / 2 + 23, r: 21 / 2, colliding: false },
 	M: { type: "circle", ox: 40.43 / 2 + 11.79, oy: 40.43 / 2 + 13.29, r: 40.43 / 2, colliding: false },
 	L: { type: "circle", ox: 60 / 2 + 3, oy: 60 / 2 + 3, r: 60 / 2, colliding: false },
 }
@@ -136,13 +136,13 @@ const asteroid = () => {
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
 					})
-					this.asteroids.spawnSingle({
-						size: 'S',
-						x: this.x,
-						y: this.y,
-						vx: Math.random(),
-						vy: this.vy + 2,
-					})
+					// this.asteroids.spawnSingle({
+					// 	size: 'S',
+					// 	x: this.x,
+					// 	y: this.y,
+					// 	vx: Math.random(),
+					// 	vy: this.vy + 2,
+					// })
 					break;
 				case 'S':
 					explosionSize = 5
