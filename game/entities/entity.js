@@ -12,4 +12,3 @@ export function distanceBetweenCircles(x1, y1, x2, y2) {
 export function collisionBetweenCircles(x1, y1, r1, x2, y2, r2) {
 	return (distanceBetweenCircles(x1, y1, x2, y2) < r1 + r2)
 }
-

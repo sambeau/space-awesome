@@ -9,10 +9,12 @@ const flashes = 12
 const smartBombImage1 = new Image()
 const smartBombImage2 = new Image()
 const smartBombImage3 = new Image()
+const smartBombImage4 = new Image()
 
 smartBombImage1.src = "/images/smart-1.png"
 smartBombImage2.src = "/images/smart-2.png"
-smartBombImage2.src = "/images/smart-3.png"
+smartBombImage3.src = "/images/smart-3.png"
+smartBombImage4.src = "/images/smart-4.png"
 
 const smartBomb = () => {
 	return {
@@ -70,9 +72,8 @@ const smartBomb = () => {
 				ctx.restore()
 			}
 			if (this.dead) return
-
 			let image
-			image = pick([smartBombImage1, smartBombImage2, smartBombImage3])
+			image = pick([smartBombImage1, smartBombImage2, smartBombImage3, smartBombImage4])
 
 			ctx.drawImage(image, this.cx - this.width / 2, this.cy - this.height / 2, this.width, this.height)
 		}
