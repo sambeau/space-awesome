@@ -192,8 +192,11 @@ export const spaceship = () => {
 		break: false,
 		flickerCounter: 0,
 		turn: 0,
+		firing: false,
+		firingRate: 60 / 12,
 		guns: 1,
-		maxbullets: 10,
+		maxbullets: 12,
+		firingTicker: 0,
 		bullets: [],
 		shield: shield(),
 		smartBomb: smartBomb(),
@@ -240,6 +243,12 @@ export const spaceship = () => {
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
 			}
+		},
+		stopFiring() {
+			this.firing = false
+		},
+		startFiring() {
+			this.firing = true
 		},
 		removeBullet() {
 			delete (this.bullet)
@@ -319,6 +328,12 @@ export const spaceship = () => {
 				shipCX: this.x + this.width / 2,
 				shipCY: this.y + this.height / 2
 			})
+			this.firingTicker++
+			if ((this.firingTicker == this.firingRate)) {
+				this.firingTicker = 0
+				if (this.firing)
+					this.fire()
+			}
 		},
 		draw() {
 			// draw ship

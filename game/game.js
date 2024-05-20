@@ -211,8 +211,8 @@ const main = () => {
 					// Handle "turn right"
 					ship.turn = 15 //move to ship
 					break;
-				case "Space":
-					ship.fire()
+				case "KeyX":
+					ship.startFiring()
 					break;
 				case "Digit1":
 					console.log("guns 1")
@@ -243,7 +243,7 @@ const main = () => {
 				case "Slash":
 					ship.boostShields()
 					break;
-				case "KeyX":
+				case "Space":
 					ship.fireSmartBomb()
 					break;
 			}
@@ -259,9 +259,6 @@ const main = () => {
 
 			switch (event.code) {
 				case "ArrowDown":
-					// Handle "back"
-					break;
-				case "ArrowDown":
 					ship.break = false
 				case "ArrowUp":
 					// Handle "forward"
@@ -275,9 +272,9 @@ const main = () => {
 					// Handle "turn right"
 					ship.turn = 0
 					break;
-				// case " ":
-				// 	// Handle "fire!"
-				// 	break;
+				case "KeyX":
+					ship.stopFiring()
+					break;
 			}
 		},
 		true
