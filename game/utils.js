@@ -5,15 +5,21 @@ export function randInt(n) {
 export function pick(xs) {
 	return xs[randInt(xs.length)]
 }
-export function rotate(xs) {
+export function picker(xs) {
 	return {
 		xs: xs,
 		ticker: 0,
+		first() {
+			return xs[0]
+		},
 		next() {
 			this.ticker++
-			if (this.ticker == xs.length - 1)
+			if (this.ticker == xs.length)
 				this.ticker = 0
-			return xs[this.ticker]
+			return this.xs[this.ticker]
+		},
+		any() {
+			return pick(this.xs)
 		}
 	}
 }

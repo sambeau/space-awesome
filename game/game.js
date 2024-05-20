@@ -5,6 +5,7 @@ import { galaxians as Galaxians } from "./entities/galaxians.js";
 import { Hud } from "./entities/hud.js";
 import { mines as Mines } from "./entities/mines.js";
 import { Particles } from "./entities/particles.js";
+import { Powerups } from "./entities/powerups.js";
 import { spaceship as Spaceship } from "./entities/ship.js";
 import { starfield as Starfield } from "./entities/stars.js";
 
@@ -30,7 +31,6 @@ font1.load().then(() => {
 	document.fonts.add(font1);
 	font2.load().then(() => {
 		document.fonts.add(font2);
-		console.log('Fonts loaded');
 		game.fontLoaded = true
 	});
 });
@@ -42,6 +42,7 @@ let asteroids
 let mines
 let defenders
 let galaxians
+let powerups
 let hud
 
 let score = 0
@@ -58,6 +59,7 @@ const gameLoop = (dt) => {
 	ship.collide(mines.mines)
 
 	// update
+	powerups.update(dt)
 	stars.update(dt)
 	asteroids.update(dt)
 	mines.update(dt)
@@ -88,6 +90,7 @@ const gameLoop = (dt) => {
 	mines.draw()
 	defenders.draw()
 	galaxians.draw()
+	powerups.draw()
 	ship.draw()
 	game.particles.draw()
 	hud.draw()
@@ -142,6 +145,7 @@ const gameLoop = (dt) => {
 				galaxians.galaxians,
 				mines.mines,
 				defenders.defenders,
+				powerups.poerups,
 			].forEach((ent) => {
 				ent.forEach((e) => {
 					ctx.beginPath();
@@ -184,6 +188,9 @@ const main = () => {
 	galaxians = Galaxians()
 	galaxians.spawn({ ship: ship })
 
+	powerups = Powerups()
+	powerups.spawn({ ship: ship })
+
 	hud = Hud()
 	hud.init()
 
@@ -193,7 +200,7 @@ const main = () => {
 			if (event.defaultPrevented) {
 				return; // Do nothing if event already handled
 			}
-			console.log(event.code)
+			// console.log(event.code)
 			switch (event.code) {
 				case "ArrowDown":
 					ship.flameOn = false
@@ -211,7 +218,7 @@ const main = () => {
 					// Handle "turn right"
 					ship.turn = 15 //move to ship
 					break;
-				case "KeyX":
+				case "Space":
 					ship.startFiring()
 					break;
 				case "Digit1":
@@ -243,7 +250,7 @@ const main = () => {
 				case "Slash":
 					ship.boostShields()
 					break;
-				case "Space":
+				case "Enter":
 					ship.fireSmartBomb()
 					break;
 			}
@@ -272,7 +279,7 @@ const main = () => {
 					// Handle "turn right"
 					ship.turn = 0
 					break;
-				case "KeyX":
+				case "Space":
 					ship.stopFiring()
 					break;
 			}

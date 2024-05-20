@@ -9,7 +9,6 @@ const asteroidColors = [0, 1, 2]
 const allAsteroidsLoadedCount = asteroidSizes.length * asteroidColors.length
 
 asteroidSizes.forEach((s) => {
-	console.log(s)
 	image[s] = []
 	asteroidColors.forEach((i) => {
 		image[s][i] = new Image()
@@ -108,9 +107,6 @@ const asteroid = () => {
 				context.drawImage(image[this.size][tick], 0, 0, this.width + 0, this.height + 0)
 
 				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
-
-				ctx.font = "16px San-serif"
-				ctx.fillText(`(${Math.floor(this.x)},${Math.floor(this.y)})`, this.x, this.y - 4);
 
 				if (this.outOfBoundsL())
 					ctx.fillRect(this.x, this.y, this.width, this.height)
