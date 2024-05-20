@@ -19,8 +19,8 @@ asteroidSizes.forEach((s) => {
 })
 
 const colliders = {
-	S: { type: "circle", ox: 21 / 2 + 21.5, oy: 21 / 2 + 23, r: 21 / 2, colliding: false },
-	M: { type: "circle", ox: 40.43 / 2 + 11.79, oy: 40.43 / 2 + 13.29, r: 40.43 / 2, colliding: false },
+	S: { type: "circle", ox: 21 / 2 + 20.5, oy: 21 / 2 + 21, r: 25 / 2, colliding: false },
+	M: { type: "circle", ox: 40.43 / 2 + 11.5, oy: 40.43 / 2 + 12, r: 43 / 2, colliding: false },
 	L: { type: "circle", ox: 60 / 2 + 3, oy: 60 / 2 + 3, r: 60 / 2, colliding: false },
 }
 
@@ -46,6 +46,14 @@ const asteroid = () => {
 		},
 		outOfBoundsV() {
 			if (this.y > canvas.height + this.height) return true
+			return false;
+		},
+		outOfBoundsL() {
+			if (this.x + this.width < 0) return true
+			return false;
+		},
+		outOfBoundsR() {
+			if (this.x > canvas.width) return true
 			return false;
 		},
 		spawn({ asteroids, size, x, y, vx, vy }) {
@@ -76,9 +84,13 @@ const asteroid = () => {
 			this.collider.y = this.y + this.collider.oy
 			if (this.outOfBoundsV()) {
 				this.x = randInt(canvas.width)
-				this.y = 0 - randInt(canvas.height)
+				this.y = 0 - randInt(canvas.height / 2)
 				this.collider.colliding = false
 			}
+			if (this.outOfBoundsL())
+				this.x = canvas.width
+			if (this.outOfBoundsR())
+				this.x = 0 - this.width
 		},
 		draw() {
 
@@ -95,7 +107,13 @@ const asteroid = () => {
 				let tick = Math.floor((this.ticks % 48) / 16)
 				context.drawImage(image[this.size][tick], 0, 0, this.width + 0, this.height + 0)
 
-				ctx.drawImage(canvas, this.x - 0, this.y - 0, this.width, this.height)
+				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
+
+				ctx.font = "16px San-serif"
+				ctx.fillText(`(${Math.floor(this.x)},${Math.floor(this.y)})`, this.x, this.y - 4);
+
+				if (this.outOfBoundsL())
+					ctx.fillRect(this.x, this.y, this.width, this.height)
 			}
 		},
 		onHit() {

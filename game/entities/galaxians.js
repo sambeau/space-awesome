@@ -102,6 +102,14 @@ const galaxian = () => {
 			if (this.y > canvas.height + this.height) return true
 			return false;
 		},
+		outOfBoundsL() {
+			if (this.x + this.width < 0) return true
+			return false;
+		},
+		outOfBoundsR() {
+			if (this.x > canvas.width) return true
+			return false;
+		},
 		fire() {
 			if (shots.length < maxShots) {
 				let newshot = shot()
@@ -134,6 +142,10 @@ const galaxian = () => {
 				this.x = randInt(canvas.width)
 				this.y = 0 - randInt(canvas.height)
 			}
+			if (this.outOfBoundsL())
+				this.x = canvas.width
+			if (this.outOfBoundsR())
+				this.x = 0 - this.width
 		},
 		draw() {
 

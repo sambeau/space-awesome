@@ -1,13 +1,89 @@
 import { ctx, game } from "../game.js";
-import { randInt } from "../utils.js";
+import { pick, randInt } from "../utils.js";
 import { bullet } from "./bullet.js";
 import { collisionBetweenCircles } from "./entity.js";
+
+const smartBombRadius = 500
+const flashes = 12
+
+const smartBombImage1 = new Image()
+const smartBombImage2 = new Image()
+const smartBombImage3 = new Image()
+
+smartBombImage1.src = "/images/smart-1.png"
+smartBombImage2.src = "/images/smart-2.png"
+smartBombImage2.src = "/images/smart-3.png"
+
+const smartBomb = () => {
+	return {
+		dead: true,
+		cx: 0,
+		cy: 0,
+		width: smartBombRadius * 2,
+		height: smartBombRadius * 2,
+		collider: {
+			type: "circle",
+			ox: smartBombRadius,
+			oy: smartBombRadius,
+			r: smartBombRadius,
+			colliding: false
+		},
+		charges: 50,
+		ticker: 0,
+		tick() {
+			this.ticker++
+			if (this.ticker == flashes) {
+				this.dead = true
+			}
+		},
+		fire({ shipCX, shipCY }) {
+			//only one at a time
+			if (!this.dead)
+				return
+			// do we have a bomb ready?
+			if (this.charges < 1)
+				return
+
+			this.charges--
+			this.dead = false
+			this.cx = shipCX
+			this.cy = shipCY
+			this.ticker = 0
+		},
+		update({ shipCX, shipCY }) {
+			this.cx = shipCX
+			this.cy = shipCY
+
+			this.collider.x = this.cx
+			this.collider.y = this.cy
+
+			if (this.dead) return
+			this.tick()
+		},
+		draw() {
+			if (game.showColliders) { // show even when not firing
+				ctx.save()
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = "#00ff00";
+				ctx.arc(this.collider.x, this.collider.y, this.collider.r, 0, 2 * Math.PI);
+				ctx.stroke()
+				ctx.restore()
+			}
+			if (this.dead) return
+
+			let image
+			image = pick([smartBombImage1, smartBombImage2, smartBombImage3])
+
+			ctx.drawImage(image, this.cx - this.width / 2, this.cy - this.height / 2, this.width, this.height)
+		}
+	}
+}
 
 const shield = () => {
 	return {
 		x: 0,
 		y: 0,
-		offset: 50,
+		offset: 0, //50
 		width: 0,
 		height: 0,
 		image: new Image(),
@@ -19,7 +95,6 @@ const shield = () => {
 				this.ticker = 0
 				this.offset--
 				if (this.offset < 0) this.offset = 0
-
 			}
 		},
 		spawn({ height }) {
@@ -30,10 +105,11 @@ const shield = () => {
 			}
 			this.image.src = "images/shield.png"
 		},
-		update({ parentCX, parentCY, health }) {
+		update({ shipCX, shipCY, health }) {
 			this.tick()
-			this.x = parentCX - this.width / 2 - this.offset
-			this.y = parentCY - this.height / 2 - this.offset
+			this.x = shipCX - this.width / 2 - this.offset
+			this.y = shipCY - this.height / 2 - this.offset
+
 		},
 		draw() {
 			ctx.save()
@@ -113,12 +189,14 @@ export const spaceship = () => {
 		image3Loaded: false,
 		flames: flames(),
 		flameOn: false,
+		break: false,
 		flickerCounter: 0,
 		turn: 0,
 		guns: 1,
 		maxbullets: 10,
 		bullets: [],
 		shield: shield(),
+		smartBomb: smartBomb(),
 		spawn() {
 			this.width = 50
 			this.height = 64
@@ -166,6 +244,9 @@ export const spaceship = () => {
 		removeBullet() {
 			delete (this.bullet)
 		},
+		fireSmartBomb() {
+			this.smartBomb.fire({ x: this.x + this.width / 2, y: this.y + this.height / 2 })
+		},
 		flicker() {
 			this.flickerCounter += 1
 			if (this.flickerCounter === 10)
@@ -198,13 +279,19 @@ export const spaceship = () => {
 			} else if (this.outOfBoundsBottom()) {
 				this.y = this.heightWithFlame
 				this.vy = 0
+				this.break = false
 			}
 			if (this.flameOn) {
 				this.vy = -5
 				if (game.speed < 15) game.speed *= 1.033
 			} else {
-				this.vy = 4
-				if (game.speed > 1) game.speed *= 0.99
+				if (this.break) {
+					this.vy = 8
+					if (game.speed > 1) game.speed *= 0.5
+				} else {
+					this.vy = 4
+					if (game.speed > 1) game.speed *= 0.99
+				}
 			}
 			this.x += this.turn
 			if (this.outOfBoundsLeft()) {
@@ -221,29 +308,19 @@ export const spaceship = () => {
 			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
 
 			this.shield.update({
-				parentCX: this.x + (this.width / 2),
-				parentCY: this.y + (this.height / 2),
+				shipCX: this.x + (this.width / 2),
+				shipCY: this.y + (this.height / 2),
 				health: 1000,
 			})
 
 			this.bullets = this.bullets.filter((b) => { return b.dead !== true })
 			this.bullets.forEach((b) => b.update())
+			this.smartBomb.update({
+				shipCX: this.x + this.width / 2,
+				shipCY: this.y + this.height / 2
+			})
 		},
 		draw() {
-			// draw shields
-			// ctx.save()
-			// ctx.setLineDash([4,10]);
-			// ctx.lineWidth = 2;
-			// ctx.strokeStyle = "#ffffffff";
-			// ctx.beginPath();
-			// ctx.arc(this.x + this.width / 2, this.y + this.height / 2, (this.width / 2) + 40, 0, 2 * Math.PI);
-			// ctx.stroke();
-			// ctx.restore()
-			// if (Math.random() > 0.1) {
-			// 	ctx.fillStyle = "#6666ff66";
-			// 	ctx.fill();
-			// }
-
 			// draw ship
 			if (this.image1Loaded && this.image2Loaded && this.image3Loaded) {
 				this.bullets.forEach((b) => b.draw())
@@ -259,7 +336,7 @@ export const spaceship = () => {
 			}
 			// draw shield
 			this.shield.draw()
-
+			this.smartBomb.draw()
 		},
 		collide(entities) {
 			// console.log(entities)
@@ -276,6 +353,20 @@ export const spaceship = () => {
 					}
 				})
 			})
+			if (!this.smartBomb.dead) {
+				entities.forEach((e) => {
+					if (collisionBetweenCircles(
+						e.collider.x, e.collider.y, e.collider.r,
+						this.smartBomb.collider.x,
+						this.smartBomb.collider.y,
+						this.smartBomb.collider.r
+					)) {
+						e.collider.colliding = true
+						e.onHit()
+					}
+				})
+
+			}
 		}
 	}
 }

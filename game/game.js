@@ -19,6 +19,8 @@ export const game = {
 	speed: 1,
 	particles: null,
 	fontLoaded: false,
+	debug: false,
+	showColliders: false,
 }
 
 let font1 = new FontFace("Robotron", "url(fonts/WilliamsRobotron.woff2)");
@@ -34,9 +36,6 @@ font1.load().then(() => {
 });
 
 let raf;
-let debug = false
-let showColliders = false
-
 let stars
 let ship
 let asteroids
@@ -69,16 +68,19 @@ const gameLoop = (dt) => {
 	hud.update(dt)
 
 	// clear
+	// if (ship.smartBomb.dead)
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	// add background gradient
+	ctx.globalAlpha = 1.0;
+	ctx.save()
 	const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
 	gradient.addColorStop(0, " #FF00FF");
 	gradient.addColorStop(1, "rgba(39,45,255,1.0)");
 	ctx.fillStyle = gradient;
 	ctx.globalAlpha = 0.2;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.globalAlpha = 1.0;
+	ctx.restore()
 
 	// draw entities
 	stars.draw()
@@ -90,7 +92,7 @@ const gameLoop = (dt) => {
 	game.particles.draw()
 	hud.draw()
 
-	if (debug) {
+	if (game.debug) {
 		const noStars = stars.stars1.length + stars.stars2.length + stars.stars3.length
 		const noGalaxians = galaxians.galaxians.length
 		const noShots = galaxians.noShots.toString().padStart(2, "0")
@@ -104,6 +106,8 @@ const gameLoop = (dt) => {
 		const noParticles = game.particles.noParticles.toString().padStart(4, "0")
 
 		if (game.fontLoaded) {
+
+			ctx.save()
 			ctx.font = "16px sans-serif";
 			ctx.fillStyle = "#00ff00";
 			ctx.fillText(`Stars: ${noStars} | Galaxians: ${noGalaxians} | Defenders: ${noDefenders} | Mines: ${noMines} | Asteroids: ${noAsteroids} | Bullets: ${noBullets} | Shots: ${noShots} | Guns: ${noGuns}`, 88, 28);
@@ -125,11 +129,13 @@ const gameLoop = (dt) => {
 			ctx.fillText(`Score: ${score}`, 150, 70);
 			ctx.beginPath();
 			ctx.roundRect(140, 50, 142, 32, 8);
-			ctx.stroke();
+			ctx.stroke()
+			ctx.restore()
 		}
-		if (showColliders) {
+		if (game.showColliders) {
+			ctx.save()
 			ctx.fillStyle = "rgba(0,255,0,0.5)";
-			ctx.lineWidth = 2;
+			ctx.lineWidth = 1;
 			[
 				ship.bullets,
 				asteroids.asteroids,
@@ -146,6 +152,7 @@ const gameLoop = (dt) => {
 						ctx.stroke();
 				})
 			})
+			ctx.restore()
 		}
 	}
 
@@ -189,7 +196,8 @@ const main = () => {
 			console.log(event.code)
 			switch (event.code) {
 				case "ArrowDown":
-					ship.fire()
+					ship.flameOn = false
+					ship.break = true
 					break;
 				case "ArrowUp":
 					// Handle "forward"
@@ -219,12 +227,12 @@ const main = () => {
 					ship.guns = 3
 					break;
 				case "Backquote":
-					if (debug) debug = false
-					else debug = true
+					if (game.debug) game.debug = false
+					else game.debug = true
 					break;
 				case "KeyZ":
-					if (showColliders) showColliders = false
-					else showColliders = true
+					if (game.showColliders) game.showColliders = false
+					else game.showColliders = true
 					break;
 				case "KeyW":
 					asteroids.spawnSingle({})
@@ -235,8 +243,12 @@ const main = () => {
 				case "Slash":
 					ship.boostShields()
 					break;
+				case "KeyX":
+					ship.fireSmartBomb()
+					break;
 			}
-		}
+		},
+		true
 	)
 	window.addEventListener(
 		"keyup",
@@ -246,21 +258,19 @@ const main = () => {
 			}
 
 			switch (event.code) {
-				case "KeyS":
 				case "ArrowDown":
 					// Handle "back"
 					break;
-				case "KeyW":
+				case "ArrowDown":
+					ship.break = false
 				case "ArrowUp":
 					// Handle "forward"
 					ship.flameOn = false
 					break;
-				case "KeyA":
 				case "ArrowLeft":
 					// Handle "turn left"
 					ship.turn = 0
 					break;
-				case "KeyD":
 				case "ArrowRight":
 					// Handle "turn right"
 					ship.turn = 0
@@ -269,7 +279,8 @@ const main = () => {
 				// 	// Handle "fire!"
 				// 	break;
 			}
-		}
+		},
+		true
 	)
 
 	raf = window.requestAnimationFrame(gameLoop);
