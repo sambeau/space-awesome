@@ -27,15 +27,18 @@
 - [ ] Levels
 - [ ] Sound
 - [ ] Hi-Score
+- [ ] Minimap
 
 ## Ideas to try
 
-- [ ] Smart Bombs
+- [x] Smart Bombs
+- [x] Swarming
+- [x] Seeking
 - [ ] CSS Camera shake
 - [ ] Centipede
 - [ ] Teleporting baddies
 	- [ ] Teleporting in
-- [ ] Swirling baddies 
+- [ ] Swirling baddies
 	- [ ] sine wave
 	- [ ] following paths
 - [ ] Lazers
