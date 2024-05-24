@@ -17,6 +17,7 @@ image2.onload = () => { imagesLoaded++ }
 
 const swarmer = () => {
 	return {
+		ship: null,
 		swarmers: null,
 		score: 100,
 		x: 0,
@@ -53,9 +54,10 @@ const swarmer = () => {
 			if (this.x > canvas.width) return true
 			return false;
 		},
-		spawn({ swarmers, size, x, y, vx, vy }) {
+		spawn({ swarmers, ship, x, y, vx, vy }) {
 			// console.log("spawn")
 			this.swarmers = swarmers
+			this.ship = ship
 
 			if (x) this.x = x
 			else
@@ -104,10 +106,10 @@ const swarmer = () => {
 			// const visibleDistance = 100
 
 			// console.log(this)
-			let closestswarmer1 = null
-			let closestswarmer2 = null
-			let closestDistance1 = Number.MAX_VALUE
-			let closestDistance2 = Number.MAX_VALUE
+			let closestswarmer1 = this.ship // add ship here?
+			let closestswarmer2 = this.ship // add ship here?
+			let closestDistance1 = distanceBetweenCircles(this.x, this.y, this.ship.x, this.ship.y)
+			let closestDistance2 = distanceBetweenCircles(this.x, this.y, this.ship.x, this.ship.y)
 
 			this.swarmers.swarmers.forEach((a) => {
 				if (a == this) // skip
@@ -164,10 +166,10 @@ const swarmer = () => {
 export const Swarmers = () => {
 	return {
 		swarmers: [],
-		spawnSingle({ x, y, vx, vy }) {
+		spawnSingle({ ship, x, y, vx, vy }) {
 			let a = swarmer()
 			this.swarmers.push(a)
-			a.spawn({ swarmers: this, x: x, y: y, vx: vx, vy: vy })
+			a.spawn({ swarmers: this, ship: ship, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
 			// this.spawnSingle({})

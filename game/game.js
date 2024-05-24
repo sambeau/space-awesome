@@ -203,10 +203,8 @@ const main = () => {
 	mines.spawn({ ship: ship })
 
 	swarmers = Swarmers()
-	// swarmers.spawn()
-
 	pods = Pods()
-	pods.spawn({ swarmers: swarmers })
+	pods.spawn({ swarmers: swarmers, ship: ship })
 
 	defenders = Defenders()
 	defenders.spawn({ ship: ship })

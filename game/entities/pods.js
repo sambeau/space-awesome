@@ -23,6 +23,7 @@ image4.onload = () => { imagesLoaded++ }
 
 const pod = () => {
 	return {
+		ship: null,
 		score: 1000,
 		x: 0,
 		y: 0,
@@ -45,8 +46,9 @@ const pod = () => {
 				this.ticks = 0
 			return this.tick
 		},
-		spawn({ swarmers }) {
+		spawn({ swarmers, ship }) {
 			this.swarmers = swarmers
+			this.ship = ship //swarmers need ship to chase after
 			this.x = randInt(canvas.width)
 			this.y = 0 - randInt(canvas.height * 2) - canvas.height * 2
 		},
@@ -115,13 +117,13 @@ const pod = () => {
 				styles: ["white", "white", "#FF00FF", "#FF00FF", "#FFBB00", "#961EFF"],
 				size: 12,
 			})
-			this.swarmers.spawnSingle({ x: this.x + 5, y: this.y + 5, vx: this.vx + 5, vy: this.vy + 5 })
-			this.swarmers.spawnSingle({ x: this.x, y: this.y, vx: this.vx, vy: this.vy })
-			this.swarmers.spawnSingle({ x: this.x - 5, y: this.y - 5, vx: this.vx - 5, vy: this.vy - 5 })
+			this.swarmers.spawnSingle({ ship: this.ship, x: this.x + 5, y: this.y + 5, vx: this.vx + 5, vy: this.vy + 5 })
+			this.swarmers.spawnSingle({ ship: this.ship, x: this.x, y: this.y, vx: this.vx, vy: this.vy })
+			this.swarmers.spawnSingle({ ship: this.ship, x: this.x - 5, y: this.y - 5, vx: this.vx - 5, vy: this.vy - 5 })
 
-			this.swarmers.spawnSingle({ x: this.x + 10, y: this.y + 10, vx: this.vx + 10, vy: this.vy + 10 })
-			this.swarmers.spawnSingle({ x: this.x, y: this.y, vx: this.vx, vy: this.vy })
-			this.swarmers.spawnSingle({ x: this.x - 10, y: this.y - 10, vx: this.vx - 10, vy: this.vy - 10 })
+			this.swarmers.spawnSingle({ ship: this.ship, x: this.x + 10, y: this.y + 10, vx: this.vx + 10, vy: this.vy + 10 })
+			this.swarmers.spawnSingle({ ship: this.ship, x: this.x, y: this.y, vx: this.vx, vy: this.vy })
+			this.swarmers.spawnSingle({ ship: this.ship, x: this.x - 10, y: this.y - 10, vx: this.vx - 10, vy: this.vy - 10 })
 
 		}
 	}
@@ -131,9 +133,9 @@ const pod = () => {
 export const Pods = () => {
 	return {
 		pods: [],
-		spawn({ swarmers }) {
+		spawn({ swarmers, ship }) {
 			this.pods = makeN(pod, 6)
-			this.pods.forEach((x) => x.spawn({ swarmers: swarmers }))
+			this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship }))
 		},
 		update(dt) {
 			this.pods = this.pods.filter((b) => { return b.dead !== true })
