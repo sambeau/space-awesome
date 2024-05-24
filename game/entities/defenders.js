@@ -40,7 +40,7 @@ const defender = () => {
 			this.image2.src = "images/defender2.png"
 			this.image3.src = "images/defender3.png"
 			this.x = randInt(canvas.width)
-			this.y = 0 - randInt(canvas.height)
+			this.y = 0 - randInt(canvas.height * 2)
 			this.image1.onload = () => { this.image1Loaded = true }
 			this.image2.onload = () => { this.image2Loaded = true }
 			this.image3.onload = () => { this.image3Loaded = true }
@@ -73,8 +73,7 @@ const defender = () => {
 			this.collider.y = this.y + this.collider.oy
 
 			if (this.outOfBoundsV()) {
-				this.x = randInt(canvas.width)
-				this.y = 0 - randInt(canvas.height)
+				this.y = 0 - canvas.height * 3
 			}
 			if (this.outOfBoundsL())
 				this.x = canvas.width
@@ -114,7 +113,7 @@ export const defenders = () => {
 	return {
 		defenders: [],
 		spawn({ ship: ship }) {
-			this.defenders = makeN(defender, 4)
+			this.defenders = makeN(defender, 10)
 			this.defenders.forEach((x) => x.spawn({ ship: ship }))
 		},
 		update(dt) {

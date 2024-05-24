@@ -1,52 +1,70 @@
 import { ctx, game } from "../game.js";
-import { randInt } from "../utils.js";
-import { makeN } from "./entity.js";
+import { picker, randInt } from "../utils.js";
 import { explode } from "./explosions.js";
 
+let numImagesLoaded = 0
+const mineStates = []
+const imageStates = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const allMinesLoadedCount = imageStates.length
 
+const colliders = [
+	{ type: "circle", ox: 87.0384944, oy: 88, r: 86.5384944, colliding: false },
+	{ type: "circle", ox: 87.9615056, oy: 88, r: 77.884645, colliding: false },
+	{ type: "circle", ox: 87.5, oy: 88, r: 70.0961805, colliding: false },
+	{ type: "circle", ox: 87.5, oy: 88, r: 63.0865624, colliding: false },
+	{ type: "circle", ox: 87.5179268, oy: 88, r: 56.7779062, colliding: false },
+	{ type: "circle", ox: 87.5, oy: 88, r: 51.1001156, colliding: false },
+	{ type: "circle", ox: 87.5, oy: 88, r: 45.990104, colliding: false },
+	{ type: "circle", ox: 87.5, oy: 88, r: 45.990104, colliding: false },
+	{ type: "circle", ox: 87.5, oy: 88, r: 42.3671638, colliding: false },
+]
+
+imageStates.forEach((i) => {
+	mineStates[i - 1] = {}
+	mineStates[i - 1].image = new Image()
+	mineStates[i - 1].image.onload = () => { numImagesLoaded++ }
+	mineStates[i - 1].image.src = `images/mine-${i}.png`
+	mineStates[i - 1].collider = colliders[i - 1]
+})
+
+const angryImage = new Image()
+let angryImageLoaded = false
+angryImage.src = "images/mine-angry.png"
+angryImage.onload = () => { angryImageLoaded = true }
+
+const HP = 50
 const mine = () => {
 	return {
-		score: 1000,
+		ship: null,
+		images: null,
+		image: null,
 		x: 0,
 		y: 0,
 		vx: Math.random() - 0.5,
 		vy: Math.random() * 3,
-		rotation: Math.random() * 10,
-		width: 32,
-		height: 32,
-		collider: {
-			type: "circle",
-			ox: (5.5 + (55 / 2)) * 32 / 66,
-			oy: (6 + (55 / 2)) * 32 / 66,
-			r: ((55 / 2)) * 32 / 66,
-			colliding: false,
-		},
-		image1: new Image(),
-		image2: new Image(),
-		image3: new Image(),
-		image4: new Image(),
-		image1Loaded: false,
-		image2Loaded: false,
-		image3Loaded: false,
-		image4Loaded: false,
-		ticks: 0,
+		width: 175,
+		height: 176,
+		collider: null,
+		animationSpeed: 3,
+		rotation: 10,
+		ticker: 0,
+		ticks: 0, // amalgamate ^V
+		hsec: 0,
+		sulking: false,
+		// hp: HP,
 		tick() {
-			this.ticks += 1
+			this.ticker++
+			if (this.ticker == this.animationSpeed) {
+				this.ticker = 0
+				this.animate()
+			}
+			this.ticks++
 			if (this.ticks === 1000)
 				this.ticks = 0
-			return this.tick
-		},
-		spawn() {
-			this.image1.src = "images/mine1.png"
-			this.image2.src = "images/mine2.png"
-			this.image3.src = "images/mine3.png"
-			this.image4.src = "images/mine4.png"
-			this.x = randInt(canvas.width)
-			this.y = 0 - randInt(canvas.height)
-			this.image1.onload = () => { this.image1Loaded = true }
-			this.image2.onload = () => { this.image2Loaded = true }
-			this.image3.onload = () => { this.image3Loaded = true }
-			this.image4.onload = () => { this.image4Loaded = true }
+			// this.hsec++
+			// if (this.hsec == 30)
+			// 	this.hsec = 0
+			// return this.tick
 		},
 		outOfBoundsV() {
 			if (this.y > canvas.height + this.height) return true
@@ -60,8 +78,30 @@ const mine = () => {
 			if (this.x > canvas.width) return true
 			return false;
 		},
+		spawn({ ship, x, y, vx, vy }) {
+			this.ship = ship
+			this.states = picker(mineStates, { start: 7, end: 7 })
+			this.image = (this.states.first()).image
+			this.collider = { ...(this.states.first()).collider }
+
+			if (x) this.x = x
+			else
+				this.x = canvas.width - (randInt(canvas.width) * randInt(canvas.width) / 2)
+
+			if (y) this.y = y
+			else
+				this.y = 0 - randInt(canvas.height * 2) + canvas.height * 2
+
+			if (vx) this.vx = vx
+			if (vy) this.vy = vy
+
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
+		},
 		update(/*dt*/) {
 			this.tick()
+
+			if (this.sulking) this.seekShip()
 			this.y += this.vy + game.speed;
 			this.x += this.vx;
 
@@ -69,8 +109,9 @@ const mine = () => {
 			this.collider.y = this.y + this.collider.oy
 
 			if (this.outOfBoundsV()) {
-				this.x = randInt(canvas.width)
-				this.y = 0 - randInt(canvas.height)
+				// this.x = randInt(canvas.width)
+				this.y = 0 - canvas.height * 3//randInt(canvas.height * 2)
+				this.collider.colliding = false
 			}
 			if (this.outOfBoundsL())
 				this.x = canvas.width
@@ -78,58 +119,98 @@ const mine = () => {
 				this.x = 0 - this.width
 		},
 		draw() {
-
-			if (this.image1Loaded
-				&& this.image2Loaded
-				&& this.image3Loaded
-				&& this.image4Loaded
-			) {
+			if (numImagesLoaded >= allMinesLoadedCount) {
 				const canvas = document.createElement("canvas")
 				canvas.width = this.width;
 				canvas.height = this.height;
-				const context = canvas.getContext("2d");
+				const icon = canvas.getContext("2d");
 
-				context.translate((this.width / 2), (this.height / 2))
-				context.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
-				context.translate(0 - (this.width / 2), 0 - (this.height / 2))
+				icon.translate((this.width / 2), (this.height / 2))
+				icon.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
+				icon.translate(0 - (this.width / 2), 0 - (this.height / 2))
 
-				let tick = (this.ticks % 20) / 5
-				if (tick < 1)
-					context.drawImage(this.image1, 0, 0, this.width + 0, this.height + 0)
-				else if (tick < 2)
-					context.drawImage(this.image2, 0, 0, this.width + 0, this.height + 0)
-				else if (tick < 3)
-					context.drawImage(this.image3, 0, 0, this.width + 0, this.height + 0)
-				else
-					context.drawImage(this.image4, 0, 0, this.width + 0, this.height + 0)
+				icon.drawImage(this.image, 0, 0, this.width, this.height)
 
-				ctx.drawImage(canvas, this.x - 0, this.y - 0, this.width, this.height)
-
+				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
+				// if (this.hp < HP / 2) {
+				// 	const opacity = (HP - this.hp) * (1 / HP)
+				// 	if (angryImageLoaded) {
+				// 		ctx.save()
+				// 		ctx.globalAlpha = Math.sin((this.hsec / 60) * Math.PI * 2) * opacity
+				// 		ctx.drawImage(angryImage, this.x + 45.15, this.y + 45.63, 84.73, 84.73)
+				// 		ctx.restore()
+				// 	}
+				// }
 			}
 		},
-		onHit() {
-			this.dead = true
-			game.score += this.score
-			explode({
-				x: this.x + this.width / 2,
-				y: this.y + this.height / 2,
-				styles: ["white", "white", "#FF00FF", "#FF00FF", "#FFBB00", "#961EFF"],
-				size: 5,
-			})
+		animate() {
+			if (this.sulking) {
+				this.image = (this.states.bounceHold()).image
+				this.collider = { ...(this.states.bounceHold()).collider }
+			} else {
+				this.image = (this.states.first()).image
+				this.collider = { ...(this.states.first()).collider }
+			}
+		},
+		seekShip() {
+			let cohesion = 0.0015
+			this.vx -= (this.x - this.ship.x) * cohesion
+			this.vy -= (this.y - this.ship.y) * cohesion// * 0.5
+			if (this.vx > 3) this.vx = 3
+			if (this.vx < -3) this.vx = -3
+			if (this.vy > 1) this.vy = 1
+			if (this.vy < -1) this.vy = -1
+		},
+		onHit(smart) {
+			// this.hp--
+			this.sulking = true;
+			if (smart) {
+				this.dead = true
+				explode({
+					x: this.x + this.width / 2,
+					y: this.y + this.height / 2,
+					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					size: 25,
+				})
+				explode({
+					x: this.x + this.width / 2,
+					y: this.y + this.height / 2 - 40,
+					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					size: 10,
+				})
+				explode({
+					x: this.x + this.width / 2,
+					y: this.y + this.height / 2 + 40,
+					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					size: 10,
+				})
+				explode({
+					x: this.x + this.width / 2,
+					y: this.y + this.height / 2 - 40,
+					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					size: 10,
+				})
+			}
 		}
 	}
 };
 
 
-export const mines = () => {
+export const Mines = () => {
 	return {
 		mines: [],
-		spawn() {
-			this.mines = makeN(mine, 4)
-			this.mines.forEach((x) => x.spawn())
+		spawnSingle({ ship, x, y, vx, vy }) {
+			let a = mine()
+			this.mines.push(a)
+			a.spawn({ ship: ship, x: x, y: y, vx: vx, vy: vy })
+		},
+		spawn({ ship }) {
+			this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
 		},
 		update(dt) {
-			this.mines = this.mines.filter((b) => { return b.dead !== true })
+			this.mines = this.mines.filter((x) => { return x.dead !== true })
 			this.mines.forEach((x) => x.update(dt))
 		},
 		draw() {

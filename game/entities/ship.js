@@ -63,14 +63,14 @@ const smartBomb = () => {
 			this.tick()
 		},
 		draw() {
-			if (game.showColliders) { // show even when not firing
-				ctx.save()
-				ctx.lineWidth = 1;
-				ctx.strokeStyle = "#00ff00";
-				ctx.arc(this.collider.x, this.collider.y, this.collider.r, 0, 2 * Math.PI);
-				ctx.stroke()
-				ctx.restore()
-			}
+			// if (game.showColliders) { // show even when not firing
+			// 	ctx.save()
+			// 	ctx.lineWidth = 1;
+			// 	ctx.strokeStyle = "#00ff00";
+			// 	ctx.arc(this.collider.x, this.collider.y, this.collider.r, 0, 2 * Math.PI);
+			// 	ctx.stroke()
+			// 	ctx.restore()
+			// }
 			if (this.dead) return
 			let image
 			image = pick([smartBombImage1, smartBombImage2, smartBombImage3, smartBombImage4])
@@ -108,8 +108,8 @@ const shield = () => {
 		},
 		update({ shipCX, shipCY, health }) {
 			this.tick()
-			this.x = shipCX - this.width / 2 - this.offset
-			this.y = shipCY - this.height / 2 - this.offset
+			this.x = shipCX - (this.width / 2) - this.offset
+			this.y = shipCY - (this.height / 2) - this.offset
 
 		},
 		draw() {
@@ -378,7 +378,7 @@ export const spaceship = () => {
 						this.smartBomb.collider.r
 					)) {
 						e.collider.colliding = true
-						e.onHit()
+						e.onHit(true)
 					}
 				})
 

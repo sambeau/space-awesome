@@ -35,6 +35,8 @@ export const Particle = () => {
 		},
 		draw() {
 			if (this.dead) return
+			if (this.lifespan <= 0) return
+
 			ctx.fillStyle = this.style
 			ctx.globalAlpha = this.tick / this.lifespan
 			ctx.fillRect(this.x, this.y, this.width, this.height);

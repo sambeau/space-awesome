@@ -2,12 +2,15 @@
 import { asteroids as Asteroids } from "./entities/asteroids.js";
 import { defenders as Defenders } from "./entities/defenders.js";
 import { galaxians as Galaxians } from "./entities/galaxians.js";
+import { starfield as Starfield } from "./entities/stars.js";
+
 import { Hud } from "./entities/hud.js";
-import { mines as Mines } from "./entities/mines.js";
+import { Mines } from "./entities/mines.js";
 import { Particles } from "./entities/particles.js";
+import { Pods } from "./entities/pods.js";
 import { Powerups } from "./entities/powerups.js";
 import { spaceship as Spaceship } from "./entities/ship.js";
-import { starfield as Starfield } from "./entities/stars.js";
+import { Swarmers } from "./entities/swarmers.js";
 
 export const canvas = document.getElementById("canvas");
 canvas.width = window.screen.availWidth - 32;
@@ -40,22 +43,30 @@ let stars
 let ship
 let asteroids
 let mines
+let pods
+let swarmers
 let defenders
 let galaxians
 let powerups
 let hud
 
+
 let score = 0
 
 let filterStrength = 20;
-let frameTime = 0, lastLoop = new Date, thisLoop;
+let lastDT = 0
 
 const gameLoop = (dt) => {
+	lastDT = dt
+	const frameTime = dt - lastDT
+
+	const startTime = new Date()
 
 	// collisions
 	ship.collide(asteroids.asteroids)
 	ship.collide(galaxians.galaxians)
 	ship.collide(defenders.defenders)
+	ship.collide(pods.pods)
 	ship.collide(mines.mines)
 
 	// update
@@ -63,6 +74,7 @@ const gameLoop = (dt) => {
 	stars.update(dt)
 	asteroids.update(dt)
 	mines.update(dt)
+	pods.update(dt)
 	defenders.update(dt)
 	galaxians.update(dt)
 	ship.update(dt)
@@ -88,11 +100,14 @@ const gameLoop = (dt) => {
 	stars.draw()
 	asteroids.draw()
 	mines.draw()
+	pods.draw()
+	swarmers.draw()
 	defenders.draw()
 	galaxians.draw()
 	powerups.draw()
 	ship.draw()
 	game.particles.draw()
+
 	hud.draw()
 
 	if (game.debug) {
@@ -100,7 +115,7 @@ const gameLoop = (dt) => {
 		const noGalaxians = galaxians.galaxians.length
 		const noShots = galaxians.noShots.toString().padStart(2, "0")
 		const noDefenders = defenders.defenders.length
-		const noMines = mines.mines.length
+		const nopods = pods.pods.length
 		const noAsteroids = asteroids.asteroids.length
 		const noBullets = ship.bullets.length.toString().padStart(2, "0")
 		const noGuns = ship.guns
@@ -113,7 +128,7 @@ const gameLoop = (dt) => {
 			ctx.save()
 			ctx.font = "16px sans-serif";
 			ctx.fillStyle = "#00ff00";
-			ctx.fillText(`Stars: ${noStars} | Galaxians: ${noGalaxians} | Defenders: ${noDefenders} | Mines: ${noMines} | Asteroids: ${noAsteroids} | Bullets: ${noBullets} | Shots: ${noShots} | Guns: ${noGuns}`, 88, 28);
+			ctx.fillText(`Stars: ${noStars} | Galaxians: ${noGalaxians} | Defenders: ${noDefenders} | Pods: ${nopods} | Swarmers: ${nopods} | Asteroids: ${noAsteroids} | Bullets: ${noBullets} | Shots: ${noShots} | Guns: ${noGuns}`, 88, 28);
 			ctx.strokeStyle = "#00ff00";
 			ctx.beginPath();
 			ctx.roundRect(80, 6, 708, 32, 8);
@@ -137,15 +152,16 @@ const gameLoop = (dt) => {
 		}
 		if (game.showColliders) {
 			ctx.save()
-			ctx.fillStyle = "rgba(0,255,0,0.5)";
-			ctx.lineWidth = 1;
+			ctx.strokeStyle = "rgba(0,255,0,1.0)";
+			ctx.lineWidth = 2;
 			[
 				ship.bullets,
 				asteroids.asteroids,
 				galaxians.galaxians,
-				mines.mines,
+				pods.pods,
 				defenders.defenders,
-				powerups.poerups,
+				powerups.powerups,
+				mines.mines,
 			].forEach((ent) => {
 				ent.forEach((e) => {
 					ctx.beginPath();
@@ -160,9 +176,10 @@ const gameLoop = (dt) => {
 		}
 	}
 
-	var thisFrameTime = (thisLoop = new Date) - lastLoop;
-	frameTime += (thisFrameTime - frameTime) / filterStrength;
-	lastLoop = thisLoop;
+	const endTime = new Date()
+	const timeTaken = endTime - startTime
+	ctx.fillText(`${Math.floor(timeTaken)}`, 200, 50)
+
 	raf = window.requestAnimationFrame(gameLoop);
 }
 
@@ -180,7 +197,13 @@ const main = () => {
 	asteroids.spawn()
 
 	mines = Mines()
-	mines.spawn()
+	mines.spawn({ ship: ship })
+
+	pods = Pods()
+	pods.spawn()
+
+	swarmers = Swarmers()
+	swarmers.spawn()
 
 	defenders = Defenders()
 	defenders.spawn({ ship: ship })

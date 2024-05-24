@@ -1,5 +1,6 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "../utils.js";
+import { distanceBetweenCircles } from "./entity.js";
 import { explode } from "./explosions.js";
 
 let numImagesLoaded = 0
@@ -29,21 +30,22 @@ const asteroid = () => {
 		score: 100,
 		x: 0,
 		y: 0,
-		vx: Math.random() - 0.5,
-		vy: Math.random() * 3,
+		vx: Math.random() - 0.25,
+		vy: Math.random() * 2,
 		rotation: Math.random() * 10,
 		width: 64,
 		height: 64,
 		size: 'L',
 		collider: null,
 		ticks: 0,
+		closestDistance: 0,
 		tick() {
 			this.ticks += 1
 			if (this.ticks === 1000)
 				this.ticks = 0
 			return this.tick
 		},
-		outOfBoundsV() {
+		outOfBoundsB() {
 			if (this.y > canvas.height + this.height) return true
 			return false;
 		},
@@ -67,7 +69,7 @@ const asteroid = () => {
 
 			if (y) this.y = y
 			else
-				this.y = 0 - randInt(canvas.height)
+				this.y = 0 - randInt(canvas.height * 4)
 
 			if (vx) this.vx = vx
 			if (vy) this.vy = vy
@@ -77,13 +79,15 @@ const asteroid = () => {
 		},
 		update(/*dt*/) {
 			this.tick()
-			this.y += this.vy + game.speed;
+			//flock
+			this.flock()
 			this.x += this.vx;
+			this.y += this.vy + game.speed;
+
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
-			if (this.outOfBoundsV()) {
-				this.x = randInt(canvas.width)
-				this.y = 0 - randInt(canvas.height / 2)
+			if (this.outOfBoundsB()) {
+				this.y = 0 - canvas.height * 3
 				this.collider.colliding = false
 			}
 			if (this.outOfBoundsL())
@@ -108,9 +112,60 @@ const asteroid = () => {
 
 				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
 
+				//debug
+				// ctx.save()
+				// ctx.font = "16px sans-serif";
+				// ctx.fillStyle = "#00ff00";
+				// ctx.fillText(`Nearest: ${Math.floor(this.closestDistance)}`, this.x, this.y - 10);
+				// ctx.restore()
+
 				if (this.outOfBoundsL())
 					ctx.fillRect(this.x, this.y, this.width, this.height)
 			}
+		},
+		flock() {
+			let cohesion = 0.0015
+			// const visibleDistance = 100
+
+			// console.log(this)
+			let closestAsteroid1 = null
+			let closestAsteroid2 = null
+			let closestDistance1 = Number.MAX_VALUE
+			let closestDistance2 = Number.MAX_VALUE
+
+			this.asteroids.asteroids.forEach((a) => {
+				if (a == this) // skip
+					return
+				const d = distanceBetweenCircles(this.x, this.y, a.x, a.y)
+				if (d == 0) return
+				// if (d < visibleDistance) {
+				if (closestDistance1 !== 0 && d < closestDistance1) {
+					closestDistance2 = closestDistance1
+					closestAsteroid2 = closestAsteroid1
+					closestDistance1 = d
+					closestAsteroid1 = a
+				}
+				else if (d < closestDistance2) {
+					closestDistance2 = d
+					closestAsteroid2 = a
+				}
+				// }
+				// move towards closest asteroid
+			})
+			if (closestAsteroid1 !== null && closestAsteroid2 !== null) {
+				this.vx += ((closestAsteroid1.x + closestAsteroid2.x) / 2 - this.x) * cohesion
+				this.vy += ((closestAsteroid1.y + closestAsteroid2.y) / 2 - this.y) * cohesion// * 0.5
+
+				if (closestDistance1 < (this.width + closestAsteroid2.width) / 2) {
+					this.vx += (this.x - closestAsteroid1.x) * cohesion
+					this.vy += (this.y - closestAsteroid1.y) * cohesion// * 0.5
+				}
+			}
+			// tamp them down
+			if (this.vx > 3) this.vx = 3
+			if (this.vx < -3) this.vx = -3
+			if (this.vy > 1) this.vy = 1
+			if (this.vy < -1) this.vy = -1
 		},
 		onHit() {
 			this.dead = true;
@@ -181,6 +236,14 @@ export const asteroids = () => {
 			a.spawn({ asteroids: this, size: size, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
+			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })

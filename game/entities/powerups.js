@@ -66,7 +66,7 @@ const powerup = () => {
 
 			if (y) this.y = y
 			else
-				this.y = 0 - randInt(canvas.height)
+				this.y = 0 - randInt(2 * canvas.height) - canvas.height * 2
 
 			if (vx) this.vx = vx
 			if (vy) this.vy = vy
@@ -83,8 +83,9 @@ const powerup = () => {
 			this.collider.y = this.y + this.collider.oy
 
 			if (this.outOfBoundsV()) {
-				this.x = randInt(canvas.width)
-				this.y = 0 - randInt(canvas.height / 2)
+				// this.x = randInt(canvas.width)
+				// this.y = 0 - randInt(canvas.height / 2)
+				this.y = 0 - canvas.height * 3//randInt(canvas.height)
 				this.collider.colliding = false
 			}
 			if (this.outOfBoundsL())
@@ -103,7 +104,6 @@ const powerup = () => {
 				icon.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
 				icon.translate(0 - (this.width / 2), 0 - (this.height / 2))
 
-				let tick = Math.floor((this.ticks % 48) / 16)
 				icon.drawImage(this.image, 0, 0, this.width, this.height)
 
 				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)

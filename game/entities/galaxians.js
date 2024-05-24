@@ -81,7 +81,7 @@ const galaxian = () => {
 			this.imageR4.src = "images/galaxian-red-r-4.png"
 
 			this.x = randInt(canvas.width)
-			this.y = 0 - randInt(canvas.height)
+			this.y = 0 - randInt(canvas.height * 4)
 
 			this.imageS1.onload = () => { this.imageS1Loaded = true }
 			this.imageS2.onload = () => { this.imageS2Loaded = true }
@@ -139,8 +139,8 @@ const galaxian = () => {
 			this.collider.y = this.y + this.collider.oy
 
 			if (this.outOfBoundsV()) {
-				this.x = randInt(canvas.width)
-				this.y = 0 - randInt(canvas.height)
+				// this.x = randInt(canvas.width)
+				this.y = 0 - canvas.height * 3//randInt(canvas.height)
 			}
 			if (this.outOfBoundsL())
 				this.x = canvas.width
@@ -164,6 +164,8 @@ const galaxian = () => {
 				this.imageR4Loaded
 			) {
 				let tick = (this.ticks % 24) / 8
+				ctx.save()
+				// ctx.filter = "invert(1)"
 				if (Math.sign(this.vx) === 0) {
 					if (tick < 1)
 						ctx.drawImage(this.imageS1, this.x, this.y, this.width, this.height)
@@ -194,6 +196,7 @@ const galaxian = () => {
 					else
 						ctx.drawImage(this.imageR4, this.x, this.y, this.width, this.height)
 				}
+				ctx.restore()
 			}
 		},
 		onHit() {
@@ -221,6 +224,19 @@ export const galaxians = () => {
 			x.spawn({ ship: ship })
 		},
 		spawn({ ship }) {
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
 			this.spawnSingle({ ship })
 			this.spawnSingle({ ship })
 			this.spawnSingle({ ship })
