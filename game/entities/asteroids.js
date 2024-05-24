@@ -19,7 +19,7 @@ asteroidSizes.forEach((s) => {
 })
 
 const colliders = {
-	S: { type: "circle", ox: 21 / 2 + 20.5, oy: 21 / 2 + 21, r: 25 / 2, colliding: false },
+	S: { type: "circle", ox: 26 / 2 + 20, oy: 26 / 2 + 20.5, r: 26 / 2, colliding: false },
 	M: { type: "circle", ox: 40.43 / 2 + 11.5, oy: 40.43 / 2 + 12, r: 43 / 2, colliding: false },
 	L: { type: "circle", ox: 60 / 2 + 3, oy: 60 / 2 + 3, r: 60 / 2, colliding: false },
 }

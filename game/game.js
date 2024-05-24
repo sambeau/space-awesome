@@ -67,6 +67,7 @@ const gameLoop = (dt) => {
 	ship.collide(galaxians.galaxians)
 	ship.collide(defenders.defenders)
 	ship.collide(pods.pods)
+	ship.collide(swarmers.swarmers)
 	ship.collide(mines.mines)
 
 	// update
@@ -75,6 +76,7 @@ const gameLoop = (dt) => {
 	asteroids.update(dt)
 	mines.update(dt)
 	pods.update(dt)
+	swarmers.update(dt)
 	defenders.update(dt)
 	galaxians.update(dt)
 	ship.update(dt)
@@ -159,6 +161,7 @@ const gameLoop = (dt) => {
 				asteroids.asteroids,
 				galaxians.galaxians,
 				pods.pods,
+				swarmers.swarmers,
 				defenders.defenders,
 				powerups.powerups,
 				mines.mines,
@@ -199,11 +202,11 @@ const main = () => {
 	mines = Mines()
 	mines.spawn({ ship: ship })
 
-	pods = Pods()
-	pods.spawn()
-
 	swarmers = Swarmers()
-	swarmers.spawn()
+	// swarmers.spawn()
+
+	pods = Pods()
+	pods.spawn({ swarmers: swarmers })
 
 	defenders = Defenders()
 	defenders.spawn({ ship: ship })
