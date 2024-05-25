@@ -45,6 +45,7 @@ const defender = () => {
 			this.image2.onload = () => { this.image2Loaded = true }
 			this.image3.onload = () => { this.image3Loaded = true }
 			this.ship = ship
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 		},
 		outOfBoundsV() {
 			if (this.y > canvas.height + this.height) return true

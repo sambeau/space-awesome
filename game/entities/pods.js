@@ -49,6 +49,7 @@ const pod = () => {
 		spawn({ swarmers, ship }) {
 			this.swarmers = swarmers
 			this.ship = ship //swarmers need ship to chase after
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 			this.x = randInt(canvas.width)
 			this.y = 0 - randInt(canvas.height * 2) - canvas.height * 2
 		},

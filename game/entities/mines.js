@@ -83,6 +83,7 @@ const mine = () => {
 			this.states = picker(mineStates, { start: 7, end: 7 })
 			this.image = (this.states.first()).image
 			this.collider = { ...(this.states.first()).collider }
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 
 			if (x) this.x = x
 			else
@@ -107,6 +108,8 @@ const mine = () => {
 
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
+
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 
 			if (this.outOfBoundsV()) {
 				// this.x = randInt(canvas.width)

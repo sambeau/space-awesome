@@ -30,7 +30,7 @@ const smartBomb = () => {
 			r: smartBombRadius,
 			colliding: false
 		},
-		charges: 50,
+		charges: 1,
 		ticker: 0,
 		tick() {
 			this.ticker++
@@ -84,7 +84,7 @@ const shield = () => {
 	return {
 		x: 0,
 		y: 0,
-		offset: 0, //50
+		strength: 0, //50
 		width: 0,
 		height: 0,
 		image: new Image(),
@@ -94,8 +94,8 @@ const shield = () => {
 			this.ticker++
 			if (this.ticker == 30) {
 				this.ticker = 0
-				this.offset--
-				if (this.offset < 0) this.offset = 0
+				this.strength--
+				if (this.strength < 0) this.strength = 0
 			}
 		},
 		spawn({ height }) {
@@ -108,14 +108,14 @@ const shield = () => {
 		},
 		update({ shipCX, shipCY, health }) {
 			this.tick()
-			this.x = shipCX - (this.width / 2) - this.offset
-			this.y = shipCY - (this.height / 2) - this.offset
+			this.x = shipCX - (this.width / 2) - this.strength
+			this.y = shipCY - (this.height / 2) - this.strength
 
 		},
 		draw() {
 			ctx.save()
-			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.offset / 50
-			ctx.drawImage(this.image, this.x, this.y, this.width + this.offset * 2, this.height + this.offset * 2);
+			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.strength / 50
+			ctx.drawImage(this.image, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
 			ctx.restore()
 		},
 	}
@@ -181,6 +181,11 @@ export const spaceship = () => {
 		y: 0,
 		vx: 0,
 		vy: 0,
+		colliders: [
+			{ type: "circle", ox: 0 + 49.5 / 2, oy: 16 + 49.5 / 2, r: 49.5 / 2, colliding: false },
+			{ type: "circle", ox: 16.5 + 16.5 / 2, oy: 5 + 16.5 / 2, r: 16.5 / 2, colliding: false },
+
+		],
 		heightWithFlame: 0,
 		image1: new Image(),
 		image2: new Image(),
@@ -226,9 +231,10 @@ export const spaceship = () => {
 			this.shield.spawn({ height: this.height })
 		},
 		boostShields() {
-			this.shield.offset += 25
+			this.shield.strength += 50
 		},
 		fire() {
+			this.maxbullets = 10 * this.guns
 			if ((this.guns == 1 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
@@ -315,6 +321,11 @@ export const spaceship = () => {
 			this.y += this.vy;
 			this.x += this.vx;
 
+			this.colliders[0].x = this.x + this.colliders[0].ox
+			this.colliders[0].y = this.y + this.colliders[0].oy
+			this.colliders[1].x = this.x + this.colliders[1].ox
+			this.colliders[1].y = this.y + this.colliders[1].oy
+
 			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
 
 			this.shield.update({
@@ -381,7 +392,42 @@ export const spaceship = () => {
 						e.onHit(true)
 					}
 				})
-
+			}
+		},
+		collect(powerups) {
+			// console.log(entities)
+			powerups.forEach((powerup) => {
+				if (
+					collisionBetweenCircles(
+						powerup.collider.x, powerup.collider.y, powerup.collider.r,
+						this.colliders[0].x, this.colliders[0].y, this.colliders[0].r
+					)
+					|| collisionBetweenCircles(
+						powerup.collider.x, powerup.collider.y, powerup.collider.r,
+						this.colliders[1].x, this.colliders[1].y, this.colliders[1].r
+					)) {
+					console.log("collide!")
+					console.log(powerup)
+					powerup.onCollect(this)
+				}
+			})
+		},
+		onCollect(type) {
+			switch (type) {
+				case 'bullet':
+					this.guns++
+					if (this.guns > 3)
+						this.guns = 3
+					break;
+				case 'life':
+					this.lives++
+					break;
+				case 'smart':
+					this.smartBomb.charges++
+					break;
+				case 'shield':
+					this.boostShields()
+					break;
 			}
 		}
 	}

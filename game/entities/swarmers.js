@@ -72,6 +72,7 @@ const swarmer = () => {
 
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 
 			this.images = picker([image1, image2])
 		},
@@ -85,7 +86,7 @@ const swarmer = () => {
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
 			if (this.outOfBoundsB()) {
-				this.y = 0 - canvas.height / 2
+				this.y = 0 - canvas.height * 3
 				this.collider.colliding = false
 			}
 			if (this.outOfBoundsL())
@@ -139,6 +140,7 @@ const swarmer = () => {
 					this.vy += (this.y - closestswarmer1.y) * cohesion// * 0.5
 				}
 			}
+
 			// tamp them down
 			if (this.vx > 3) this.vx = 3.3
 			if (this.vx < -3) this.vx = -3.3
@@ -156,7 +158,7 @@ const swarmer = () => {
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,
 				styles: ["white", "#FE0600", "#00BE00"],
-				size: 5,
+				size: 6,
 			})
 		}
 	}

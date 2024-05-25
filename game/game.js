@@ -25,6 +25,7 @@ export const game = {
 	fontLoaded: false,
 	debug: false,
 	showColliders: false,
+	massConstant: 460,
 }
 
 let font1 = new FontFace("Robotron", "url(fonts/WilliamsRobotron.woff2)");
@@ -69,6 +70,7 @@ const gameLoop = (dt) => {
 	ship.collide(pods.pods)
 	ship.collide(swarmers.swarmers)
 	ship.collide(mines.mines)
+	ship.collect(powerups.powerups)
 
 	// update
 	powerups.update(dt)
@@ -169,19 +171,22 @@ const gameLoop = (dt) => {
 				ent.forEach((e) => {
 					ctx.beginPath();
 					ctx.arc(e.collider.x, e.collider.y, e.collider.r, 0, 2 * Math.PI);
-					if (e.collider.colliding)
-						ctx.fill();
-					else
-						ctx.stroke();
+					ctx.stroke();
+
 				})
 			})
+			ctx.beginPath();
+			ctx.arc(ship.colliders[0].x, ship.colliders[0].y, ship.colliders[0].r, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.arc(ship.colliders[1].x, ship.colliders[1].y, ship.colliders[1].r, 0, 2 * Math.PI);
+			ctx.stroke();
 			ctx.restore()
 		}
 	}
 
 	const endTime = new Date()
 	const timeTaken = endTime - startTime
-	ctx.fillText(`${Math.floor(timeTaken)}`, 200, 50)
+	ctx.fillText(`${Math.floor(timeTaken)}`, 10, 30)
 
 	raf = window.requestAnimationFrame(gameLoop);
 }
@@ -312,6 +317,24 @@ const main = () => {
 	)
 
 	raf = window.requestAnimationFrame(gameLoop);
+	// const foo = [
+	// 	ship.bullets,
+	// 	asteroids.asteroids,
+	// 	galaxians.galaxians,
+	// 	pods.pods,
+	// 	swarmers.swarmers,
+	// 	defenders.defenders,
+	// 	powerups.powerups,
+	// 	mines.mines,
+	// ]
+	// foo.forEach((ent) => {
+	// 	if (ent && ent[0]) {
+	// 		const r = ent[0].collider.r
+	// 		ent[0].collider.area = Math.round(Math.PI * r * r / 450)
+	// 		console.log(ent[0].collider)
+	// 	}
+	// })
+
 }
 
 main()

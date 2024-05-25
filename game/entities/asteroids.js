@@ -62,6 +62,7 @@ const asteroid = () => {
 
 			if (size) this.size = size
 			this.collider = { ...colliders[this.size] }
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 
 			if (x) this.x = x
 			else

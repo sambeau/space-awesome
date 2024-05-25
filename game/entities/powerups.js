@@ -107,9 +107,6 @@ const powerup = () => {
 				icon.drawImage(this.image, 0, 0, this.width, this.height)
 
 				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
-
-
-				// ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
 			}
 		},
 		animate() {
@@ -120,7 +117,31 @@ const powerup = () => {
 		},
 		onHit() {
 			this.dead = true;
-		}
+		},
+		onCollect(ship) {
+			this.dead = true
+			ship.onCollect(this.type)
+			game.particles.spawnCircle({
+				points: 64,
+				cx: ship.x + ship.width / 2,
+				cy: ship.y + ship.width / 2,
+				width: 20,
+				height: 20,
+				speed: 30,
+				lifespan: 50,
+				style: "random",
+			})
+			game.particles.spawnCircle({
+				points: 32,
+				cx: ship.x + ship.width / 2,
+				cy: ship.y + ship.width / 2,
+				width: 25,
+				height: 25,
+				speed: 20,
+				lifespan: 50,
+				style: "random",
+			})
+		},
 	}
 };
 
@@ -134,10 +155,12 @@ export const Powerups = () => {
 			a.spawn({ type: type, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
-			this.spawnSingle({ type: 'bullet' })
-			this.spawnSingle({ type: 'life' })
-			this.spawnSingle({ type: 'smart' })
-			this.spawnSingle({ type: 'shield' })
+			this.spawnSingle({ type: 'bullet', y: randInt(canvas.height * 4) + canvas.height * 3 })
+			this.spawnSingle({ type: 'bullet', y: randInt(canvas.height * 3) + canvas.height * 2 })
+			this.spawnSingle({ type: 'life', y: randInt(canvas.height * 3) + canvas.height * 1 })
+			this.spawnSingle({ type: 'smart', y: randInt(canvas.height * 2) + canvas.height * 1 })
+			this.spawnSingle({ type: 'shield', y: randInt(canvas.height * 2) })
+			this.spawnSingle({ type: 'shield', y: randInt(canvas.height * 2) + canvas.height * 4 })
 		},
 		update(dt) {
 			this.powerups = this.powerups.filter((x) => { return x.dead !== true })

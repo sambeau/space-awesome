@@ -97,6 +97,7 @@ const galaxian = () => {
 			this.imageR2.onload = () => { this.imageR2Loaded = true }
 			this.imageR3.onload = () => { this.imageR3Loaded = true }
 			this.imageR4.onload = () => { this.imageR4Loaded = true }
+			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 		},
 		outOfBoundsV() {
 			if (this.y > canvas.height + this.height) return true
