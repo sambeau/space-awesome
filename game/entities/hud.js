@@ -1,4 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
+import { picker } from "../utils.js";
 import { Minimap } from "./minimap.js";
 
 const debug = false
@@ -7,16 +8,47 @@ const top = 24
 const padding = 20
 const pixel = 4
 
+
+const smartBombImage1 = new Image()
+const smartBombImage2 = new Image()
+const smartBombImage3 = new Image()
+
+smartBombImage1.src = "/images/smart-hud-icon-1.png"
+smartBombImage2.src = "/images/smart-hud-icon-2.png"
+smartBombImage3.src = "/images/smart-hud-icon-3.png"
+
+export const SmartBombs = () => {
+	return {
+		smartbombs: null,
+		images: null,
+		init(smartbombs) {
+			this.smartbombs = smartbombs
+			this.images = picker([smartBombImage1, smartBombImage2, smartBombImage3])
+		},
+		update() {
+
+		},
+		draw() {
+			const width = 54 / 2
+			const height = 26 / 2
+			const x = canvas.width - width - padding
+			const y = top + padding * 2
+			for (let i = 0; i < this.smartbombs.charges; i++) {
+				ctx.drawImage(this.images.any(), x - (i * (width + 5)), y, width, height)
+			}
+		}
+	}
+}
 export const Score = () => {
 	return {
 		scoreString: "",
 		init() {
 		},
 		update(dt) {
-			this.scoreString = game.score.toString().padStart(8, "0")
+			this.scoreString = game.score.toString().padStart(7, "0")
 		},
 		draw() {
-			ctx.font = "16px Robotron";
+			ctx.font = "15px Robotron";
 			const textMetrics = ctx.measureText(this.scoreString);
 			const width = textMetrics.actualBoundingBoxRight + textMetrics.actualBoundingBoxLeft
 			const y = top + padding
@@ -37,18 +69,24 @@ export const Score = () => {
 export const Hud = () => {
 	return {
 		score: null,
-		init(ents) {
+		init(ship, ents) {
 			this.score = Score()
 			this.minimap = Minimap()
-			this.minimap.init(ents)
+			this.minimap.init(ship, ents)
+			this.smartBombs = SmartBombs()
+			this.smartBombs.init(ship.smartBomb)
 		},
 		update(dt) {
 			this.score.update()
 			this.minimap.update()
+			this.smartBombs.update()
+
 		},
 		draw() {
 			this.score.draw()
 			this.minimap.draw()
+			this.smartBombs.draw()
+
 		}
 	}
 }

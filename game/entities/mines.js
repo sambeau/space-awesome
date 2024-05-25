@@ -202,6 +202,9 @@ const mine = () => {
 export const Mines = () => {
 	return {
 		mines: [],
+		all() {
+			return this.mines
+		},
 		spawnSingle({ ship, x, y, vx, vy }) {
 			let a = mine()
 			this.mines.push(a)

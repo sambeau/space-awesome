@@ -8,6 +8,8 @@ let shots = []
 
 const galaxian = () => {
 	return {
+		name: "galaxian",
+		color: "#FF0000",
 		score: 500,
 		x: 0,
 		y: 0,
@@ -219,6 +221,9 @@ export const galaxians = () => {
 	return {
 		galaxians: [],
 		noShots: 0,
+		all() {
+			return this.galaxians
+		},
 		spawnSingle({ ship }) {
 			let x = galaxian()
 			this.galaxians.push(x)

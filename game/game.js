@@ -222,7 +222,14 @@ const main = () => {
 	powerups.spawn({ ship: ship })
 
 	hud = Hud()
-	hud.init([asteroids.asteroids, pods.pods, swarmers.swarmers, defenders.defenders, galaxians.galaxians])
+	hud.init(ship, [
+		asteroids,
+		pods,
+		swarmers,
+		defenders,
+		galaxians,
+		powerups
+	])
 
 	window.addEventListener(
 		"keydown",

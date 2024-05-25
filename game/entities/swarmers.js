@@ -17,8 +17,9 @@ image2.onload = () => { imagesLoaded++ }
 
 const swarmer = () => {
 	return {
+		name: "swarmer",
+		color: "#FF0000",
 		ship: null,
-		swarmers: null,
 		score: 100,
 		x: 0,
 		y: 0,
@@ -168,6 +169,9 @@ const swarmer = () => {
 export const Swarmers = () => {
 	return {
 		swarmers: [],
+		all() {
+			return this.swarmers
+		},
 		spawnSingle({ ship, x, y, vx, vy }) {
 			let a = swarmer()
 			this.swarmers.push(a)

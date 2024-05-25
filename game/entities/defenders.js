@@ -6,6 +6,8 @@ import { explode } from "./explosions.js";
 
 const defender = () => {
 	return {
+		name: "defender",
+		color: "#06BA01",
 		score: 250,
 		x: 0,
 		y: 0,
@@ -113,6 +115,9 @@ const defender = () => {
 export const defenders = () => {
 	return {
 		defenders: [],
+		all() {
+			return this.defenders
+		},
 		spawn({ ship: ship }) {
 			this.defenders = makeN(defender, 10)
 			this.defenders.forEach((x) => x.spawn({ ship: ship }))

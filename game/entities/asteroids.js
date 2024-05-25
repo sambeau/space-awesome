@@ -26,6 +26,8 @@ const colliders = {
 
 const asteroid = () => {
 	return {
+		name: "asteroid",
+		color: "#00ffff",
 		asteroids: null,
 		score: 100,
 		x: 0,
@@ -231,6 +233,9 @@ const asteroid = () => {
 export const asteroids = () => {
 	return {
 		asteroids: [],
+		all() {
+			return this.asteroids
+		},
 		spawnSingle({ size, x, y, vx, vy }) {
 			let a = asteroid()
 			this.asteroids.push(a)

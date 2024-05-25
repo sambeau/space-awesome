@@ -23,6 +23,8 @@ image4.onload = () => { imagesLoaded++ }
 
 const pod = () => {
 	return {
+		name: "pod",
+		color: "#FF00FF",
 		ship: null,
 		score: 1000,
 		x: 0,
@@ -134,6 +136,9 @@ const pod = () => {
 export const Pods = () => {
 	return {
 		pods: [],
+		all() {
+			return this.pods
+		},
 		spawn({ swarmers, ship }) {
 			this.pods = makeN(pod, 6)
 			this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship }))

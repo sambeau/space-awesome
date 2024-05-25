@@ -184,7 +184,6 @@ export const spaceship = () => {
 		colliders: [
 			{ type: "circle", ox: 0 + 49.5 / 2, oy: 16 + 49.5 / 2, r: 49.5 / 2, colliding: false },
 			{ type: "circle", ox: 16.5 + 16.5 / 2, oy: 5 + 16.5 / 2, r: 16.5 / 2, colliding: false },
-
 		],
 		heightWithFlame: 0,
 		image1: new Image(),

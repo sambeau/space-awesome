@@ -18,6 +18,8 @@ powerupTypes.forEach((s) => {
 
 const powerup = () => {
 	return {
+		name: "powerup",
+		color: "random",
 		type: 'bullet',
 		images: null,
 		image: null,
@@ -149,6 +151,9 @@ const powerup = () => {
 export const Powerups = () => {
 	return {
 		powerups: [],
+		all() {
+			return this.powerups
+		},
 		spawnSingle({ type, x, y, vx, vy }) {
 			let a = powerup()
 			this.powerups.push(a)
