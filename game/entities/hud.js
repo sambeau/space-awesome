@@ -1,4 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
+import { Minimap } from "./minimap.js";
 
 const debug = false
 
@@ -36,14 +37,18 @@ export const Score = () => {
 export const Hud = () => {
 	return {
 		score: null,
-		init() {
+		init(ents) {
 			this.score = Score()
+			this.minimap = Minimap()
+			this.minimap.init(ents)
 		},
 		update(dt) {
 			this.score.update()
+			this.minimap.update()
 		},
 		draw() {
 			this.score.draw()
+			this.minimap.draw()
 		}
 	}
 }

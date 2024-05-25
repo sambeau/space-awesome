@@ -83,6 +83,7 @@ const gameLoop = (dt) => {
 	galaxians.update(dt)
 	ship.update(dt)
 	game.particles.update(dt)
+
 	hud.update(dt)
 
 	// clear
@@ -221,7 +222,7 @@ const main = () => {
 	powerups.spawn({ ship: ship })
 
 	hud = Hud()
-	hud.init()
+	hud.init([asteroids.asteroids, pods.pods, swarmers.swarmers, defenders.defenders, galaxians.galaxians])
 
 	window.addEventListener(
 		"keydown",
