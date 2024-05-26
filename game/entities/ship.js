@@ -419,7 +419,7 @@ export const spaceship = () => {
 						this.guns = 3
 					break;
 				case 'life':
-					this.lives++
+					game.lives++
 					break;
 				case 'smart':
 					this.smartBomb.charges++

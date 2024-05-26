@@ -19,6 +19,7 @@ canvas.height = window.screen.availHeight - 32;
 
 export const ctx = canvas.getContext("2d");
 export const game = {
+	lives: 3,
 	score: 0,
 	speed: 1,
 	particles: null,

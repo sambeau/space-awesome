@@ -1,11 +1,12 @@
 import { canvas, ctx } from "../game.js";
-import { randInt } from "../utils.js";
+import { picker } from "../utils.js";
 
 const debug = true
 
 const scale = 10
 const top = 52
 const padding = 20
+const gap = 5
 const pixel = 4
 
 let ship
@@ -19,6 +20,11 @@ let x
 
 export let Minimap = () => {
 	return {
+		randomColors: null,
+		randomColor: "white",
+		ticker: 0,
+		animationSpeed: 3,
+		image: 0,
 		init(_ship, ents) {
 			ship = _ship
 			entities = ents
@@ -26,11 +32,22 @@ export let Minimap = () => {
 
 			width = canvas.width / scale
 			height = canvas.height * 4 / scale
-			y = top + padding * 2
+			y = top + gap * 3 + 55
 			x = canvas.width - width - padding
+
+			this.randomColors = picker([
+				"#ff00ff",
+				"#ffff00",
+				"#00ffff",
+			])
 		},
 		update(dt) {
-
+			this.ticker++
+			if (this.ticker == 30) this.ticker = 0
+			if (this.ticker == this.animationSpeed) {
+				this.ticker = 0
+				this.randomColor = this.randomColors.any()
+			}
 		},
 		draw() {
 			ctx.save()
@@ -49,8 +66,8 @@ export let Minimap = () => {
 
 			ctx.setLineDash([5, 5]);
 			ctx.beginPath();
-			ctx.moveTo(x, height);
-			ctx.lineTo(x + width, height);
+			ctx.moveTo(x, y + height * (3 / 4));
+			ctx.lineTo(x + width, y + height * (3 / 4));
 			ctx.stroke();
 
 			entities.forEach((type) => {
@@ -61,7 +78,7 @@ export let Minimap = () => {
 						else
 							ctx.fillStyle = "white";
 						if (ent.color == "random") {
-							ctx.fillStyle = `rgb(${randInt(255) + 1},${randInt(255) + 1},${randInt(255) + 1})`
+							ctx.fillStyle = this.randomColor
 						}
 						ctx.fillRect(ent.x / scale + x, (ent.y + 3 * canvas.height) / scale + y, 4, 4);
 					}
@@ -74,13 +91,7 @@ export let Minimap = () => {
 				ctx.fillRect(shipx, shipy, 2, 4)
 				ctx.fillRect(shipx, shipy, 2, 4)
 				ctx.fillRect(shipx - 2, shipy + 4, 6, 2)
-				// let shipPath = new Path2D();
-				// shipPath.moveTo(shipx, shipy)
-				// shipPath.lineTo(shipx + 1, shipy + 1)
-				// shipPath.lineTo(shipx - 1, shipy + 1)
-				// shipPath.lineTo(shipx, shipy)
-				// shipPath.closePath()
-				// ctx.fill(shipPath);
+
 			}
 			ctx.restore()
 		}
