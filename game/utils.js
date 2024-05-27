@@ -19,10 +19,11 @@ export function picker(xs, props) {
 			return xs[xs.length - 1]
 		},
 		next() {
+			const it = this.xs[this.ticker]
 			this.ticker++
 			if (this.ticker == xs.length)
 				this.ticker = 0
-			return this.xs[this.ticker]
+			return it
 		},
 		any() {
 			return pick(this.xs)

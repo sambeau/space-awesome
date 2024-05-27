@@ -10,6 +10,7 @@ import { Particles } from "./entities/particles.js";
 import { Pods } from "./entities/pods.js";
 import { Powerups } from "./entities/powerups.js";
 import { spaceship as Spaceship } from "./entities/ship.js";
+import { Snakes } from "./entities/snakes.js";
 import { Swarmers } from "./entities/swarmers.js";
 
 export const canvas = document.getElementById("canvas");
@@ -49,6 +50,7 @@ let pods
 let swarmers
 let defenders
 let galaxians
+let snakes
 let powerups
 let hud
 
@@ -82,6 +84,7 @@ const gameLoop = (dt) => {
 	swarmers.update(dt)
 	defenders.update(dt)
 	galaxians.update(dt)
+	snakes.update(dt)
 	ship.update(dt)
 	game.particles.update(dt)
 
@@ -104,6 +107,7 @@ const gameLoop = (dt) => {
 
 	// draw entities
 	stars.draw()
+	snakes.draw()
 	asteroids.draw()
 	mines.draw()
 	pods.draw()
@@ -219,6 +223,9 @@ const main = () => {
 	galaxians = Galaxians()
 	galaxians.spawn({ ship: ship })
 
+	snakes = Snakes()
+	snakes.spawn({ ship: ship })
+
 	powerups = Powerups()
 	powerups.spawn({ ship: ship })
 
@@ -229,7 +236,8 @@ const main = () => {
 		swarmers,
 		defenders,
 		galaxians,
-		powerups
+		powerups,
+		snakes
 	])
 
 	window.addEventListener(
