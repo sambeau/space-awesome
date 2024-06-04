@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
-import { randInt } from "../utils.js";
-import { distanceBetweenCircles } from "./entity.js";
+import { randInt } from "/zap/zap.js"
+import { distanceBetweenCircles } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
 let numImagesLoaded = 0

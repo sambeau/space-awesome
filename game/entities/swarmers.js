@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
-import { picker, randInt } from "../utils.js";
-import { distanceBetweenCircles } from "./entity.js";
+import { picker, randInt } from "/zap/zap.js"
+import { distanceBetweenCircles } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
 let imagesLoaded = 0

@@ -1,7 +1,7 @@
 import { ctx, game } from "../game.js";
-import { pick, randInt } from "../utils.js";
+import { pick, randInt } from "/zap/zap.js"
 import { bullet } from "./bullet.js";
-import { collisionBetweenCircles } from "./entity.js";
+import { collisionBetweenCircles } from "/zap/zap.js";
 
 const smartBombRadius = 500
 const flashes = 12

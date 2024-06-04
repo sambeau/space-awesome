@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { picker, randInt } from "../utils.js";
+import { picker, randInt } from "/zap/zap.js"
 import { explode } from "./explosions.js";
 
 let numImagesLoaded = 0

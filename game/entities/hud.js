@@ -1,5 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
-import { picker } from "../utils.js";
+import { picker } from "/zap/zap.js"
 import { Minimap } from "./minimap.js";
 
 const debug = false

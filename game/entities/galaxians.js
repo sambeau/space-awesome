@@ -1,5 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
-import { randInt } from "../utils.js";
+import { randInt } from "/zap/zap.js"
 import { explode } from "./explosions.js";
 import { shot } from "./shot.js";
 

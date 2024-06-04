@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
-import { picker } from "../utils.js";
-import { collisionBetweenCircles, distanceBetweenCircles } from "./entity.js";
+import { picker } from "/zap/zap.js"
+import { collisionBetweenCircles, distanceBetweenCircles } from "/zap/zap.js";
 
 // angle in radians
 const angleRadians = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1);

@@ -1,5 +1,5 @@
 import { game } from "../game.js";
-import { pick } from "../utils.js";
+import { pick } from "/zap/zap.js"
 
 const getColorIndicesForCoord = (imageData, x, y, width) => {
 	const red = y * (width * 4) + x * 4;

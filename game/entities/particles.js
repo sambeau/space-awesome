@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { picker } from "../utils.js";
+import { picker } from "/zap/zap.js"
 
 const debug = false
 
