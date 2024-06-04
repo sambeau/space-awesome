@@ -2,9 +2,9 @@
 
 ## Priority List
 
-- [ ] Munching mode for snake
+- [x] Munching mode for snake
 - [ ] Moving eyes
-- [ ] Saved spacemen count
+- [x] Saved spacemen count
 - [ ] Limit FOV for all baddies
 - [ ] Mother Ship
 - [ ] Floating scores
@@ -29,7 +29,7 @@
 	- [x] Shields
 	- [x] Lives
 	- [x] Guns
-- [ ] Saved spacemen count
+- [x] Saved spacemen count
 - [x] Lives
 - [ ] Mother Ship
 	- [ ] Fire round bombs at angles
@@ -43,7 +43,7 @@
 - [x] Minimap
 - [x] Snake
 	- [ ] Moving eyes
-	- [ ] Munching mode
+	- [x] Munching mode
 	- [x] Angry mode
 - [ ] Make 'defenders' (landers) grab people and run away with them
 	- [ ] Mutants
