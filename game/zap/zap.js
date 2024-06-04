@@ -1,3 +1,5 @@
+// things
+
 export function makeN(thing, n) {
 	let things = []
 	for (let i = 0; i < n; i++)
@@ -5,13 +7,21 @@ export function makeN(thing, n) {
 	return things
 }
 
-export function distanceBetweenPoints(x1, y1, x2, y2) { /// this is really points, not circles
+// geometry & collisions
+
+export const angleOfLineInRads = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1);
+
+export const angleOfLineInDegs = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+export function distanceBetweenPoints(x1, y1, x2, y2) {
 	return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 }
 
 export function collisionBetweenCircles(x1, y1, r1, x2, y2, r2) {
 	return (distanceBetweenPoints(x1, y1, x2, y2) < r1 + r2)
 }
+
+// random
 
 export function randInt(n) {
 	return Math.floor(Math.random() * n)
@@ -20,6 +30,8 @@ export function randInt(n) {
 export function pick(xs) {
 	return xs[randInt(xs.length)]
 }
+
+// animation
 
 export function picker(xs, props) {
 	return {
