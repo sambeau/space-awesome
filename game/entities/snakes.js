@@ -1,12 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
-import { picker } from "/zap/zap.js"
-import { collisionBetweenCircles, distanceBetweenPoints } from "/zap/zap.js";
-
-// angle in radians
-const angleRadians = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1);
-
-// angle in degrees
-const angleDeg = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+import { collisionBetweenCircles, distanceBetweenPoints, picker } from "/zap/zap.js";
 
 const Segment = () => {
 	return {
@@ -80,30 +73,62 @@ const Snake = () => {
 		ship: null,
 		snake: [],
 		snakes: null,
-		mode: 'angry',
 		vx: 0,
 		vy: 8,
 		colors: null,
 		ticker: 0,
-		init() { },
+		state: null,
+		states: {},
+		seeking: 0,
+		init() {
+			this.states.angry = {}
+			this.states.angry.colors = picker(["#080A32", "#FFC104"])
+			this.states.angry.update = () => {
+				let cohesion = 0.1
+				const head = this.snake[0]
+
+				head.vx -= (head.x - this.ship.x) * cohesion
+				head.vy -= (head.y - this.ship.y) * cohesion
+				this.snakes.forEach((s) => {
+					head.vx += (head.x - s.x) * cohesion / 100
+					head.vy += (head.y - s.y) * cohesion / 100
+				})
+				if (head.vx > 5) head.vx = 5
+				if (head.vx < -5) head.vx = -5
+				if (head.vy > 4) head.vy = 4
+				if (head.vy < -4) head.vy = -4
+			}
+			this.states.hungry = {}
+			this.states.hungry.colors = picker(["#ff00ff", "#ffff00", "#00ffff"])
+			this.states.hungry.update = () => {
+				const head = this.snake[0]
+				head.vx = 0
+				head.vy = 8
+			}
+			this.state = this.states.hungry
+		},
 		all() {
 			return this.snake
 		},
 		spawn({ snakes, ship, spacemen, x, y, length }) {
-			// console.log({ ship, x, y, length })
 			this.ship = ship
 			this.snakes = snakes
 			this.spacemen = spacemen
-			// console.log("spacemen:", this.spacemen.all())
+
 			this.x = x
 			this.y = y
-			// this.colors = picker(["#080A32", "#06BA01", "#FFB301"])
-			// this.colors = picker(["#080A32", "#FFC104"]) // angry
-			this.colors = picker(["#ff00ff", "#ffff00", "#00ffff"]) // hungry
+
+			this.init()
+
 			// this.colors = picker(["#B102B9", "#B1AA11", "#09AAB9"]) // angry
+			// this.colors = picker(["#080A32", "#06BA01", "#FFB301"])
+
+			// this.colors =  // hungry
+			// this.colors = picker(["#080A32", "#FFC104"]) // angry
+
 			for (let i = 0; i < length; i++) {
 				this.snake[i] = Segment()
-				this.snake[i].spawn({ x: this.x, y: this.y, color: this.colors.next() })
+				this.snake[i].spawn({ x: this.x, y: this.y, color: this.state.colors.next() })
 			}
 		},
 		grow() {
@@ -111,7 +136,7 @@ const Snake = () => {
 			segment.spawn({
 				x: this.snake[this.snake.length - 1].x,
 				y: this.snake[this.snake.length - 1].y,
-				color: this.colors.next()
+				color: this.state.colors.next()
 			})
 			this.snake.push(segment)
 		},
@@ -141,20 +166,10 @@ const Snake = () => {
 			const head = this.snake[0]
 			// move head
 			if (this.ticker % 8 == 0) {
+				this.state.update()
 
 				if (this.mode === 'angry') {
 
-					let cohesion = 0.1
-					head.vx -= (head.x - this.ship.x) * cohesion
-					head.vy -= (head.y - this.ship.y) * cohesion
-					this.snakes.forEach((s) => {
-						head.vx += (head.x - s.x) * cohesion / 100
-						head.vy += (head.y - s.y) * cohesion / 100
-					})
-					if (head.vx > 5) head.vx = 5
-					if (head.vx < -5) head.vx = -5
-					if (head.vy > 4) head.vy = 4
-					if (head.vy < -4) head.vy = -4
 
 				} else if (this.mode === 'searching') {
 					console.log(this.mode)
@@ -250,6 +265,11 @@ const Snake = () => {
 			if (this.ticker > 1000) this.ticker = 0
 		},
 		draw() {
+			ctx.save()
+			ctx.font = "16px sans-serif";
+			ctx.fillStyle = "#00ff00";
+			ctx.fillText("snake", this.snake[0].x + 20, this.snake[0].y)
+			ctx.restore()
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
 				if (i === 0) position = "head"
