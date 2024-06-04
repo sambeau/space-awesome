@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from "../game.js";
-import { randInt } from "/zap/zap.js"
 import { explode } from "./explosions.js";
 import { shot } from "./shot.js";
+import { randInt } from "/zap/zap.js";
 
 let maxShots = 4
 let shots = []
@@ -230,23 +230,23 @@ export const galaxians = () => {
 			x.spawn({ ship: ship })
 		},
 		spawn({ ship }) {
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			//
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
+			// 			this.spawnSingle({ ship })
 		},
 		update(dt) {
 			shots = shots.filter((b) => { return b.dead !== true })

@@ -1,5 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
-import { collisionBetweenCircles, distanceBetweenPoints, picker } from "/zap/zap.js";
+import { debugThing, distanceBetweenPoints, findClosestThing, picker, thingsAreColliding } from "/zap/zap.js";
 
 const Segment = () => {
 	return {
@@ -15,6 +15,26 @@ const Segment = () => {
 			this.x = x
 			this.y = y
 			this.color = color
+			this.collider = {
+				type: "circle",
+				x: this.cx,
+				y: this.cy,
+				r: this.width / 2,
+				colliding: false
+			}
+		},
+		update() {
+			this.x += this.vx
+			this.y += this.vy + game.speed
+			this.cx = this.x + this.width / 2
+			this.cy = this.y + this.height / 2
+			this.collider = {
+				type: "circle",
+				x: this.cx,
+				y: this.cy,
+				r: this.width / 2,
+				colliding: false
+			}
 		},
 		outOfBoundsB() {
 			if (this.y > canvas.height + this.height) return true
@@ -63,7 +83,6 @@ const Segment = () => {
 					break;
 			}
 			ctx.restore()
-
 		},
 	}
 }
@@ -102,8 +121,33 @@ const Snake = () => {
 			this.states.hungry.colors = picker(["#ff00ff", "#ffff00", "#00ffff"])
 			this.states.hungry.update = () => {
 				const head = this.snake[0]
+
+				const closestSpaceman = findClosestThing(head, this.spacemen.spacemen)
+				if (!closestSpaceman) {
+					this.state = this.states.angry
+					this.seeking = 0
+					return
+				}
+
+				if (thingsAreColliding(head, closestSpaceman)) {
+					closestSpaceman.dead = true
+				}
+				this.seeking = closestSpaceman.id
+
 				head.vx = 0
-				head.vy = 8
+				head.vy = 0
+				if (closestSpaceman.cx > head.cx) {
+					//go right
+					head.vx = 2
+				} else {
+					head.vx = -2
+				}
+				if (closestSpaceman.cy > head.cy) {
+					//go right
+					head.vy = 2
+				} else {
+					head.vy = 0
+				}
 			}
 			this.state = this.states.hungry
 		},
@@ -117,14 +161,10 @@ const Snake = () => {
 
 			this.x = x
 			this.y = y
+			this.cx = x + this.width / 2
+			this.cy = y + this.height / 2
 
 			this.init()
-
-			// this.colors = picker(["#B102B9", "#B1AA11", "#09AAB9"]) // angry
-			// this.colors = picker(["#080A32", "#06BA01", "#FFB301"])
-
-			// this.colors =  // hungry
-			// this.colors = picker(["#080A32", "#FFC104"]) // angry
 
 			for (let i = 0; i < length; i++) {
 				this.snake[i] = Segment()
@@ -160,90 +200,14 @@ const Snake = () => {
 				this.snake[i].wobblywidth = this.snake[i - 1].wobblywidth
 
 				// }
-				this.snake[i].x += this.snake[i].vx
-				this.snake[i].y += this.snake[i].vy + game.speed
+				this.snake[i].update()
 			}
 			const head = this.snake[0]
 			// move head
 			if (this.ticker % 8 == 0) {
 				this.state.update()
-
-				if (this.mode === 'angry') {
-
-
-				} else if (this.mode === 'searching') {
-					console.log(this.mode)
-					// find nearest spaceman
-					let nearestDistance = Number.MAX_VALUE
-					let nearestSpaceman
-					const spacemen = this.spacemen.all()
-
-					for (let i = 0; i < spacemen.length; i++) {
-						const s = spacemen[i]
-						const d = distanceBetweenPoints(head.x, head.y, s.x, s.y)
-						if (d < nearestDistance) {
-							console.log(i)
-							nearestDistance = d
-							nearestSpaceman = s
-						}
-					}
-
-					// find biggest of width/height
-					if (nearestSpaceman && (nearestDistance < screen.height)) {
-						this.seeking = nearestSpaceman
-						this.mode = 'seeking'
-					}
-					else {
-						// move down
-						head.vx = 0;
-						head.vy = 8//10;
-					}
-					// move that way at speed
-
-
-				} else if (this.mode === 'seeking') {
-					console.log(this.mode, this.seeking)
-					if (this.seeking.dead == true) {
-						this.mode = "searching"
-					} else if (collisionBetweenCircles(
-						head.x,
-						head.y,
-						head.width,
-						this.seeking.collider.x,
-						this.seeking.collider.y,
-						this.seeking.collider.r,
-					)) {
-						// collide
-						console.log("collide!")
-						this.seeking.dead = true
-					} else {
-						if (this.seeking.y >= this.y) {
-							//seek down
-							console.log("seek DOWN", this.seeking.y - this.y)
-							head.vx = 0;
-							head.vy = 8
-						} else if (this.seeking.x < this.x) {
-							// seek left
-							console.log("seek LEFT", this.seeking.x - this.x)
-							head.vx = -8;
-							head.vy = 0
-						} else if (this.seeking.x >= this.x) {
-							// seek right
-							console.log("seek RIGHT", this.seeking.x - this.x)
-							head.vx = 8
-							head.vy = 0
-						} else {
-							// seek up
-							console.log("seek UP", this.seeking.y - this.y)
-							head.vx = 0
-							head.vy = -8
-						}
-					}
-				}
 			}
-
-			head.x += head.vx
-			head.y += head.vy + game.speed
+			head.update()
 
 			head.wobblywidth = Math.cos(this.ticker / 33 * 2 * Math.PI) * 2 + head.width
 
@@ -257,7 +221,7 @@ const Snake = () => {
 			this.snake.forEach((s) => { if (s.y < lowestSnakeY) lowestSnakeY = s.y })
 			if (lowestSnakeY > canvas.height + head.height) {
 				for (let i = 0; i < this.snake.length; i++) {
-					this.snake[i].y = 0 - canvas.height * 2 + (this.snake[i].y - canvas.height) - lowestSnakeY
+					this.snake[i].y = 0 /*- canvas.height * 2*/ + (this.snake[i].y - canvas.height / 3) - lowestSnakeY
 				}
 			}
 
@@ -265,11 +229,7 @@ const Snake = () => {
 			if (this.ticker > 1000) this.ticker = 0
 		},
 		draw() {
-			ctx.save()
-			ctx.font = "16px sans-serif";
-			ctx.fillStyle = "#00ff00";
-			ctx.fillText("snake", this.snake[0].x + 20, this.snake[0].y)
-			ctx.restore()
+			debugThing(ctx, this.snake[0], this.seeking.toString())
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
 				if (i === 0) position = "head"

@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
-import { randInt } from "/zap/zap.js"
-import { makeN } from "/zap/zap.js";
+import { randInt } from "/zap/zap.js";
+// import { makeN } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
 
@@ -119,8 +119,8 @@ export const defenders = () => {
 			return this.defenders
 		},
 		spawn({ ship: ship }) {
-			this.defenders = makeN(defender, 8)
-			this.defenders.forEach((x) => x.spawn({ ship: ship }))
+			// this.defenders = makeN(defender, 8)
+			// this.defenders.forEach((x) => x.spawn({ ship: ship }))
 		},
 		update(dt) {
 			this.defenders = this.defenders.filter((b) => { return b.dead !== true })

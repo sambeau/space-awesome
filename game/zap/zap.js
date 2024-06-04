@@ -1,12 +1,5 @@
 // things
 
-export function makeN(thing, n) {
-	let things = []
-	for (let i = 0; i < n; i++)
-		things.push(thing())
-	return things
-}
-
 // geometry & collisions
 
 export const angleOfLineInRads = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1);
@@ -21,6 +14,42 @@ export function collisionBetweenCircles(x1, y1, r1, x2, y2, r2) {
 	return (distanceBetweenPoints(x1, y1, x2, y2) < r1 + r2)
 }
 
+//
+
+export function makeN(thing, n) {
+	let things = []
+	for (let i = 0; i < n; i++)
+		things.push(thing())
+	return things
+}
+
+export function debugThing(ctx, thing, text) {
+	ctx.save()
+	ctx.font = "16px sans-serif";
+	ctx.fillStyle = "#00ff00";
+	ctx.fillText(text, thing.x + 20, thing.y)
+	ctx.restore()
+}
+
+export function findClosestThing(thing, things) {
+	let closestThing
+	let closestDistance = Number.MAX_VALUE
+	for (let i = 0; i < things.length; i++) {
+		const d = distanceBetweenPoints(thing.x, thing.y, things[i].x, things[i].y)
+		if (d < closestDistance) {
+			closestDistance = d
+			closestThing = things[i]
+		}
+	}
+	return closestThing
+}
+
+export function thingsAreColliding(thing1, thing2) {
+	return collisionBetweenCircles(
+		thing1.collider.x, thing1.collider.y, thing1.collider.r,
+		thing2.collider.x, thing2.collider.y, thing2.collider.r
+	)
+}
 // random
 
 export function randInt(n) {

@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { picker, randInt } from "/zap/zap.js"
+import { picker, randInt } from "/zap/zap.js";
 
 let numImagesLoaded = 0
 const images = {}
@@ -160,12 +160,12 @@ export const Powerups = () => {
 			a.spawn({ type: type, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
-			this.spawnSingle({ type: 'bullet', y: randInt(canvas.height * 4) + canvas.height * 3 })
-			this.spawnSingle({ type: 'bullet', y: randInt(canvas.height * 3) + canvas.height * 2 })
-			this.spawnSingle({ type: 'life', y: randInt(canvas.height * 3) + canvas.height * 1 })
-			this.spawnSingle({ type: 'smart', y: randInt(canvas.height * 2) + canvas.height * 1 })
-			this.spawnSingle({ type: 'shield', y: randInt(canvas.height * 2) })
-			this.spawnSingle({ type: 'shield', y: randInt(canvas.height * 2) + canvas.height * 4 })
+			// this.spawnSingle({ type: 'bullet', y: randInt(canvas.height * 4) + canvas.height * 3 })
+			// this.spawnSingle({ type: 'bullet', y: randInt(canvas.height * 3) + canvas.height * 2 })
+			// this.spawnSingle({ type: 'life', y: randInt(canvas.height * 3) + canvas.height * 1 })
+			// this.spawnSingle({ type: 'smart', y: randInt(canvas.height * 2) + canvas.height * 1 })
+			// this.spawnSingle({ type: 'shield', y: randInt(canvas.height * 2) })
+			// this.spawnSingle({ type: 'shield', y: randInt(canvas.height * 2) + canvas.height * 4 })
 		},
 		update(dt) {
 			this.powerups = this.powerups.filter((x) => { return x.dead !== true })
