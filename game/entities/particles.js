@@ -84,22 +84,22 @@ export const Particles = () => {
 		},
 		spawnCircle({ points, cx, cy, width, height, speed, lifespan, style }) {
 			speed = speed ? speed : 1
-			console.log("spawnCircle", { points, cx, cy, width, height, speed, lifespan, style })
+			// console.log("spawnCircle", { points, cx, cy, width, height, speed, lifespan, style })
 			let radius = 1
 			for (let i = 0; i < points; i++) {
 				let vx = radius * Math.cos((i * 2 * Math.PI) / points)
 				let vy = radius * -Math.sin((i * 2 * Math.PI) / points)
-				console.log(
-					"spawnSingle", {
-					x: cx,
-					y: cy,
-					width: width,
-					height: height,
-					vx: vx * speed,
-					vy: vy * speed,
-					lifespan: lifespan,
-					style: style,
-				})
+				// console.log(
+				// 	"spawnSingle", {
+				// 	x: cx,
+				// 	y: cy,
+				// 	width: width,
+				// 	height: height,
+				// 	vx: vx * speed,
+				// 	vy: vy * speed,
+				// 	lifespan: lifespan,
+				// 	style: style,
+				// })
 				this.spawnSingle({
 					x: cx,
 					y: cy,

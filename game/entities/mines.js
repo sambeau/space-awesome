@@ -212,8 +212,6 @@ export const Mines = () => {
 		},
 		spawn({ ship }) {
 			this.spawnSingle({ ship: ship })
-			this.spawnSingle({ ship: ship })
-			this.spawnSingle({ ship: ship })
 		},
 		update(dt) {
 			this.mines = this.mines.filter((x) => { return x.dead !== true })

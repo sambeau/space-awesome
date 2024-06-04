@@ -81,7 +81,6 @@ export const Score = () => {
 			ctx.font = "15px Robotron";
 			const textMetrics = ctx.measureText(this.scoreString);
 			if (!once) {
-				console.log(textMetrics)
 				once = true
 			}
 			const width = textMetrics.actualBoundingBoxRight + textMetrics.actualBoundingBoxLeft

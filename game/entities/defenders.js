@@ -119,7 +119,7 @@ export const defenders = () => {
 			return this.defenders
 		},
 		spawn({ ship: ship }) {
-			this.defenders = makeN(defender, 10)
+			this.defenders = makeN(defender, 8)
 			this.defenders.forEach((x) => x.spawn({ ship: ship }))
 		},
 		update(dt) {

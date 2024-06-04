@@ -11,6 +11,7 @@ import { Pods } from "./entities/pods.js";
 import { Powerups } from "./entities/powerups.js";
 import { spaceship as Spaceship } from "./entities/ship.js";
 import { Snakes } from "./entities/snakes.js";
+import { Spacemen } from "./entities/spacemen.js";
 import { Swarmers } from "./entities/swarmers.js";
 
 export const canvas = document.getElementById("canvas");
@@ -46,6 +47,7 @@ let stars
 let ship
 let asteroids
 let mines
+let spacemen
 let pods
 let swarmers
 let defenders
@@ -73,13 +75,16 @@ const gameLoop = (dt) => {
 	ship.collide(pods.pods)
 	ship.collide(swarmers.swarmers)
 	ship.collide(mines.mines)
+	ship.collide(spacemen.spacemen)
 	ship.collect(powerups.powerups)
+	ship.collect(spacemen.spacemen)
 
 	// update
 	powerups.update(dt)
 	stars.update(dt)
 	asteroids.update(dt)
 	mines.update(dt)
+	spacemen.update(dt)
 	pods.update(dt)
 	swarmers.update(dt)
 	defenders.update(dt)
@@ -110,6 +115,7 @@ const gameLoop = (dt) => {
 	snakes.draw()
 	asteroids.draw()
 	mines.draw()
+	spacemen.draw()
 	pods.draw()
 	swarmers.draw()
 	defenders.draw()
@@ -173,6 +179,7 @@ const gameLoop = (dt) => {
 				defenders.defenders,
 				powerups.powerups,
 				mines.mines,
+				spacemen.spacemen,
 			].forEach((ent) => {
 				ent.forEach((e) => {
 					ctx.beginPath();
@@ -213,6 +220,9 @@ const main = () => {
 	mines = Mines()
 	mines.spawn({ ship: ship })
 
+	spacemen = Spacemen()
+	spacemen.spawn({ ship: ship })
+
 	swarmers = Swarmers()
 	pods = Pods()
 	pods.spawn({ swarmers: swarmers, ship: ship })
@@ -224,7 +234,7 @@ const main = () => {
 	galaxians.spawn({ ship: ship })
 
 	snakes = Snakes()
-	snakes.spawn({ ship: ship })
+	snakes.spawn({ ship: ship, spacemen: spacemen })
 
 	powerups = Powerups()
 	powerups.spawn({ ship: ship })
@@ -237,6 +247,7 @@ const main = () => {
 		defenders,
 		galaxians,
 		powerups,
+		spacemen,
 		snakes
 	])
 

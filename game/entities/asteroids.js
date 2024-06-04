@@ -242,11 +242,7 @@ export const asteroids = () => {
 			a.spawn({ asteroids: this, size: size, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
-			this.spawnSingle({ size: 'L' })
-			this.spawnSingle({ size: 'L' })
-			this.spawnSingle({ size: 'L' })
-			this.spawnSingle({ size: 'L' })
-			this.spawnSingle({ size: 'L' })
+
 			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })

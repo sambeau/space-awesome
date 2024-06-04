@@ -140,7 +140,7 @@ export const Pods = () => {
 			return this.pods
 		},
 		spawn({ swarmers, ship }) {
-			this.pods = makeN(pod, 6)
+			this.pods = makeN(pod, 4)
 			this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship }))
 		},
 		update(dt) {

@@ -5,7 +5,7 @@ export function makeN(thing, n) {
 	return things
 }
 
-export function distanceBetweenCircles(x1, y1, x2, y2) {
+export function distanceBetweenCircles(x1, y1, x2, y2) { /// this is really points, not circles
 	return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 }
 

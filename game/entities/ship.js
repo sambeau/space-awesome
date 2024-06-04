@@ -297,14 +297,14 @@ export const spaceship = () => {
 				this.break = false
 			}
 			if (this.flameOn) {
-				this.vy = -5
+				this.vy = -6
 				if (game.speed < 15) game.speed *= 1.033
 			} else {
 				if (this.break) {
 					this.vy = 8
 					if (game.speed > 1) game.speed *= 0.5
 				} else {
-					this.vy = 4
+					this.vy = 3
 					if (game.speed > 1) game.speed *= 0.99
 				}
 			}
@@ -405,8 +405,6 @@ export const spaceship = () => {
 						powerup.collider.x, powerup.collider.y, powerup.collider.r,
 						this.colliders[1].x, this.colliders[1].y, this.colliders[1].r
 					)) {
-					console.log("collide!")
-					console.log(powerup)
 					powerup.onCollect(this)
 				}
 			})
@@ -425,6 +423,9 @@ export const spaceship = () => {
 					this.smartBomb.charges++
 					break;
 				case 'shield':
+					this.boostShields()
+					break;
+				case 'spaceman':
 					this.boostShields()
 					break;
 			}
