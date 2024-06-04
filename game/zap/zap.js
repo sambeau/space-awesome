@@ -5,12 +5,12 @@ export function makeN(thing, n) {
 	return things
 }
 
-export function distanceBetweenCircles(x1, y1, x2, y2) { /// this is really points, not circles
+export function distanceBetweenPoints(x1, y1, x2, y2) { /// this is really points, not circles
 	return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 }
 
 export function collisionBetweenCircles(x1, y1, r1, x2, y2, r2) {
-	return (distanceBetweenCircles(x1, y1, x2, y2) < r1 + r2)
+	return (distanceBetweenPoints(x1, y1, x2, y2) < r1 + r2)
 }
 
 export function randInt(n) {

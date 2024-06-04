@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
 import { randInt } from "/zap/zap.js"
-import { distanceBetweenCircles } from "/zap/zap.js";
+import { distanceBetweenPoints } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
 let numImagesLoaded = 0
@@ -139,7 +139,7 @@ const asteroid = () => {
 			this.asteroids.asteroids.forEach((a) => {
 				if (a == this) // skip
 					return
-				const d = distanceBetweenCircles(this.x, this.y, a.x, a.y)
+				const d = distanceBetweenPoints(this.x, this.y, a.x, a.y)
 				if (d == 0) return
 				// if (d < visibleDistance) {
 				if (closestDistance1 !== 0 && d < closestDistance1) {

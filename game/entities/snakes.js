@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
 import { picker } from "/zap/zap.js"
-import { collisionBetweenCircles, distanceBetweenCircles } from "/zap/zap.js";
+import { collisionBetweenCircles, distanceBetweenPoints } from "/zap/zap.js";
 
 // angle in radians
 const angleRadians = (x1, y1, x2, y2) => Math.atan2(y2 - y1, x2 - x1);
@@ -119,7 +119,7 @@ const Snake = () => {
 			// move body
 			for (let i = this.snake.length - 1; i > 0; i--) {
 				// if (this.ticker % 2 == 0) {
-				if (distanceBetweenCircles(
+				if (distanceBetweenPoints(
 					this.snake[i].x,
 					this.snake[i].y,
 					this.snake[i - 1].x,
@@ -165,7 +165,7 @@ const Snake = () => {
 
 					for (let i = 0; i < spacemen.length; i++) {
 						const s = spacemen[i]
-						const d = distanceBetweenCircles(head.x, head.y, s.x, s.y)
+						const d = distanceBetweenPoints(head.x, head.y, s.x, s.y)
 						if (d < nearestDistance) {
 							console.log(i)
 							nearestDistance = d

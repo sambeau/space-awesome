@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
 import { picker, randInt } from "/zap/zap.js"
-import { distanceBetweenCircles } from "/zap/zap.js";
+import { distanceBetweenPoints } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
 let imagesLoaded = 0
@@ -110,13 +110,13 @@ const swarmer = () => {
 			// console.log(this)
 			let closestswarmer1 = this.ship // add ship here?
 			let closestswarmer2 = this.ship // add ship here?
-			let closestDistance1 = distanceBetweenCircles(this.x, this.y, this.ship.x, this.ship.y)
-			let closestDistance2 = distanceBetweenCircles(this.x, this.y, this.ship.x, this.ship.y)
+			let closestDistance1 = distanceBetweenPoints(this.x, this.y, this.ship.x, this.ship.y)
+			let closestDistance2 = distanceBetweenPoints(this.x, this.y, this.ship.x, this.ship.y)
 
 			this.swarmers.swarmers.forEach((a) => {
 				if (a == this) // skip
 					return
-				const d = distanceBetweenCircles(this.x, this.y, a.x, a.y)
+				const d = distanceBetweenPoints(this.x, this.y, a.x, a.y)
 				if (d == 0) return
 				// if (d < visibleDistance) {
 				if (closestDistance1 !== 0 && d < closestDistance1) {
