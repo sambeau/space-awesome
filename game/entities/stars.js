@@ -1,6 +1,5 @@
 import { ctx, game } from "../game.js";
-import { randInt } from "/zap/zap.js"
-import { makeN } from "/zap/zap.js";
+import { makeN, randInt } from "/zap/zap.js";
 
 const star = () => {
 	return {

@@ -20,7 +20,6 @@ const spaceman = () => {
 		name: "spaceman",
 		type: "spaceman",
 		color: "random",
-		type: 'bullet',
 		id: 0,
 		images: null,
 		image: null,

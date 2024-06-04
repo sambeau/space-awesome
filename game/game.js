@@ -79,6 +79,7 @@ const gameLoop = (dt) => {
 	ship.collide(swarmers.swarmers)
 	ship.collide(mines.mines)
 	ship.collide(spacemen.spacemen)
+
 	ship.collect(powerups.powerups)
 	ship.collect(spacemen.spacemen)
 

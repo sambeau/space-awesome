@@ -1,5 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
-import { debugThing, distanceBetweenPoints, findClosestThing, picker, thingsAreColliding } from "/zap/zap.js";
+import { explode } from "./explosions.js";
+import { debugThing, distanceBetweenPoints, findClosestThing, picker, randInt, thingsAreColliding } from "/zap/zap.js";
 
 const Segment = () => {
 	return {
@@ -84,6 +85,15 @@ const Segment = () => {
 			}
 			ctx.restore()
 		},
+		onHit() {
+			this.dead = true;
+			explode({
+				x: this.cx,
+				y: this.cy,
+				styles: ["white", this.color],
+				size: 10,
+			})
+		},
 	}
 }
 
@@ -108,10 +118,10 @@ const Snake = () => {
 
 				head.vx -= (head.x - this.ship.x) * cohesion
 				head.vy -= (head.y - this.ship.y) * cohesion
-				this.snakes.forEach((s) => {
-					head.vx += (head.x - s.x) * cohesion / 100
-					head.vy += (head.y - s.y) * cohesion / 100
-				})
+				// this.snakes.forEach((s) => {
+				// 	head.vx += (head.x - s.x) * cohesion / 100
+				// 	head.vy += (head.y - s.y) * cohesion / 100
+				// })
 				if (head.vx > 5) head.vx = 5
 				if (head.vx < -5) head.vx = -5
 				if (head.vy > 4) head.vy = 4
@@ -123,33 +133,68 @@ const Snake = () => {
 				const head = this.snake[0]
 
 				const closestSpaceman = findClosestThing(head, this.spacemen.spacemen)
+
 				if (!closestSpaceman) {
 					this.state = this.states.angry
 					this.seeking = 0
 					return
 				}
 
+				if (closestSpaceman.dead
+					|| distanceBetweenPoints(
+						closestSpaceman.cx,
+						closestSpaceman.cy,
+						head.cx,
+						head.cy) > screen.height) {
+					head.vx = 0
+					head.vy = 5
+					return
+				}
 				if (thingsAreColliding(head, closestSpaceman)) {
-					closestSpaceman.dead = true
+					closestSpaceman.onHit()
+					this.grow(10)
 				}
 				this.seeking = closestSpaceman.id
 
-				head.vx = 0
-				head.vy = 0
-				if (closestSpaceman.cx > head.cx) {
-					//go right
-					head.vx = 2
-				} else {
-					head.vx = -2
+				let cohesion = 0.0075
+
+				head.vx -= (head.x - closestSpaceman.x) * cohesion
+				head.vy -= (head.y - closestSpaceman.y) * cohesion
+
+				if (head.vx > 5) head.vx = 5
+				if (head.vx < -5) head.vx = -5
+				if (head.vy > 5) head.vy = 5
+				if (head.vy < -5) head.vy = -5
+			}
+			this.states.walking = {}
+			this.states.walking.colors = picker(["#ff00ff", "#ffff00", "#00ffff"])
+			this.states.walking.update = () => {
+				const head = this.snake[0]
+
+				const closestSpaceman = findClosestThing(head, this.spacemen.spacemen)
+
+				if (!closestSpaceman) {
+					this.state = this.states.angry
+					this.seeking = 0
+					return
 				}
-				if (closestSpaceman.cy > head.cy) {
-					//go right
-					head.vy = 2
-				} else {
-					head.vy = 0
+
+				if (!closestSpaceman.dead
+					&& distanceBetweenPoints(
+						closestSpaceman.cx,
+						closestSpaceman.cy,
+						head.cx,
+						head.cy) <= screen.height) {
+					this.state = this.states.hungry
+					return
+				}
+
+				if (this.ticker % 50 == 0) {
+					head.vx = randInt(10) - 5
+					head.vy = randInt(10)
 				}
 			}
-			this.state = this.states.hungry
+			this.state = this.states.walking
 		},
 		all() {
 			return this.snake
@@ -171,42 +216,32 @@ const Snake = () => {
 				this.snake[i].spawn({ x: this.x, y: this.y, color: this.state.colors.next() })
 			}
 		},
-		grow() {
-			const segment = Segment()
-			segment.spawn({
-				x: this.snake[this.snake.length - 1].x,
-				y: this.snake[this.snake.length - 1].y,
-				color: this.state.colors.next()
-			})
-			this.snake.push(segment)
+		grow(n) {
+			for (let i = 0; i < n; i++) {
+				const segment = Segment()
+				segment.spawn({
+					x: this.snake[this.snake.length - 1].x,
+					y: this.snake[this.snake.length - 1].y,
+					color: this.state.colors.next()
+				})
+				this.snake.push(segment)
+			}
 		},
 		update() {
+
 			// move body
 			for (let i = this.snake.length - 1; i > 0; i--) {
-				// if (this.ticker % 2 == 0) {
-				if (distanceBetweenPoints(
-					this.snake[i].x,
-					this.snake[i].y,
-					this.snake[i - 1].x,
-					this.snake[i - 1].y) < this.snake[i - 1].width / 4
-				) {
-					this.snake[i].vx = 0
-					this.snake[i].vy = 0
+				if (this.ticker % 1 == 0) {
+					this.snake[i].x = this.snake[i - 1].x
+					this.snake[i].y = this.snake[i - 1].y
+					this.snake[i].wobblywidth = this.snake[i - 1].wobblywidth
 				}
-				else {
-					this.snake[i].vx = this.snake[i - 1].vx
-					this.snake[i].vy = this.snake[i - 1].vy
-				}
-				this.snake[i].wobblywidth = this.snake[i - 1].wobblywidth
-
-				// }
 				this.snake[i].update()
 			}
-			const head = this.snake[0]
+
 			// move head
-			if (this.ticker % 8 == 0) {
-				this.state.update()
-			}
+			this.state.update()
+			const head = this.snake[0]
 			head.update()
 
 			head.wobblywidth = Math.cos(this.ticker / 33 * 2 * Math.PI) * 2 + head.width
@@ -217,6 +252,7 @@ const Snake = () => {
 				if (this.snake[i].outOfBoundsR())
 					this.snake[i].x = 0 - this.snake[i].width
 			}
+
 			let lowestSnakeY = head.y
 			this.snake.forEach((s) => { if (s.y < lowestSnakeY) lowestSnakeY = s.y })
 			if (lowestSnakeY > canvas.height + head.height) {
@@ -225,10 +261,20 @@ const Snake = () => {
 				}
 			}
 
+			this.ship.collide(this.snake)
+			// collisions
+
+			this.snake = this.snake.filter((x) => { return x.dead !== true })
+			if (this.snake.length < 1) {
+				this.dead = true
+				return
+			}
+
 			this.ticker++
 			if (this.ticker > 1000) this.ticker = 0
 		},
 		draw() {
+			if (this.dead) return
 			debugThing(ctx, this.snake[0], this.seeking.toString())
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
@@ -258,7 +304,15 @@ export const Snakes = () => {
 				spacemen: spacemen,
 				x: canvas.width * Math.random(),
 				y: Math.random() * (canvas.height / 2 - canvas.height * 3),
-				length: 16
+				length: 10
+			})
+			this.spawnSingle({
+				ship: ship,
+				snakes: this.snakes,
+				spacemen: spacemen,
+				x: canvas.width * Math.random(),
+				y: Math.random() * (canvas.height / 2 - canvas.height * 3),
+				length: 10
 			})
 		},
 		spawnSingle({ ship, spacemen, x, y, length }) {
@@ -267,6 +321,7 @@ export const Snakes = () => {
 			snake.spawn({ snakes: this.snakes, ship: ship, spacemen: spacemen, x: x, y: y, length: length })
 		},
 		update() {
+			this.snakes = this.snakes.filter((x) => { return x.dead !== true })
 			this.snakes.forEach((s) => s.update())
 		},
 		draw() {
