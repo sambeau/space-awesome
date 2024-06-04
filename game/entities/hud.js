@@ -70,14 +70,26 @@ export const Lives = () => {
 
 const spacemanImage = new Image()
 spacemanImage.src = "/images/spaceman-1.png"
-const spacemanSavedImage = new Image()
-spacemanSavedImage.src = "/images/spaceman-saved.png"
+
+const spacemanSavedImage1 = new Image()
+const spacemanSavedImage2 = new Image()
+const spacemanSavedImage3 = new Image()
+spacemanSavedImage1.src = "/images/spaceman-saved-1.png"
+spacemanSavedImage2.src = "/images/spaceman-saved-2.png"
+spacemanSavedImage3.src = "/images/spaceman-saved-3.png"
 
 export const Spacemen = () => {
 	return {
 		spacemen: null,
+		savedImages: null,
 		init(spacemen) {
 			this.spacemen = spacemen
+			this.savedImages = picker([
+				spacemanSavedImage1,
+				spacemanSavedImage2,
+				spacemanSavedImage3
+			])
+
 		},
 		update() { },
 		draw() {
@@ -86,7 +98,7 @@ export const Spacemen = () => {
 			const x = canvas.width - width - padding
 			const y = 485
 			for (let i = 0; i < this.spacemen.saved; i++) {
-				ctx.drawImage(spacemanSavedImage, x - (i * (width - 5)), y, width, height)
+				ctx.drawImage(this.savedImages.any(), x - (i * (width - 5)), y, width, height)
 			}
 			for (let i = this.spacemen.saved; i < this.spacemen.count() + this.spacemen.saved; i++) {
 				ctx.drawImage(spacemanImage, x - (i * (width - 5)), y, width, height)
