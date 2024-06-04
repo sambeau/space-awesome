@@ -183,6 +183,7 @@ const gameLoop = (dt) => {
 				defenders.defenders,
 				powerups.powerups,
 				mines.mines,
+				snakes.all(),
 				spacemen.spacemen,
 			].forEach((ent) => {
 				ent.forEach((e) => {

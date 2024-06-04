@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { debugThing, picker, randInt } from "/zap/zap.js";
+import { picker, randInt } from "/zap/zap.js";
 // import { makeN } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
@@ -114,7 +114,7 @@ const spaceman = () => {
 
 				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
 			}
-			debugThing(ctx, this, this.id.toString())
+			// debugThing(ctx, this, this.id.toString())
 		},
 		animate() {
 			if (this.animate.method == 'any')
@@ -173,34 +173,18 @@ export const Spacemen = () => {
 			a.spawn({ id: this.ids, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
-			// 			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
-			//
-			// 			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
-			// 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
-			// this.spawnSingle({ y: randInt(canvas.height * 2) })
-			// this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
-			// this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
-			this.spawnSingle({ y: randInt(canvas.height) })
-			this.spawnSingle({ y: randInt(canvas.height) })
-			this.spawnSingle({ y: randInt(canvas.height) })
-			this.spawnSingle({ y: randInt(canvas.height) })
-			this.spawnSingle({ y: randInt(canvas.height) })
+			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
+			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
+			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
+			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
+			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
+			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
+			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
+			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
+			this.spawnSingle({ y: randInt(canvas.height * 2) })
+			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
+			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
+
 		},
 		update(dt) {
 			this.spacemen = this.spacemen.filter((x) => { return x.dead !== true })

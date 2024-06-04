@@ -33,7 +33,7 @@ const Segment = () => {
 				type: "circle",
 				x: this.cx,
 				y: this.cy,
-				r: this.width / 2,
+				r: this.width,
 				colliding: false
 			}
 		},
@@ -55,14 +55,14 @@ const Segment = () => {
 				case "tail":
 					ctx.fillStyle = this.color
 					ctx.beginPath();
-					ctx.arc(this.x, this.y, this.width - 5, 0, 2 * Math.PI);
+					ctx.arc(this.cx, this.cy, this.width - 5, 0, 2 * Math.PI);
 					ctx.fill();
 					break;
 				case "head":
 					// head
 					ctx.fillStyle = this.color
 					ctx.beginPath();
-					ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI);
+					ctx.arc(this.cx, this.cy, this.width, 0, 2 * Math.PI);
 					ctx.fill();
 
 					// eyes
@@ -70,16 +70,16 @@ const Segment = () => {
 					// ctx.fillStyle = "#ff0000"// angry eyecolor
 
 					ctx.beginPath();
-					ctx.arc(this.x - this.width / 2, this.y + this.width / 2 + 3, 6, 0, 2 * Math.PI);
+					ctx.arc(this.cx - this.width / 2, this.cy + this.width / 2 + 3, 6, 0, 2 * Math.PI);
 					ctx.fill();
 					ctx.beginPath();
-					ctx.arc(this.x + this.width / 2, this.y + this.width / 2 + 3, 6, 0, 2 * Math.PI);
+					ctx.arc(this.cx + this.width / 2, this.cy + this.width / 2 + 3, 6, 0, 2 * Math.PI);
 					ctx.fill();
 					break;
 				default:
 					ctx.fillStyle = this.color
 					ctx.beginPath();
-					ctx.arc(this.x, this.y, this.wobblywidth, 0, 2 * Math.PI);
+					ctx.arc(this.cx, this.cy, this.wobblywidth, 0, 2 * Math.PI);
 					ctx.fill();
 					break;
 			}
@@ -231,11 +231,9 @@ const Snake = () => {
 
 			// move body
 			for (let i = this.snake.length - 1; i > 0; i--) {
-				if (this.ticker % 1 == 0) {
-					this.snake[i].x = this.snake[i - 1].x
-					this.snake[i].y = this.snake[i - 1].y
-					this.snake[i].wobblywidth = this.snake[i - 1].wobblywidth
-				}
+				this.snake[i].x = this.snake[i - 1].x
+				this.snake[i].y = this.snake[i - 1].y
+				this.snake[i].wobblywidth = this.snake[i - 1].wobblywidth
 				this.snake[i].update()
 			}
 
@@ -263,8 +261,14 @@ const Snake = () => {
 
 			this.ship.collide(this.snake)
 			// collisions
-
-			this.snake = this.snake.filter((x) => { return x.dead !== true })
+			let dead = 0
+			// this.snake.forEach((x) => { if (x.dead) dead++ })
+			for (let i = 0; i < this.snake.length; i++) {
+				if (this.snake[i].dead) dead++
+				this.snake[i].dead = false
+			}
+			if (dead > 0)
+				this.snake = this.snake.slice(0, -dead)
 			if (this.snake.length < 1) {
 				this.dead = true
 				return
@@ -275,11 +279,11 @@ const Snake = () => {
 		},
 		draw() {
 			if (this.dead) return
-			debugThing(ctx, this.snake[0], this.seeking.toString())
+			debugThing(ctx, this.snake[0], this.snake.length.toString())
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
-				if (i === 0) position = "head"
 				if (i == this.snake.length - 1) position = "tail"
+				if (i === 0) position = "head"
 				this.snake[i].draw(position)
 			}
 		},
