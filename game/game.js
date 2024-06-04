@@ -1,4 +1,6 @@
 
+import { build, version } from "./version.js";
+
 import { asteroids as Asteroids } from "./entities/asteroids.js";
 import { defenders as Defenders } from "./entities/defenders.js";
 import { galaxians as Galaxians } from "./entities/galaxians.js";
@@ -18,9 +20,10 @@ export const canvas = document.getElementById("canvas");
 canvas.width = window.screen.availWidth - 32;
 canvas.height = window.screen.availHeight - 32;
 
-
 export const ctx = canvas.getContext("2d");
 export const game = {
+	version: version,
+	build: build,
 	lives: 3,
 	score: 0,
 	speed: 1,
@@ -200,6 +203,8 @@ const gameLoop = (dt) => {
 	const endTime = new Date()
 	const timeTaken = endTime - startTime
 	ctx.fillText(`${Math.floor(timeTaken)}`, 10, 30)
+
+	ctx.fillText(build, 10, 60)
 
 	raf = window.requestAnimationFrame(gameLoop);
 }
