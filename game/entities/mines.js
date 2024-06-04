@@ -211,7 +211,7 @@ export const Mines = () => {
 			a.spawn({ ship: ship, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn({ ship }) {
-			// this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
 		},
 		update(dt) {
 			this.mines = this.mines.filter((x) => { return x.dead !== true })

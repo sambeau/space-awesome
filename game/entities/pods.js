@@ -1,7 +1,6 @@
 import { ctx, game } from "../game.js";
-import { randInt } from "/zap/zap.js";
-// import { makeN } from "/zap/zap.js";
 import { explode } from "./explosions.js";
+import { makeN, randInt } from "/zap/zap.js";
 
 let imagesLoaded = 0
 const numImagesToLoad = 4
@@ -140,8 +139,8 @@ export const Pods = () => {
 			return this.pods
 		},
 		spawn({ swarmers, ship }) {
-			// this.pods = makeN(pod, 4)
-			// this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship }))
+			this.pods = makeN(pod, 2)
+			this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship }))
 		},
 		update(dt) {
 			this.pods = this.pods.filter((b) => { return b.dead !== true })

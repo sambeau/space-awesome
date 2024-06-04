@@ -152,7 +152,7 @@ const Snake = () => {
 				}
 				if (thingsAreColliding(head, closestSpaceman)) {
 					closestSpaceman.onHit()
-					this.grow(10)
+					this.grow(5)
 				}
 				this.seeking = closestSpaceman.id
 
@@ -189,7 +189,7 @@ const Snake = () => {
 					return
 				}
 
-				if (this.ticker % 50 == 0) {
+				if (this.ticker % 25 == 0) {
 					head.vx = randInt(10) - 5
 					head.vy = randInt(10)
 				}
@@ -255,7 +255,7 @@ const Snake = () => {
 			this.snake.forEach((s) => { if (s.y < lowestSnakeY) lowestSnakeY = s.y })
 			if (lowestSnakeY > canvas.height + head.height) {
 				for (let i = 0; i < this.snake.length; i++) {
-					this.snake[i].y = 0 /*- canvas.height * 2*/ + (this.snake[i].y - canvas.height / 3) - lowestSnakeY
+					this.snake[i].y = 0 - canvas.height * 3 + (this.snake[i].y - canvas.height / 3) - lowestSnakeY
 				}
 			}
 
@@ -302,14 +302,6 @@ export const Snakes = () => {
 			return allSnakes
 		},
 		spawn({ ship, spacemen }) {
-			this.spawnSingle({
-				ship: ship,
-				snakes: this.snakes,
-				spacemen: spacemen,
-				x: canvas.width * Math.random(),
-				y: Math.random() * (canvas.height / 2 - canvas.height * 3),
-				length: 10
-			})
 			this.spawnSingle({
 				ship: ship,
 				snakes: this.snakes,

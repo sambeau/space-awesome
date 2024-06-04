@@ -91,7 +91,7 @@ const spaceman = () => {
 			this.cy = this.y + this.height / 2
 
 			if (this.outOfBoundsV()) {
-				this.y = 0// - canvas.height * 3//randInt(canvas.height)
+				this.y = 0 - canvas.height * 3//randInt(canvas.height)
 				this.collider.colliding = false
 			}
 			if (this.outOfBoundsL())
@@ -184,7 +184,6 @@ export const Spacemen = () => {
 			this.spawnSingle({ y: randInt(canvas.height * 2) })
 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
-
 		},
 		update(dt) {
 			this.spacemen = this.spacemen.filter((x) => { return x.dead !== true })

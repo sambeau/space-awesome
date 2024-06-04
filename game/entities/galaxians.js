@@ -230,23 +230,11 @@ export const galaxians = () => {
 			x.spawn({ ship: ship })
 		},
 		spawn({ ship }) {
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			//
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
-			// 			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+			this.spawnSingle({ ship })
+
 		},
 		update(dt) {
 			shots = shots.filter((b) => { return b.dead !== true })

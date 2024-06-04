@@ -352,24 +352,6 @@ const main = () => {
 	)
 
 	raf = window.requestAnimationFrame(gameLoop);
-	// const foo = [
-	// 	ship.bullets,
-	// 	asteroids.asteroids,
-	// 	galaxians.galaxians,
-	// 	pods.pods,
-	// 	swarmers.swarmers,
-	// 	defenders.defenders,
-	// 	powerups.powerups,
-	// 	mines.mines,
-	// ]
-	// foo.forEach((ent) => {
-	// 	if (ent && ent[0]) {
-	// 		const r = ent[0].collider.r
-	// 		ent[0].collider.area = Math.round(Math.PI * r * r / 450)
-	// 		console.log(ent[0].collider)
-	// 	}
-	// })
-
 }
 
 main()
