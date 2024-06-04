@@ -132,6 +132,7 @@ const spaceman = () => {
 			})
 		},
 		onCollect(ship) {
+			this.saved = true
 			this.dead = true
 			ship.onCollect(this.type)
 			game.particles.spawnCircle({
@@ -163,8 +164,12 @@ export const Spacemen = () => {
 	return {
 		spacemen: [],
 		ids: 0,
+		saved: 0,
 		all() {
 			return this.spacemen
+		},
+		count() {
+			return this.spacemen.length
 		},
 		spawnSingle({ x, y, vx, vy }) {
 			let a = spaceman()
@@ -186,6 +191,9 @@ export const Spacemen = () => {
 			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
 		},
 		update(dt) {
+			let newlysaved = 0
+			this.spacemen.forEach((x) => { if (x.saved) newlysaved++ })
+			this.saved += newlysaved
 			this.spacemen = this.spacemen.filter((x) => { return x.dead !== true })
 			this.spacemen.forEach((x) => x.update(dt))
 		},

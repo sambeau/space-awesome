@@ -51,6 +51,7 @@ const mine = () => {
 		ticks: 0, // amalgamate ^V
 		hsec: 0,
 		sulking: false,
+		color: "black",
 		// hp: HP,
 		tick() {
 			this.ticker++

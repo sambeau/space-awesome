@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
-import { picker } from "/zap/zap.js"
 import { Minimap } from "./minimap.js";
+import { picker } from "/zap/zap.js";
 
 const debug = false
 
@@ -68,6 +68,35 @@ export const Lives = () => {
 	}
 }
 
+const spacemanImage = new Image()
+spacemanImage.src = "/images/spaceman-1.png"
+const spacemanSavedImage = new Image()
+spacemanSavedImage.src = "/images/spaceman-saved.png"
+
+export const Spacemen = () => {
+	return {
+		spacemen: null,
+		init(spacemen) {
+			this.spacemen = spacemen
+		},
+		update() { },
+		draw() {
+			const width = 69 / 4
+			const height = 69 / 4
+			const x = canvas.width - width - padding
+			const y = 485
+			for (let i = 0; i < this.spacemen.saved; i++) {
+				ctx.drawImage(spacemanSavedImage, x - (i * (width - 5)), y, width, height)
+			}
+			for (let i = this.spacemen.saved; i < this.spacemen.count() + this.spacemen.saved; i++) {
+				ctx.drawImage(spacemanImage, x - (i * (width - 5)), y, width, height)
+			}
+
+		}
+	}
+}
+
+
 let once = false
 export const Score = () => {
 	return {
@@ -102,14 +131,20 @@ export const Score = () => {
 export const Hud = () => {
 	return {
 		score: null,
-		init(ship, ents) {
+		init(ship, spacemen, ents) {
 			this.score = Score()
+
 			this.minimap = Minimap()
 			this.minimap.init(ship, ents)
+
 			this.lives = Lives()
 			this.lives.init()
+
 			this.smartBombs = SmartBombs()
 			this.smartBombs.init(ship.smartBomb)
+
+			this.spacemen = Spacemen()
+			this.spacemen.init(spacemen)
 		},
 		update(dt) {
 			this.score.update()
@@ -122,7 +157,7 @@ export const Hud = () => {
 			this.minimap.draw()
 			this.smartBombs.draw()
 			this.lives.draw()
-
+			this.spacemen.draw()
 		}
 	}
 }

@@ -147,7 +147,7 @@ const Snake = () => {
 						head.cx,
 						head.cy) > screen.height) {
 					head.vx = 0
-					head.vy = 5
+					head.vy = 3
 					return
 				}
 				if (thingsAreColliding(head, closestSpaceman)) {
@@ -161,10 +161,10 @@ const Snake = () => {
 				head.vx -= (head.x - closestSpaceman.x) * cohesion
 				head.vy -= (head.y - closestSpaceman.y) * cohesion
 
-				if (head.vx > 5) head.vx = 5
-				if (head.vx < -5) head.vx = -5
-				if (head.vy > 5) head.vy = 5
-				if (head.vy < -5) head.vy = -5
+				if (head.vx > 4) head.vx = 4
+				if (head.vx < -4) head.vx = -4
+				if (head.vy > 4) head.vy = 4
+				if (head.vy < -4) head.vy = -4
 			}
 			this.states.walking = {}
 			this.states.walking.colors = picker(["#ff00ff", "#ffff00", "#00ffff"])
@@ -190,8 +190,8 @@ const Snake = () => {
 				}
 
 				if (this.ticker % 25 == 0) {
-					head.vx = randInt(10) - 5
-					head.vy = randInt(10)
+					head.vx = randInt(8) - 4
+					head.vy = randInt(4)
 				}
 			}
 			this.state = this.states.walking

@@ -247,7 +247,7 @@ const main = () => {
 	powerups.spawn({ ship: ship })
 
 	hud = Hud()
-	hud.init(ship, [
+	hud.init(ship, spacemen, [
 		asteroids,
 		pods,
 		swarmers,
@@ -255,7 +255,8 @@ const main = () => {
 		galaxians,
 		powerups,
 		spacemen,
-		snakes
+		snakes,
+		mines
 	])
 
 	window.addEventListener(
