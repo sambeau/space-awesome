@@ -480,13 +480,25 @@ export const spaceship = () => {
 				}
 			})
 		},
-		explode() {
+		explode() { // BIG! probably for Game Over
 			if (this.dead || game.over) return
 			this.explosion()
 			setTimeout(() => {
 				this.explosion()
 				setTimeout(() => {
 					this.explosion()
+					setTimeout(() => {
+						this.explosion()
+						setTimeout(() => {
+							this.explosion()
+							setTimeout(() => {
+								this.explosion()
+								setTimeout(() => {
+									this.explosion()
+								}, 500)
+							}, 400)
+						}, 300)
+					}, 200)
 				}, 100)
 			}, 100)
 		},
