@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { picker } from "/zap/zap.js"
+import { picker } from "/zap/zap.js";
 
 const debug = false
 
@@ -15,6 +15,7 @@ function circleOfPoints() {
 }
 
 const randomColors = picker(["#ffffff", "#00ffff", "#ff00ff", "#ffff00"])
+const glitterColors = picker(["#ffffff", "#ffffff", "#ffffff", "#00ffff", "#ff00ff", "#ffff00"])
 
 export const Particle = () => {
 	return {
@@ -55,7 +56,10 @@ export const Particle = () => {
 			if (this.lifespan <= 0) return
 
 			ctx.save()
-			ctx.fillStyle = this.fillStyle
+			if (this.fillStyle == "glitter")
+				ctx.fillStyle = glitterColors.any()
+			else
+				ctx.fillStyle = this.fillStyle
 			ctx.globalAlpha = this.tick / this.lifespan
 			ctx.fillRect(this.x, this.y, this.width, this.height);
 			ctx.globalAlpha = 1.0

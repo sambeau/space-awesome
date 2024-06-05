@@ -24,6 +24,7 @@ export const ctx = canvas.getContext("2d");
 export const game = {
 	version: version,
 	build: build,
+	over: false,
 	lives: 3,
 	score: 0,
 	speed: 1,
@@ -31,7 +32,7 @@ export const game = {
 	fontLoaded: false,
 	debug: false,
 	showColliders: false,
-	massConstant: 460,
+	massConstant: 500, //460,
 }
 
 let font1 = new FontFace("Robotron", "url(fonts/WilliamsRobotron.woff2)");
@@ -82,7 +83,16 @@ const gameLoop = (dt) => {
 			mines.mines,
 			spacemen.spacemen
 		])
-
+	// crashes
+	ship.crashIntoAll(
+		[
+			asteroids.asteroids,
+			galaxians.galaxians,
+			defenders.defenders,
+			pods.pods,
+			swarmers.swarmers,
+			mines.mines,
+		])
 	ship.collect(powerups.powerups)
 	ship.collect(spacemen.spacemen)
 
@@ -197,10 +207,10 @@ const gameLoop = (dt) => {
 				})
 			})
 			ctx.beginPath();
-			ctx.arc(ship.colliders[0].x, ship.colliders[0].y, ship.colliders[0].r, 0, 2 * Math.PI);
+			ctx.arc(ship.collider[0].x, ship.collider[0].y, ship.collider[0].r, 0, 2 * Math.PI);
 			ctx.stroke();
 			ctx.beginPath();
-			ctx.arc(ship.colliders[1].x, ship.colliders[1].y, ship.colliders[1].r, 0, 2 * Math.PI);
+			ctx.arc(ship.collider[1].x, ship.collider[1].y, ship.collider[1].r, 0, 2 * Math.PI);
 			ctx.stroke();
 
 			ctx.beginPath();

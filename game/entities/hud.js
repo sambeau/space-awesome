@@ -169,6 +169,15 @@ export const Hud = () => {
 			this.smartBombs.draw()
 			this.lives.draw()
 			this.spacemen.draw()
+			if (game.over) {
+				ctx.save()
+				ctx.font = "32px Robotron";
+				ctx.textBaseline = 'middle';
+				ctx.textAlign = 'center';
+				ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+				ctx.restore()
+			}
+
 		}
 	}
 }

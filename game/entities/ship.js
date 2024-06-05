@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
 import { bullet } from "./bullet.js";
-import { collisionBetweenCircles, pick, randInt } from "/zap/zap.js";
+import { collisionBetweenCircles, pick, randInt, thingsAreColliding } from "/zap/zap.js";
 
 const smartBombRadius = 500
 const flashes = 12
@@ -86,25 +86,37 @@ const shield = () => {
 		strength: 25, //50
 		width: 0,
 		height: 0,
-		image: new Image(),
+		image: null,
+		normalImage: new Image(),
+		hitImage: new Image(),
 		imageLoaded: false,
 		ticker: 0,
+		hitTimer: 0,
+		hit: false,
 		collider: {},
 		tick() {
 			this.ticker++
 			if (this.ticker == 30) {
 				this.ticker = 0
-				this.strength--
+				this.strength -= 0.5
 				if (this.strength < 0) this.strength = 0
+			}
+			if (this.hitTimer > 0)
+				this.hitTimer--
+			if (this.hitTimer === 0) {
+				this.hit = false
 			}
 		},
 		spawn({ height }) {
 			this.width = height
 			this.height = height
-			this.image.onload = () => {
+
+			this.normalImage.src = "images/shield.png"
+			this.hitImage.onload = () => {
 				this.imageLoaded = true
 			}
-			this.image.src = "images/shield.png"
+			this.hitImage.src = "images/shield-hit.png"
+			this.image = this.normalImage
 			this.updateCollider()
 		},
 		update({ shipCX, shipCY, health }) {
@@ -127,10 +139,17 @@ const shield = () => {
 		draw() {
 			ctx.save()
 			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.strength / 50
-			ctx.drawImage(this.image, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
+			if (this.hit)
+				ctx.drawImage(this.hitImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
+			else
+				ctx.drawImage(this.normalImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
 			ctx.restore()
 
 		},
+		onHit() {
+			this.hit = true
+			this.hitTimer += 10
+		}
 	}
 }
 
@@ -195,7 +214,7 @@ export const spaceship = () => {
 		y: 0,
 		vx: 0,
 		vy: 0,
-		colliders: [
+		collider: [
 			{ type: "circle", ox: 0 + 49.5 / 2, oy: 16 + 49.5 / 2, r: 49.5 / 2, colliding: false },
 			{ type: "circle", ox: 16.5 + 16.5 / 2, oy: 5 + 16.5 / 2, r: 16.5 / 2, colliding: false },
 		],
@@ -307,16 +326,13 @@ export const spaceship = () => {
 			return false
 		},
 		update(/*dt*/) {
-			// this.checkForCrash()
-			// if (this.dead) {
-			// 	this.lives--
-			// 	// do something way more sophisticated here!
-			// 	if (this.lives == 0) {
-			// 		console.log("GAME OVER")
-			// 		game.over = true
-			// 		return
-			// 	}
-			// }
+			if (game.over || this.dead) {
+				this.vx = 0
+				this.vy = 0
+				game.speed = 2
+				return
+			}
+
 			if (this.outOfBoundsTop()) {
 				this.y = 0
 				this.vy = 0
@@ -352,10 +368,10 @@ export const spaceship = () => {
 			this.cx = this.x + this.width / 2
 			this.cy = this.y + this.height / 2
 
-			this.colliders[0].x = this.x + this.colliders[0].ox
-			this.colliders[0].y = this.y + this.colliders[0].oy
-			this.colliders[1].x = this.x + this.colliders[1].ox
-			this.colliders[1].y = this.y + this.colliders[1].oy
+			this.collider[0].x = this.x + this.collider[0].ox
+			this.collider[0].y = this.y + this.collider[0].oy
+			this.collider[1].x = this.x + this.collider[1].ox
+			this.collider[1].y = this.y + this.collider[1].oy
 
 			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
 
@@ -380,6 +396,8 @@ export const spaceship = () => {
 		},
 		draw() {
 			// draw ship
+			if (game.over || this.dead) return
+
 			if (this.image1Loaded && this.image2Loaded && this.image3Loaded) {
 				this.bullets.forEach((b) => b.draw())
 				if (this.flameOn)
@@ -428,24 +446,76 @@ export const spaceship = () => {
 				})
 			}
 		},
+		crashIntoAll(entityTypes) {
+			entityTypes.forEach((et) => this.crashInto(et))
+		},
 		crashInto(entities) {
+			if (this.dead || game.over) return
+			let collider = this
+			if (this.shield.strength > 0)
+				collider = this.shield
 			entities.forEach((e) => {
-				if (thingsAreColliding(ship, e)) {
+				if (thingsAreColliding(collider, e)) {
 					console.log("Crash! into", e.name)
+
+					if (this.shield.strength > 0) {
+						this.shield.strength -= e.collider.area
+						this.shield.onHit()
+					} else {
+						this.shield.strength = 0
+						this.explode()
+						game.lives--
+						this.dead = true
+						game.over = true // just for now
+						// do something way more sophisticated here!
+						if (game.lives == 0) {
+							console.log("GAME OVER")
+							game.over = true
+							return
+						}
+						// this.onHit()
+					}
+					e.onHit()
+
 				}
 			})
 		},
+		explode() {
+			if (this.dead || game.over) return
+			this.explosion()
+			setTimeout(() => {
+				this.explosion()
+				setTimeout(() => {
+					this.explosion()
+				}, 100)
+			}, 100)
+		},
+		explosion() {
+			for (let i = 100; i > 4; i = i / 2)
+				game.particles.spawnCircle({
+					points: i,
+					cx: this.x + this.width / 2,
+					cy: this.y + this.width / 2,
+					width: 20,
+					height: 20,
+					speed: i / 2,
+					lifespan: 50,
+					style: "glitter",
+				})
+
+		},
 		collect(powerups) {
+			if (this.dead || game.over) return
 			// console.log(entities)
 			powerups.forEach((powerup) => {
 				if (
 					collisionBetweenCircles(
 						powerup.collider.x, powerup.collider.y, powerup.collider.r,
-						this.colliders[0].x, this.colliders[0].y, this.colliders[0].r
+						this.collider[0].x, this.collider[0].y, this.collider[0].r
 					)
 					|| collisionBetweenCircles(
 						powerup.collider.x, powerup.collider.y, powerup.collider.r,
-						this.colliders[1].x, this.colliders[1].y, this.colliders[1].r
+						this.collider[1].x, this.collider[1].y, this.collider[1].r
 					)) {
 					powerup.onCollect(this)
 				}

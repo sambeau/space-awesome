@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { debugThing, distanceBetweenPoints, findClosestThing, picker, randInt, thingsAreColliding } from "/zap/zap.js";
+import { distanceBetweenPoints, findClosestThing, picker, randInt, thingsAreColliding } from "/zap/zap.js";
 
 const Segment = () => {
 	return {
@@ -113,6 +113,9 @@ const Snake = () => {
 			this.states.angry = {}
 			this.states.angry.colors = picker(["#080A32", "#FFC104"])
 			this.states.angry.update = () => {
+				if (game.over)
+					this.states.walking.update()
+
 				let cohesion = 0.1
 				const head = this.snake[0]
 
@@ -278,7 +281,7 @@ const Snake = () => {
 		},
 		draw() {
 			if (this.dead) return
-			debugThing(ctx, this.snake[0], this.snake.length.toString())
+			// debugThing(ctx, this.snake[0], this.snake.length.toString())
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
 				if (i == this.snake.length - 1) position = "tail"
