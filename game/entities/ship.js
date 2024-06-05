@@ -223,6 +223,9 @@ export const spaceship = () => {
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
 
+			this.cx = this.x + this.width / 2
+			this.cy = this.y + this.height / 2
+
 			this.flames.spawn({ offsetx: 17.25, offsety: 55.5 })
 			this.heightWithFlame = canvas.height - this.flames.height
 
@@ -259,7 +262,7 @@ export const spaceship = () => {
 			delete (this.bullet)
 		},
 		fireSmartBomb() {
-			this.smartBomb.fire({ x: this.x + this.width / 2, y: this.y + this.height / 2 })
+			this.smartBomb.fire({ x: this.cx, y: this.cy })
 		},
 		flicker() {
 			this.flickerCounter += 1
@@ -279,11 +282,11 @@ export const spaceship = () => {
 			return false;
 		},
 		outOfBoundsLeft() {
-			if (this.x <= 0) return true
+			if (this.cx <= 0) return true
 			return false
 		},
 		outOfBoundsRight() {
-			if (this.x >= (canvas.width - this.width)) return true
+			if (this.cx >= canvas.width) return true
 			return false
 		},
 		update(/*dt*/) {
@@ -296,28 +299,31 @@ export const spaceship = () => {
 				this.break = false
 			}
 			if (this.flameOn) {
-				this.vy = -6
-				if (game.speed < 15) game.speed *= 1.033
+				this.vy = -8
+				if (game.speed < 15) game.speed *= 1.04
 			} else {
 				if (this.break) {
-					this.vy = 8
-					if (game.speed > 1) game.speed *= 0.5
+					this.vy = 6
+					if (game.speed > 2) game.speed *= 0.9
 				} else {
-					this.vy = 3
-					if (game.speed > 1) game.speed *= 0.99
+					this.vy = 4
+					if (game.speed > 2) game.speed *= 0.99
 				}
 			}
 			this.x += this.turn
 			if (this.outOfBoundsLeft()) {
-				this.x = 0
+				this.x = 1 - this.width / 2
 				this.vx = 0
 			} else if (this.outOfBoundsRight()) {
-				this.x = canvas.width - this.width
+				this.x = canvas.width - this.width / 2 - 1
 				this.vx = 0
 			}
 
 			this.y += this.vy;
 			this.x += this.vx;
+
+			this.cx = this.x + this.width / 2
+			this.cy = this.y + this.height / 2
 
 			this.colliders[0].x = this.x + this.colliders[0].ox
 			this.colliders[0].y = this.y + this.colliders[0].oy

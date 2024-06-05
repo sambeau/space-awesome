@@ -103,7 +103,6 @@ export const Spacemen = () => {
 			for (let i = this.spacemen.saved; i < this.spacemen.count() + this.spacemen.saved; i++) {
 				ctx.drawImage(spacemanImage, x - (i * (width - 5)), y, width, height)
 			}
-
 		}
 	}
 }

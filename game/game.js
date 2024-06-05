@@ -277,11 +277,11 @@ const main = () => {
 					break;
 				case "ArrowLeft":
 					// Handle "turn left"
-					ship.turn = -15 //move to ship
+					ship.turn = -10 //move to ship
 					break;
 				case "ArrowRight":
 					// Handle "turn right"
-					ship.turn = 15 //move to ship
+					ship.turn = 10 //move to ship
 					break;
 				case "Space":
 					ship.startFiring()
