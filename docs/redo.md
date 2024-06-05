@@ -1,7 +1,7 @@
 ## What would I do differently?
 
 - create basic entity system
-- use classes? or ...?
+- use classes? or mixins (via ...)? or both?
 - use centre-point for *everything*
 - shared timer/callback system
 - simple animation system based on shared timer
@@ -11,6 +11,9 @@
 - consider sprite sheets
 - a few text tools (e.g. centre)
 - a tiny maths library (e.g draw circle point/distance/collision)
+- colliders are always an array (or use Array.isArray())
+- colliders are a sub-entity with updater and draw function for debug
+- entities all have a debug function to draw text beside them
 
 
 
