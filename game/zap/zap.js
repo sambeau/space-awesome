@@ -45,10 +45,34 @@ export function findClosestThing(thing, things) {
 }
 
 export function thingsAreColliding(thing1, thing2) {
-	return collisionBetweenCircles(
-		thing1.collider.x, thing1.collider.y, thing1.collider.r,
-		thing2.collider.x, thing2.collider.y, thing2.collider.r
-	)
+
+	if (!thing1.colliders || !thing1.colliders) return false
+
+	const colliders1 =
+		(!Array.isArray(thing1.colliders))
+			?
+			[thing1.colliders]
+			:
+			thing1.colliders
+
+	const colliders2 =
+		(!Array.isArray(thing2.colliders))
+			?
+			[thing2.colliders]
+			:
+			thing2.colliders
+
+	colliders1.forEach((c1) => {
+		colliders2.forEach((c2) => {
+			if (collisionBetweenCircles(
+				c1.x, c1.y, c1.r,
+				c2.x, c2.y, c2.r
+			))
+				return true
+		})
+	})
+
+	return false
 }
 // random
 

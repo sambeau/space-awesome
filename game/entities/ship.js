@@ -83,12 +83,13 @@ const shield = () => {
 	return {
 		x: 0,
 		y: 0,
-		strength: 0, //50
+		strength: 25, //50
 		width: 0,
 		height: 0,
 		image: new Image(),
 		imageLoaded: false,
 		ticker: 0,
+		collider: {},
 		tick() {
 			this.ticker++
 			if (this.ticker == 30) {
@@ -104,21 +105,35 @@ const shield = () => {
 				this.imageLoaded = true
 			}
 			this.image.src = "images/shield.png"
+			this.updateCollider()
 		},
 		update({ shipCX, shipCY, health }) {
 			this.tick()
 			this.x = shipCX - (this.width / 2) - this.strength
 			this.y = shipCY - (this.height / 2) - this.strength
-
+			this.updateCollider()
+		},
+		updateCollider() {
+			this.collider = {
+				type: "circle",
+				ox: this.width / 2 + this.strength,
+				oy: this.height / 2 + this.strength,
+				r: this.width / 2 + this.strength,
+				colliding: false
+			}
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
 		},
 		draw() {
 			ctx.save()
 			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.strength / 50
 			ctx.drawImage(this.image, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
 			ctx.restore()
+
 		},
 	}
 }
+
 const flames = () => {
 	return {
 		x: 0,
@@ -204,7 +219,7 @@ export const spaceship = () => {
 		bullets: [],
 		shield: shield(),
 		smartBomb: smartBomb(),
-		spawn() {
+		spawn(entities) {
 			this.width = 50
 			this.height = 64
 			this.image1.onload = () => {
@@ -219,6 +234,8 @@ export const spaceship = () => {
 			this.image1.src = "images/ship-l-1.png"
 			this.image2.src = "images/ship-l-2.png"
 			this.image3.src = "images/ship-l-3.png"
+
+			this.entities = entities
 
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
@@ -290,6 +307,16 @@ export const spaceship = () => {
 			return false
 		},
 		update(/*dt*/) {
+			// this.checkForCrash()
+			// if (this.dead) {
+			// 	this.lives--
+			// 	// do something way more sophisticated here!
+			// 	if (this.lives == 0) {
+			// 		console.log("GAME OVER")
+			// 		game.over = true
+			// 		return
+			// 	}
+			// }
 			if (this.outOfBoundsTop()) {
 				this.y = 0
 				this.vy = 0
@@ -369,7 +396,10 @@ export const spaceship = () => {
 			this.shield.draw()
 			this.smartBomb.draw()
 		},
-		collide(entities) {
+		collideWeaponsWithAll(entityTypes) {
+			entityTypes.forEach((et) => this.collideWeaponsWith(et))
+		},
+		collideWeaponsWith(entities) {
 			// console.log(entities)
 			this.bullets.forEach((b) => {
 				entities.forEach((e) => {
@@ -397,6 +427,13 @@ export const spaceship = () => {
 					}
 				})
 			}
+		},
+		crashInto(entities) {
+			entities.forEach((e) => {
+				if (thingsAreColliding(ship, e)) {
+					console.log("Crash! into", e.name)
+				}
+			})
 		},
 		collect(powerups) {
 			// console.log(entities)

@@ -3,8 +3,12 @@ import { explode } from "./explosions.js";
 import { shot } from "./shot.js";
 import { randInt } from "/zap/zap.js";
 
+//
+// TODO: REFACTOR, MODERNISE, EXPOSE shots
+//
+
 let maxShots = 4
-let shots = []
+let shots = [] // move to manager so it can be seen by ship
 
 const galaxian = () => {
 	return {
@@ -120,9 +124,6 @@ const galaxian = () => {
 				newshot.spawn({ atx: this.x + this.width / 2, aty: this.y, shooter: this })
 			}
 		},
-		// removeShot() {
-		// 	delete (this.shot)
-		// },
 		update(/*dt*/) {
 			this.tick()
 			this.y += this.vy + game.speed;

@@ -72,13 +72,16 @@ const gameLoop = (dt) => {
 	const startTime = new Date()
 
 	// collisions
-	ship.collide(asteroids.asteroids)
-	ship.collide(galaxians.galaxians)
-	ship.collide(defenders.defenders)
-	ship.collide(pods.pods)
-	ship.collide(swarmers.swarmers)
-	ship.collide(mines.mines)
-	ship.collide(spacemen.spacemen)
+	ship.collideWeaponsWithAll(
+		[
+			asteroids.asteroids,
+			galaxians.galaxians,
+			defenders.defenders,
+			pods.pods,
+			swarmers.swarmers,
+			mines.mines,
+			spacemen.spacemen
+		])
 
 	ship.collect(powerups.powerups)
 	ship.collect(spacemen.spacemen)
@@ -196,8 +199,16 @@ const gameLoop = (dt) => {
 			ctx.beginPath();
 			ctx.arc(ship.colliders[0].x, ship.colliders[0].y, ship.colliders[0].r, 0, 2 * Math.PI);
 			ctx.stroke();
+			ctx.beginPath();
 			ctx.arc(ship.colliders[1].x, ship.colliders[1].y, ship.colliders[1].r, 0, 2 * Math.PI);
 			ctx.stroke();
+
+			ctx.beginPath();
+			ctx.arc(ship.shield.collider.x, ship.shield.collider.y, ship.shield.collider.r, 0, 2 * Math.PI);
+			ctx.stroke();
+			if (ship.shield.strength > 0)
+				ctx.fillText(`${ship.shield.strength}`, ship.shield.collider.x + ship.shield.collider.r / 2, ship.shield.collider.y - ship.shield.collider.r / 2)
+
 			ctx.restore()
 		}
 	}
@@ -219,7 +230,6 @@ const main = () => {
 	game.particles = Particles()
 
 	ship = Spaceship()
-	ship.spawn()
 
 	asteroids = Asteroids()
 	asteroids.spawn()
@@ -245,6 +255,19 @@ const main = () => {
 
 	powerups = Powerups()
 	powerups.spawn({ ship: ship })
+
+	ship.spawn([
+		asteroids,
+		pods,
+		swarmers,
+		defenders,
+		galaxians,
+		powerups,
+		spacemen,
+		snakes,
+		mines
+	])
+
 
 	hud = Hud()
 	hud.init(ship, spacemen, [

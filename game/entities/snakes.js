@@ -259,10 +259,9 @@ const Snake = () => {
 				}
 			}
 
-			this.ship.collide(this.snake)
+			this.ship.collideWeaponsWith(this.snake)
 			// collisions
 			let dead = 0
-			// this.snake.forEach((x) => { if (x.dead) dead++ })
 			for (let i = 0; i < this.snake.length; i++) {
 				if (this.snake[i].dead) dead++
 				this.snake[i].dead = false
