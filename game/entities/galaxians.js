@@ -8,7 +8,6 @@ import { randInt } from "/zap/zap.js";
 //
 
 let maxShots = 4
-let shots = [] // move to manager so it can be seen by ship
 
 const galaxian = () => {
 	return {
@@ -68,8 +67,9 @@ const galaxian = () => {
 				this.ticks = 0
 			return this.tick
 		},
-		spawn({ ship }) {
+		spawn({ ship, galaxians }) {
 			this.ship = ship
+			this.galaxians = galaxians
 
 			this.imageS1.src = "images/galaxian-red-s-1.png"
 			this.imageS2.src = "images/galaxian-red-s-2.png"
@@ -118,9 +118,9 @@ const galaxian = () => {
 			return false;
 		},
 		fire() {
-			if (shots.length < maxShots) {
+			if (this.galaxians.shots.length < maxShots) {
 				let newshot = shot()
-				shots.push(newshot)
+				this.galaxians.shots.push(newshot)
 				newshot.spawn({ atx: this.x + this.width / 2, aty: this.y, shooter: this })
 			}
 		},
@@ -221,6 +221,7 @@ const galaxian = () => {
 export const galaxians = () => {
 	return {
 		galaxians: [],
+		shots: [], // move to manager so it can be seen by ship
 		noShots: 0,
 		all() {
 			return this.galaxians
@@ -228,24 +229,24 @@ export const galaxians = () => {
 		spawnSingle({ ship }) {
 			let x = galaxian()
 			this.galaxians.push(x)
-			x.spawn({ ship: ship })
+			x.spawn({ ship: ship, galaxians: this })
 		},
 		spawn({ ship }) {
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
-			this.spawnSingle({ ship })
+			this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
 
 		},
 		update(dt) {
-			shots = shots.filter((b) => { return b.dead !== true })
+			this.shots = this.shots.filter((b) => { return b.dead !== true })
 			this.galaxians = this.galaxians.filter((b) => { return b.dead !== true })
 			this.galaxians.forEach((x) => x.update(dt))
-			shots.forEach((s) => s.update())
-			this.noShots = shots.length
+			this.shots.forEach((s) => s.update())
+			this.noShots = this.shots.length
 		},
 		draw() {
-			shots.forEach((s) => s.draw())
+			this.shots.forEach((s) => s.draw())
 			this.galaxians.forEach((x) => x.draw())
 		}
 	}

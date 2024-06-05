@@ -92,6 +92,7 @@ const gameLoop = (dt) => {
 			pods.pods,
 			swarmers.swarmers,
 			mines.mines,
+			galaxians.shots,
 		])
 	ship.collect(powerups.powerups)
 	ship.collect(spacemen.spacemen)
@@ -198,6 +199,7 @@ const gameLoop = (dt) => {
 				mines.mines,
 				snakes.all(),
 				spacemen.spacemen,
+				galaxians.shots,
 			].forEach((ent) => {
 				ent.forEach((e) => {
 					ctx.beginPath();

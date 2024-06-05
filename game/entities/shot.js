@@ -1,4 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
+import { explode } from "./explosions.js";
 
 const debug = false
 
@@ -11,6 +12,7 @@ shotImage.onload = () => {
 
 export const shot = () => {
 	return {
+		name: "shot",
 		x: 0,
 		y: 0,
 		vx: 0,
@@ -20,6 +22,14 @@ export const shot = () => {
 		speed: 10,
 		shooter: null,
 		dead: false,
+		collider: {
+			type: "circle",
+			ox: 3,
+			oy: 32,
+			r: 3,
+			area: 5,
+			colliding: false
+		},
 		spawn({ atx, aty, shooter }) {
 			this.x = atx - this.width / 2
 			this.y = aty + this.height / 4
@@ -38,6 +48,26 @@ export const shot = () => {
 				// this.shooter.removeShot()
 			} else
 				this.y += this.vy + game.speed;
+
+			this.collider.x = this.x + this.collider.ox
+			this.collider.y = this.y + this.collider.oy
+
+		},
+		onHit() {
+			this.dead = true
+			explode({
+				x: this.x + this.collider.ox,
+				y: this.y + this.collider.oy,
+				styles: [
+					"#C546C0",
+					"#D8799F",
+					"#E49B94",
+					"#FFFFFF",
+					"#FFFFFF",
+					"#FFFFFF",
+				],
+				size: 4,
+			})
 		},
 		draw() {
 			if (this.dead) return
