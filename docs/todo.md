@@ -2,13 +2,19 @@
 
 ## Priority List
 
-- [x] Munching mode for snake
 - [ ] Moving eyes
-- [x] Saved spacemen count
 - [ ] Limit FOV for all baddies
 - [ ] Mother Ship
 - [ ] Floating scores
-- [ ] Ship hit
+- [ ] Name & Logo!
+- [ ] Levels
+- [ ] Saved spacemen bonus
+- [ ] Sound
+- [ ] Camera shake
+- [x] Munching mode for snake
+- [x] Saved spacemen count
+- [x] Ship hit
+
 
 ## Essentials
 
@@ -17,13 +23,13 @@
 - [x] Show score
 	- [ ] Floating scores
 	- [x] Font
-- [ ] Ship hit
-	- [ ] Explosion
+- [x] Ship hit
+	- [x] Explosion
 	- [x] Lives
 - [ ] Limit FOV for all baddies
 	- [ ] To on-screen, so we don't get the big line
 - [x] Shields
-	- [ ] Damage based on baddie area
+	- [x] Damage based on baddie area
 	- [x] Running out
 - [x] Pickup items
 	- [x] Shields
@@ -47,12 +53,12 @@
 	- [x] Angry mode
 - [ ] Make 'defenders' (landers) grab people and run away with them
 	- [ ] Mutants
-- [ ] Scores
-	- [ ] Defenders (Landers): 150
-	- [ ] Mutants: 150
-	- [ ] Motherships (Baiters): 200
-	- [ ] Pods: 1000
-	- [ ] Swarmers: 150
+- [x] Scores
+	- [x] Defenders (Landers): 150
+	- [x] Mutants: 150
+	- [x] Motherships (Baiters): 200
+	- [x] Pods: 1000
+	- [x] Swarmers: 150
 
 
 ## Ideas to try
@@ -60,7 +66,7 @@
 - [x] Smart Bombs
 - [x] Swarming
 - [x] Seeking
-- [ ] Centipede
+- [x] Centipede
 - [ ] Teleporting baddies
 	- [ ] Teleporting in
 - [ ] Swirling baddies
