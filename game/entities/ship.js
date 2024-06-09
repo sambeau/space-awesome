@@ -15,6 +15,24 @@ smartBombImage2.src = "/images/smart-2.png"
 smartBombImage3.src = "/images/smart-3.png"
 smartBombImage4.src = "/images/smart-4.png"
 
+// var deadSound = new Howl({ src: ['/sounds/ship-dead.mp3'] });
+var gameOverSound = new Howl({ src: ['/sounds/game-over.mp3'] });
+var epicSound = new Howl({ src: ['/sounds/epic.mp3'] });
+var impactSound = new Howl({ src: ['/sounds/impact.mp3'] });
+var hugeExplosionSound = new Howl({ src: ['/sounds/huge-explosion.mp3'] });
+var shieldSound = new Howl({ src: ['/sounds/one-shot.mp3'] });
+var fireSound = new Howl({ src: ['/sounds/pyeeow.wav'] });
+var smartBombSound = new Howl({ src: ['/sounds/smart-bomb.mp3'] });
+
+
+impactSound.volume(0.33)
+gameOverSound.volume(1.0)
+epicSound.volume(0.33)
+hugeExplosionSound.volume(0.33)
+shieldSound.volume(0.25)
+fireSound.volume(0.33)
+smartBombSound.volume(0.6)
+
 const smartBomb = () => {
 	return {
 		dead: true,
@@ -44,7 +62,7 @@ const smartBomb = () => {
 			// do we have a bomb ready?
 			if (this.charges < 1)
 				return
-
+			smartBombSound.play()
 			this.charges--
 			this.dead = false
 			this.cx = shipCX
@@ -149,6 +167,11 @@ const shield = () => {
 		onHit() {
 			this.hit = true
 			this.hitTimer += 10
+			canvas.classList.add("hit-shake")
+			shieldSound.play()
+			setTimeout(() => {
+				canvas.classList.remove("hit-shake")
+			}, 250)
 		}
 	}
 }
@@ -276,16 +299,20 @@ export const spaceship = () => {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
+				fireSound.play()
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
+				fireSound.play()
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
+				fireSound.play()
+
 			}
 		},
 		stopFiring() {
@@ -482,6 +509,10 @@ export const spaceship = () => {
 		},
 		explode() { // BIG! probably for Game Over
 			if (this.dead || game.over) return
+			// deadSound.play()
+			hugeExplosionSound.play()
+			epicSound.play()
+			canvas.classList.add("game-over-shake")
 			this.explosion()
 			setTimeout(() => {
 				this.explosion()
@@ -495,6 +526,12 @@ export const spaceship = () => {
 								this.explosion()
 								setTimeout(() => {
 									this.explosion()
+									setTimeout(() => {
+										canvas.classList.remove("game-over-shake")
+										setTimeout(() => {
+											gameOverSound.play()
+										}, 5300)
+									}, 500)
 								}, 500)
 							}, 400)
 						}, 300)
@@ -503,6 +540,7 @@ export const spaceship = () => {
 			}, 100)
 		},
 		explosion() {
+			impactSound.play()
 			for (let i = 100; i > 4; i = i / 2)
 				game.particles.spawnCircle({
 					points: i,
@@ -514,7 +552,6 @@ export const spaceship = () => {
 					lifespan: 50,
 					style: "glitter",
 				})
-
 		},
 		collect(powerups) {
 			if (this.dead || game.over) return

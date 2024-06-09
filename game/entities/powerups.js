@@ -7,6 +7,13 @@ const powerupTypes = ['life', 'smart', 'bullet', 'shield']
 const powerupAnimations = [1, 2, 3]
 const allPowerupsLoadedCount = powerupTypes.length * powerupAnimations.length
 
+
+var pickupSound = new Howl({ src: ['/sounds/pick-up.mp3'] });
+pickupSound.volume(0.33)
+
+var levelUpSound = new Howl({ src: ['/sounds/level-up.mp3'] });
+levelUpSound.volume(0.33)
+
 powerupTypes.forEach((s) => {
 	images[s] = []
 	powerupAnimations.forEach((i) => {
@@ -121,6 +128,9 @@ const powerup = () => {
 			this.dead = true;
 		},
 		onCollect(ship) {
+			pickupSound.play()
+			levelUpSound.play()
+
 			this.dead = true
 			ship.onCollect(this.type)
 			game.particles.spawnCircle({

@@ -1,7 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
-import { picker, randInt } from "/zap/zap.js"
-import { distanceBetweenPoints } from "/zap/zap.js";
 import { explode } from "./explosions.js";
+import { distanceBetweenPoints, picker, randInt } from "/zap/zap.js";
 
 let imagesLoaded = 0
 const numImagesToLoad = 2
@@ -14,6 +13,11 @@ image2.src = "images/swarmer-2.png"
 
 image1.onload = () => { imagesLoaded++ }
 image2.onload = () => { imagesLoaded++ }
+
+var swarmerSound = new Howl({ src: ['/sounds/swarmer.mp3'] });
+swarmerSound.volume(0.10)
+var swarmerClassicSound = new Howl({ src: ['/sounds/swarmer2.mp3'] });
+swarmerClassicSound.volume(0.05)
 
 const swarmer = () => {
 	return {
@@ -57,6 +61,8 @@ const swarmer = () => {
 		},
 		spawn({ swarmers, ship, x, y, vx, vy }) {
 			// console.log("spawn")
+			swarmerSound.play()
+			swarmerClassicSound.play()
 			this.swarmers = swarmers
 			this.ship = ship
 

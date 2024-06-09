@@ -2,6 +2,9 @@ import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
 import { distanceBetweenPoints, findClosestThing, picker, randInt, thingsAreColliding } from "/zap/zap.js";
 
+var eatenSound = new Howl({ src: ['/sounds/eaten.mp3'] });
+eatenSound.volume(0.2)
+
 const Segment = () => {
 	return {
 		name: "snake",
@@ -154,6 +157,7 @@ const Snake = () => {
 					return
 				}
 				if (thingsAreColliding(head, closestSpaceman)) {
+					eatenSound.play()
 					closestSpaceman.onHit()
 					this.grow(5)
 				}

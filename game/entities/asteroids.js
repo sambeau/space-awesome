@@ -8,6 +8,16 @@ const asteroidSizes = ['S', 'M', 'L']
 const asteroidColors = [0, 1, 2]
 const allAsteroidsLoadedCount = asteroidSizes.length * asteroidColors.length
 
+var killSound = new Howl({ src: ['/sounds/kill.mp3'] });
+killSound.volume(0.2)
+
+var asteroidLSound = new Howl({ src: ['/sounds/ateroidL.mp3'] });
+var asteroidMSound = new Howl({ src: ['/sounds/ateroidM.mp3'] });
+var asteroidSSound = new Howl({ src: ['/sounds/ateroidS.mp3'] });
+asteroidLSound.volume(0.25)
+asteroidMSound.volume(0.25)
+asteroidSSound.volume(0.25)
+
 asteroidSizes.forEach((s) => {
 	image[s] = []
 	asteroidColors.forEach((i) => {
@@ -170,11 +180,13 @@ const asteroid = () => {
 			if (this.vy < -1) this.vy = -1
 		},
 		onHit() {
+			killSound.play()
 			this.dead = true;
 			game.score += this.score
 			let explosionSize = 0
 			switch (this.size) {
 				case 'L':
+					asteroidLSound.play()
 					explosionSize = 11
 					this.asteroids.spawnSingle({
 						size: 'M',
@@ -193,6 +205,7 @@ const asteroid = () => {
 					break;
 				case 'M':
 					explosionSize = 7
+					asteroidMSound.play()
 					this.asteroids.spawnSingle({
 						size: 'S',
 						x: this.x,
@@ -216,6 +229,7 @@ const asteroid = () => {
 					// })
 					break;
 				case 'S':
+					asteroidSSound.play()
 					explosionSize = 5
 			}
 			explode({
