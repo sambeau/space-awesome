@@ -300,19 +300,21 @@ export const spaceship = () => {
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
 				fireSound.play()
+				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
 				fireSound.play()
+				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
 				fireSound.play()
-
+				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 			}
 		},
 		stopFiring() {

@@ -4,6 +4,8 @@ import { distanceBetweenPoints, findClosestThing, picker, randInt, thingsAreColl
 
 var eatenSound = new Howl({ src: ['/sounds/eaten.mp3'] });
 eatenSound.volume(0.2)
+var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
+bangSound.volume(0.1)
 
 const Segment = () => {
 	return {
@@ -89,6 +91,7 @@ const Segment = () => {
 			ctx.restore()
 		},
 		onHit() {
+			bangSound.play()
 			this.dead = true;
 			explode({
 				x: this.cx,
@@ -158,7 +161,7 @@ const Snake = () => {
 				}
 				if (thingsAreColliding(head, closestSpaceman)) {
 					eatenSound.play()
-					closestSpaceman.onHit()
+					closestSpaceman.onEat()
 					this.grow(5)
 				}
 				this.seeking = closestSpaceman.id

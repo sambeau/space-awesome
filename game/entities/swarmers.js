@@ -18,6 +18,8 @@ var swarmerSound = new Howl({ src: ['/sounds/swarmer.mp3'] });
 swarmerSound.volume(0.10)
 var swarmerClassicSound = new Howl({ src: ['/sounds/swarmer2.mp3'] });
 swarmerClassicSound.volume(0.05)
+var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
+bangSound.volume(0.10)
 
 const swarmer = () => {
 	return {
@@ -159,6 +161,7 @@ const swarmer = () => {
 				this.image = this.images.next()
 		},
 		onHit() {
+			bangSound.play()
 			this.dead = true;
 			game.score += this.score
 			explode({

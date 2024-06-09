@@ -8,6 +8,12 @@ const images = []
 const spacemenAnimations = [1, 2, 3, 4, 5, 6, 7, 8]
 const allSpacemenLoadedCount = spacemenAnimations.length
 
+var saveSound = new Howl({ src: ['/sounds/save.mp3'] });
+saveSound.volume(0.25)
+var crySound = new Howl({ src: ['/sounds/cry1.mp3'] });
+crySound.volume(0.05)
+var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
+bangSound.volume(0.25)
 
 spacemenAnimations.forEach((i) => {
 	images[i - 1] = new Image()
@@ -123,6 +129,8 @@ const spaceman = () => {
 				this.image = this.images.next()
 		},
 		onHit() {
+			crySound.play()
+			bangSound.play()
 			this.dead = true;
 			explode({
 				x: this.x + this.width / 2,
@@ -131,7 +139,20 @@ const spaceman = () => {
 				size: 12,
 			})
 		},
+		onEat() {
+			// crySound.play()
+			// bangSound.play()
+			this.dead = true;
+			explode({
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				styles: ["white", "white", "#0DC500", "#FF00F2", "#BC4700", "#F8B500"],
+				size: 6,
+			})
+		},
+
 		onCollect(ship) {
+			saveSound.play()
 			this.saved = true
 			this.dead = true
 			ship.onCollect(this.type)

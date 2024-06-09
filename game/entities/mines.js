@@ -26,6 +26,8 @@ imageStates.forEach((i) => {
 	mineStates[i - 1].image.src = `images/mine-${i}.png`
 	mineStates[i - 1].collider = colliders[i - 1]
 })
+var bigBoomSound = new Howl({ src: ['/sounds/imapct.mp3'] });
+bigBoomSound.volume(0.25)
 
 const angryImage = new Image()
 let angryImageLoaded = false
@@ -170,6 +172,7 @@ const mine = () => {
 			// this.hp--
 			this.sulking = true;
 			if (smart) {
+				bigBoomSound.play()
 				this.dead = true
 				explode({
 					x: this.x + this.width / 2,
@@ -213,6 +216,8 @@ export const Mines = () => {
 			a.spawn({ ship: ship, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn({ ship }) {
+			this.spawnSingle({ ship: ship })
+			this.spawnSingle({ ship: ship })
 			this.spawnSingle({ ship: ship })
 		},
 		update(dt) {

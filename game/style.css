@@ -16,6 +16,7 @@ body {
   animation: horizontal-shaking 0.35s infinite;
 }
 
+.wobble { animation: tilt-n-move-shaking-tiny 2s infinite;}
 .game-over-shake { animation: tilt-n-move-shaking 0.10s infinite;}
 .hit-shake { animation: stilt-n-move-shaking 0.05s 100;}
 
@@ -48,5 +49,13 @@ body {
   25% { transform: translate(5px, 5px) rotate(2.5deg); }
   50% { transform: translate(0, 0) rotate(0eg); }
   75% { transform: translate(-5px, 5px) rotate(-2.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes tilt-n-move-shaking-tiny {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(2px, 2px) rotate(1deg); }
+  50% { transform: translate(0, 0) rotate(0eg); }
+  75% { transform: translate(-2px, 2px) rotate(-1deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }

@@ -20,6 +20,9 @@ image2.onload = () => { imagesLoaded++ }
 image3.onload = () => { imagesLoaded++ }
 image4.onload = () => { imagesLoaded++ }
 
+var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
+bangSound.volume(0.25)
+
 const pod = () => {
 	return {
 		name: "pod",
@@ -111,6 +114,7 @@ const pod = () => {
 			}
 		},
 		onHit() {
+			bangSound.play()
 			this.dead = true
 			game.score += this.score
 			explode({

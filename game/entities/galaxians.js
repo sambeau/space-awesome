@@ -7,7 +7,9 @@ import { randInt } from "/zap/zap.js";
 // TODO: REFACTOR, MODERNISE, EXPOSE shots
 //
 
-let maxShots = 4
+let maxShots = 8
+var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
+bangSound.volume(0.25)
 
 const galaxian = () => {
 	return {
@@ -204,6 +206,7 @@ const galaxian = () => {
 			}
 		},
 		onHit() {
+			bangSound.play()
 			this.dead = true
 			game.score += this.score
 			explode({
