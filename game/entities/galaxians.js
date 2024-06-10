@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
 import { shot } from "./shot.js";
-import { randInt } from "/zap/zap.js";
+import { randInt, stereoFromScreenX } from "/zap/zap.js";
 
 //
 // TODO: REFACTOR, MODERNISE, EXPOSE shots
@@ -207,6 +207,8 @@ const galaxian = () => {
 		},
 		onHit() {
 			bangSound.play()
+			bangSound.stereo(stereoFromScreenX(screen, this.y))
+
 			this.dead = true
 			game.score += this.score
 			explode({

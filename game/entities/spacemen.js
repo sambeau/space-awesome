@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { picker, randInt } from "/zap/zap.js";
+import { picker, randInt, stereoFromScreenX } from "/zap/zap.js";
 // import { makeN } from "/zap/zap.js";
 import { explode } from "./explosions.js";
 
@@ -97,7 +97,7 @@ const spaceman = () => {
 			this.cy = this.y + this.height / 2
 
 			if (this.outOfBoundsV()) {
-				this.y = 0 - canvas.height * 3//randInt(canvas.height)
+				this.y = 0 - canvas.height * 3
 				this.collider.colliding = false
 			}
 			if (this.outOfBoundsL())
@@ -130,7 +130,9 @@ const spaceman = () => {
 		},
 		onHit() {
 			crySound.play()
+			crySound.stereo(stereoFromScreenX(screen, this.y))
 			bangSound.play()
+			bangSound.stereo(stereoFromScreenX(screen, this.y))
 			this.dead = true;
 			explode({
 				x: this.x + this.width / 2,
@@ -140,8 +142,6 @@ const spaceman = () => {
 			})
 		},
 		onEat() {
-			// crySound.play()
-			// bangSound.play()
 			this.dead = true;
 			explode({
 				x: this.x + this.width / 2,
@@ -153,6 +153,8 @@ const spaceman = () => {
 
 		onCollect(ship) {
 			saveSound.play()
+			saveSound.stereo(stereoFromScreenX(screen, this.y))
+			// saveSound.vol(sreen, n, this.y))
 			this.saved = true
 			this.dead = true
 			ship.onCollect(this.type)

@@ -142,3 +142,15 @@ export function picker(xs, props) {
 		},
 	}
 }
+
+// audio helpers
+
+export function stereoFromScreenX(screen, x) {
+	return (x - screen.width / 2) / screen.width
+}
+
+// should really be distance from point, e.g. bottom middle
+export function volumeFromY(screen, n, y) {
+	if (y > 0) return 1.0
+	return 1.0 - Math.abs(y) / (screen.height * n)
+}

@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { makeN, randInt } from "/zap/zap.js";
+import { makeN, randInt, stereoFromScreenX } from "/zap/zap.js";
 
 let imagesLoaded = 0
 const numImagesToLoad = 4
@@ -115,6 +115,8 @@ const pod = () => {
 		},
 		onHit() {
 			bangSound.play()
+			bangSound.stereo(stereoFromScreenX(screen, this.y))
+
 			this.dead = true
 			game.score += this.score
 			explode({

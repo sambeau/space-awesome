@@ -1,5 +1,5 @@
 import { ctx, game } from "../game.js";
-import { picker, randInt } from "/zap/zap.js";
+import { picker, randInt, stereoFromScreenX } from "/zap/zap.js";
 
 let numImagesLoaded = 0
 const images = {}
@@ -129,7 +129,9 @@ const powerup = () => {
 		},
 		onCollect(ship) {
 			pickupSound.play()
+			pickupSound.stereo(stereoFromScreenX(screen, this.y))
 			levelUpSound.play()
+			levelUpSound.stereo(stereoFromScreenX(screen, this.y))
 
 			this.dead = true
 			ship.onCollect(this.type)

@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { distanceBetweenPoints, picker, randInt } from "/zap/zap.js";
+import { distanceBetweenPoints, picker, randInt, stereoFromScreenX } from "/zap/zap.js";
 
 let imagesLoaded = 0
 const numImagesToLoad = 2
@@ -64,7 +64,10 @@ const swarmer = () => {
 		spawn({ swarmers, ship, x, y, vx, vy }) {
 			// console.log("spawn")
 			swarmerSound.play()
+			swarmerSound.stereo(stereoFromScreenX(screen, this.y))
 			swarmerClassicSound.play()
+			swarmerClassicSound.stereo(stereoFromScreenX(screen, this.y))
+
 			this.swarmers = swarmers
 			this.ship = ship
 
@@ -162,6 +165,8 @@ const swarmer = () => {
 		},
 		onHit() {
 			bangSound.play()
+			bangSound.stereo(stereoFromScreenX(screen, this.y))
+
 			this.dead = true;
 			game.score += this.score
 			explode({

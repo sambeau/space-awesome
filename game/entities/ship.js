@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
 import { bullet } from "./bullet.js";
-import { collisionBetweenCircles, pick, randInt, thingsAreColliding } from "/zap/zap.js";
+import { collisionBetweenCircles, pick, randInt, stereoFromScreenX, thingsAreColliding } from "/zap/zap.js";
 
 const smartBombRadius = 500
 const flashes = 12
@@ -169,6 +169,8 @@ const shield = () => {
 			this.hitTimer += 10
 			canvas.classList.add("hit-shake")
 			shieldSound.play()
+			shieldSound.stereo(stereoFromScreenX(screen, this.y))
+
 			setTimeout(() => {
 				canvas.classList.remove("hit-shake")
 			}, 250)

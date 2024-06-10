@@ -1,6 +1,12 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { distanceBetweenPoints, findClosestThing, picker, randInt, thingsAreColliding } from "/zap/zap.js";
+import {
+	distanceBetweenPoints,
+	findClosestThing,
+	picker,
+	randInt,
+	stereoFromScreenX, thingsAreColliding, volumeFromY
+} from "/zap/zap.js";
 
 var eatenSound = new Howl({ src: ['/sounds/eaten.mp3'] });
 eatenSound.volume(0.2)
@@ -92,6 +98,8 @@ const Segment = () => {
 		},
 		onHit() {
 			bangSound.play()
+			bangSound.stereo(stereoFromScreenX(screen, this.y))
+
 			this.dead = true;
 			explode({
 				x: this.cx,
@@ -161,6 +169,9 @@ const Snake = () => {
 				}
 				if (thingsAreColliding(head, closestSpaceman)) {
 					eatenSound.play()
+					eatenSound.stereo(stereoFromScreenX(screen, this.y))
+					eatenSound.volume(0.2 * volumeFromY(screen, 3, this.y)) // 3==screens
+
 					closestSpaceman.onEat()
 					this.grow(5)
 				}

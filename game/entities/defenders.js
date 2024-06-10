@@ -1,6 +1,6 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { makeN, randInt } from "/zap/zap.js";
+import { makeN, randInt, stereoFromScreenX } from "/zap/zap.js";
 
 var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
 bangSound.volume(0.25)
@@ -101,6 +101,8 @@ const defender = () => {
 		},
 		onHit() {
 			bangSound.play()
+			bangSound.stereo(stereoFromScreenX(screen, this.y))
+
 			this.dead = true
 			game.score += this.score
 			explode({

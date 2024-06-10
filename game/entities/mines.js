@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { picker, randInt } from "/zap/zap.js";
+import { picker, randInt, stereoFromScreenX } from "/zap/zap.js";
 
 let numImagesLoaded = 0
 const mineStates = []
@@ -26,7 +26,7 @@ imageStates.forEach((i) => {
 	mineStates[i - 1].image.src = `images/mine-${i}.png`
 	mineStates[i - 1].collider = colliders[i - 1]
 })
-var bigBoomSound = new Howl({ src: ['/sounds/imapct.mp3'] });
+var bigBoomSound = new Howl({ src: ['/sounds/impact.mp3'] });
 bigBoomSound.volume(0.25)
 
 const angryImage = new Image()
@@ -173,6 +173,8 @@ const mine = () => {
 			this.sulking = true;
 			if (smart) {
 				bigBoomSound.play()
+				bigBoomSound.stereo(stereoFromScreenX(screen, this.y))
+
 				this.dead = true
 				explode({
 					x: this.x + this.width / 2,
