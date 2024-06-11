@@ -1,10 +1,8 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
 import {
-	distanceBetweenPoints,
-	findClosestThing,
-	picker,
-	randInt,
+	debugThing, distanceBetweenPoints,
+	findClosestThing, randInt,
 	stereoFromScreenX, thingsAreColliding, volumeFromY
 } from "/zap/zap.js";
 
@@ -24,10 +22,9 @@ const Segment = () => {
 		height: 16,
 		color: "#FFC104",
 		score: 50,
-		spawn({ x, y, color }) {
+		spawn({ x, y }) {
 			this.x = x
 			this.y = y
-			this.color = color
 			this.collider = {
 				type: "circle",
 				x: this.cx,
@@ -63,6 +60,7 @@ const Segment = () => {
 		},
 		draw(position) {
 			ctx.save()
+			ctx.globalAlpha = 1.0
 			switch (position) {
 				case "tail":
 					ctx.fillStyle = this.color
@@ -73,6 +71,7 @@ const Segment = () => {
 				case "head":
 					// head
 					ctx.fillStyle = this.color
+
 					ctx.beginPath();
 					ctx.arc(this.cx, this.cy, this.width, 0, 2 * Math.PI);
 					ctx.fill();
@@ -84,6 +83,7 @@ const Segment = () => {
 					ctx.beginPath();
 					ctx.arc(this.cx - this.width / 2, this.cy + this.width / 2 + 3, 6, 0, 2 * Math.PI);
 					ctx.fill();
+
 					ctx.beginPath();
 					ctx.arc(this.cx + this.width / 2, this.cy + this.width / 2 + 3, 6, 0, 2 * Math.PI);
 					ctx.fill();
@@ -128,7 +128,7 @@ const Snake = () => {
 		headScore: 500,
 		init() {
 			this.states.angry = {}
-			this.states.angry.colors = picker(["#080A32", "#FFC104"])
+			this.states.angry.colors = ["#190533", "#190533", "#190533", "#ffff00", "#ffff00", "#ffff00"]
 			this.states.angry.update = () => {
 				if (game.over)
 					this.states.walking.update()
@@ -138,17 +138,17 @@ const Snake = () => {
 
 				head.vx -= (head.x - this.ship.x) * cohesion
 				head.vy -= (head.y - this.ship.y) * cohesion
-				// this.snakes.forEach((s) => {
-				// 	head.vx += (head.x - s.x) * cohesion / 100
-				// 	head.vy += (head.y - s.y) * cohesion / 100
-				// })
+				this.snakes.forEach((s) => {
+					head.vx += (head.x - s.x) * cohesion / 100
+					head.vy += (head.y - s.y) * cohesion / 100
+				})
 				if (head.vx > 5) head.vx = 5
 				if (head.vx < -5) head.vx = -5
-				if (head.vy > 4) head.vy = 4
+				if (head.vy > 5) head.vy = 5
 				if (head.vy < -4) head.vy = -4
 			}
 			this.states.hungry = {}
-			this.states.hungry.colors = picker(["#ff00ff", "#ffff00", "#00ffff"])
+			this.states.hungry.colors = ["#ff00ff", "#ff00ff", "#ffff00", "#ffff00", "#00ffff", "#00ffff"]
 			this.states.hungry.update = () => {
 				const head = this.snake[0]
 
@@ -180,18 +180,22 @@ const Snake = () => {
 				}
 				this.seeking = closestSpaceman.id
 
-				let cohesion = 0.0075
+				let cohesion = 0.0175
 
 				head.vx -= (head.x - closestSpaceman.x) * cohesion
 				head.vy -= (head.y - closestSpaceman.y) * cohesion
+				this.snakes.forEach((s) => {
+					head.vx += (head.x - s.x) * cohesion / 100
+					head.vy += (head.y - s.y) * cohesion / 100
+				})
 
-				if (head.vx > 4) head.vx = 4
-				if (head.vx < -4) head.vx = -4
-				if (head.vy > 4) head.vy = 4
-				if (head.vy < -4) head.vy = -4
+				if (head.vx > 5) head.vx = 5
+				if (head.vx < -5) head.vx = -5
+				if (head.vy > 5) head.vy = 5
+				if (head.vy < -5) head.vy = -5
 			}
 			this.states.walking = {}
-			this.states.walking.colors = picker(["#ff00ff", "#ffff00", "#00ffff"])
+			this.states.walking.colors = ["#ff00ff", "#ff00ff", "#ff00ff", "#ff00ff", "#ffff00", "#ffff00", "#ffff00", "#00ffff", "#00ffff", "#00ffff"]
 			this.states.walking.update = () => {
 				const head = this.snake[0]
 
@@ -217,7 +221,15 @@ const Snake = () => {
 					head.vx = randInt(8) - 4
 					head.vy = randInt(4)
 				}
+				let cohesion = 0.05
+
+				this.snakes.forEach((s) => {
+					head.vx += (head.x - s.x) * cohesion / 100
+					head.vy += (head.y - s.y) * cohesion / 100
+				})
+
 			}
+
 			this.state = this.states.walking
 		},
 		all() {
@@ -237,7 +249,7 @@ const Snake = () => {
 
 			for (let i = 0; i < length; i++) {
 				this.snake[i] = Segment()
-				this.snake[i].spawn({ x: this.x, y: this.y, color: this.state.colors.next() })
+				this.snake[i].spawn({ x: this.x, y: this.y })
 			}
 		},
 		grow(n) {
@@ -246,17 +258,23 @@ const Snake = () => {
 				segment.spawn({
 					x: this.snake[this.snake.length - 1].x,
 					y: this.snake[this.snake.length - 1].y,
-					color: this.state.colors.next()
 				})
 				this.snake.push(segment)
 			}
 		},
 		update() {
-
 			// move body
 			for (let i = this.snake.length - 1; i > 0; i--) {
+				// if (distanceBetweenPoints(
+				// 	this.snake[i].x,
+				// 	this.snake[i].y,
+				// 	this.snake[i - 1].x,
+				// 	this.snake[i - 1].y
+				// ) > this.snake[i].width * 0.5
+				// ) {
 				this.snake[i].x = this.snake[i - 1].x
 				this.snake[i].y = this.snake[i - 1].y
+				// }
 				this.snake[i].wobblywidth = this.snake[i - 1].wobblywidth
 				this.snake[i].update()
 			}
@@ -302,7 +320,13 @@ const Snake = () => {
 		},
 		draw() {
 			if (this.dead) return
-			// debugThing(ctx, this.snake[0], this.snake.length.toString())
+			debugThing(ctx, this.snake[0], this.snake.length.toString())
+
+			const colors = this.state.colors
+			const n = colors.length
+			for (let i = 0; i < this.snake.length; i++)
+				this.snake[i].color = colors[(i % n + n) % n]
+
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
 				if (i == this.snake.length - 1) position = "tail"
@@ -330,7 +354,7 @@ export const Snakes = () => {
 				snakes: this.snakes,
 				spacemen: spacemen,
 				x: canvas.width * Math.random(),
-				y: Math.random() * (canvas.height / 2 - canvas.height * 3),
+				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
 				length: 10
 			})
 		},
