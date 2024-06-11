@@ -33,11 +33,12 @@ const colliders = {
 	L: { type: "circle", ox: 60 / 2 + 3, oy: 60 / 2 + 3, r: 60 / 2, colliding: false },
 }
 
-let scores = {
+const scores = {
 	S: 100,
 	M: 50,
 	L: 20,
 }
+
 const asteroid = () => {
 	return {
 		name: "asteroid",
