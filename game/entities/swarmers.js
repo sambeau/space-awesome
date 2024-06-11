@@ -26,7 +26,7 @@ const swarmer = () => {
 		name: "swarmer",
 		color: "#FF0000",
 		ship: null,
-		score: 100,
+		score: 150,
 		x: 0,
 		y: 0,
 		vx: 0,
@@ -115,7 +115,7 @@ const swarmer = () => {
 			}
 		},
 		flock() {
-			let cohesion = 0.01
+			let cohesion = 0.03//0.01
 			// const visibleDistance = 100
 
 			// console.log(this)
@@ -154,10 +154,10 @@ const swarmer = () => {
 			}
 
 			// tamp them down
-			if (this.vx > 3) this.vx = 3.3
-			if (this.vx < -3) this.vx = -3.3
-			if (this.vy > 1) this.vy = 1.3
-			if (this.vy < -1) this.vy = -1.3
+			if (this.vx > 3) this.vx = 6.6  //3.3
+			if (this.vx < -3) this.vx = 6.6  //-3.3
+			if (this.vy > 1) this.vy = 2.6  //1.3
+			if (this.vy < -1) this.vy = -2.6  //-1.3
 		},
 		animate() {
 			if (this.ticks % 5 == 0)
