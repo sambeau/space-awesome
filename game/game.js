@@ -93,6 +93,7 @@ const gameLoop = (dt) => {
 			swarmers.swarmers,
 			mines.mines,
 			galaxians.shots,
+			defenders.bombs,
 		])
 	ship.collect(powerups.powerups)
 	ship.collect(spacemen.spacemen)
