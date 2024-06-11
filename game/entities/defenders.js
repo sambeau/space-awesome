@@ -1,6 +1,8 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
-import { makeN, randInt, stereoFromScreenX } from "/zap/zap.js";
+import { makeN, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
+
+import { bomb } from "./bombs.js";
 
 var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
 bangSound.volume(0.25)
@@ -32,13 +34,16 @@ const defender = () => {
 		image3Loaded: false,
 		ticks: 0,
 		ship: null,
+		defenders: null,
 		tick() {
 			this.ticks += 1
 			if (this.ticks === 1000)
 				this.ticks = 0
 			return this.tick
 		},
-		spawn({ ship }) {
+		spawn({ ship, defenders }) {
+			this.ship = ship
+			this.defenders = defenders
 			this.image1.src = "images/defender1.png"
 			this.image2.src = "images/defender2.png"
 			this.image3.src = "images/defender3.png"
@@ -47,7 +52,6 @@ const defender = () => {
 			this.image1.onload = () => { this.image1Loaded = true }
 			this.image2.onload = () => { this.image2Loaded = true }
 			this.image3.onload = () => { this.image3Loaded = true }
-			this.ship = ship
 			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 		},
 		outOfBoundsV() {
@@ -83,6 +87,8 @@ const defender = () => {
 				this.x = canvas.width
 			if (this.outOfBoundsR())
 				this.x = 0 - this.width
+			if (this.ticks % 12 == 0)
+				this.fire()
 		},
 		draw() {
 
@@ -111,6 +117,14 @@ const defender = () => {
 				styles: ["white", "white", "#FFB301", "#06BA01", "#06BA01"],
 				size: 6,
 			})
+		},
+		fire() {
+			// fireSound.play()
+			// fireSound.stereo((this.x - screen.width / 2) / screen.width)
+			if (!thingIsOnScreen(this, screen) || Math.random() > 0.25) return
+			let newbomb = bomb()
+			this.defenders.bombs.push(newbomb)
+			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })
 		}
 	}
 };
@@ -119,18 +133,27 @@ const defender = () => {
 export const defenders = () => {
 	return {
 		defenders: [],
+		bombs: [], // move to manager so it can be seen by ship
 		all() {
 			return this.defenders
 		},
 		spawn({ ship: ship }) {
 			this.defenders = makeN(defender, 4)
-			this.defenders.forEach((x) => x.spawn({ ship: ship }))
+			this.defenders.forEach((x) => x.spawn({ ship: ship, defenders: this }))
 		},
 		update(dt) {
+			this.bombs = this.bombs.filter((b) => { return b.dead !== true })
+
 			this.defenders = this.defenders.filter((b) => { return b.dead !== true })
 			this.defenders.forEach((x) => x.update(dt))
+
+			this.bombs.forEach((s) => s.update())
+			this.noShots = this.bombs.length
+
 		},
 		draw() {
+			this.bombs.forEach((s) => s.draw())
+
 			this.defenders.forEach((x) => x.draw())
 		}
 	}

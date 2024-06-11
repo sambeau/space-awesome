@@ -1,4 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
+import { bomb } from "./bombs.js";
 import { explode } from "./explosions.js";
 import { distanceBetweenPoints, picker, randInt, stereoFromScreenX } from "/zap/zap.js";
 
@@ -175,6 +176,14 @@ const swarmer = () => {
 				styles: ["white", "#FE0600", "#00BE00"],
 				size: 6,
 			})
+		},
+		fire() {
+			// fireSound.play()
+			// fireSound.stereo((this.x - screen.width / 2) / screen.width)
+			if (!thingIsOnScreen(this, screen) || Math.random() > 0.25) return
+			let newbomb = bomb()
+			this.defenders.bombs.push(newbomb)
+			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })
 		}
 	}
 };
