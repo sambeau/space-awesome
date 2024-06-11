@@ -9,8 +9,8 @@
 - [ ] Name & Logo!
 - [ ] Levels
 - [ ] Saved spacemen bonus
-- [ ] Sound
-- [ ] Camera shake
+- [x] Sound
+- [x] Camera shake
 - [x] Munching mode for snake
 - [x] Saved spacemen count
 - [x] Ship hit
@@ -43,15 +43,19 @@
 - [x] Shrinking Asteroids
 - [x] Pods & Swarmers
 - [ ] Levels
-- [ ] Sound
-- [ ] Camera shake
+- [x] Sound
+- [x] Camera shake
 - [x] Hi-Score
 - [x] Minimap
 - [x] Snake
 	- [ ] Moving eyes
 	- [x] Munching mode
 	- [x] Angry mode
-- [ ] Make 'defenders' (landers) grab people and run away with them
+- [ ] Swarmers
+	- [ ] Bombs 
+- [ ] Defenders 
+	- [ ] bombs
+	- [ ] Grab people and run away with them
 	- [ ] Mutants
 - [x] Scores
 	- [x] Defenders (Landers): 150
@@ -67,6 +71,8 @@
 - [x] Swarming
 - [x] Seeking
 - [x] Centipede
+- [ ] Bombers
+	- [ ] Dropping stationary x bombs
 - [ ] Teleporting baddies
 	- [ ] Teleporting in
 - [ ] Swirling baddies
