@@ -9,7 +9,7 @@ const defender = () => {
 	return {
 		name: "defender",
 		color: "#06BA01",
-		score: 250,
+		score: 150,
 		x: 0,
 		y: 0,
 		vx: (Math.random() - 0.5) * 3,

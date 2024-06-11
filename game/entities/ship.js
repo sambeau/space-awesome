@@ -21,16 +21,13 @@ var epicSound = new Howl({ src: ['/sounds/epic.mp3'] });
 var impactSound = new Howl({ src: ['/sounds/impact.mp3'] });
 var hugeExplosionSound = new Howl({ src: ['/sounds/huge-explosion.mp3'] });
 var shieldSound = new Howl({ src: ['/sounds/one-shot.mp3'] });
-var fireSound = new Howl({ src: ['/sounds/pyeeow.wav'] });
 var smartBombSound = new Howl({ src: ['/sounds/smart-bomb.mp3'] });
-
 
 impactSound.volume(0.33)
 gameOverSound.volume(1.0)
 epicSound.volume(0.33)
 hugeExplosionSound.volume(0.33)
 shieldSound.volume(0.25)
-fireSound.volume(0.33)
 smartBombSound.volume(0.6)
 
 const smartBomb = () => {
@@ -301,22 +298,16 @@ export const spaceship = () => {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
-				fireSound.play()
-				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
-				fireSound.play()
-				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
-				fireSound.play()
-				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 			}
 		},
 		stopFiring() {

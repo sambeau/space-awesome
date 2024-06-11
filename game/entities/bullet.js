@@ -10,6 +10,7 @@ bulletImage.onload = () => {
 	bulletImageLoaded = true
 }
 
+
 export const bullet = () => {
 	return {
 		x: 0,

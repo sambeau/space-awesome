@@ -55,6 +55,7 @@ const mine = () => {
 		sulking: false,
 		color: "black",
 		immuneToCrash: true,
+		score: 1500,
 		// hp: HP,
 		tick() {
 			this.ticker++

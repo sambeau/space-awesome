@@ -23,6 +23,7 @@ const Segment = () => {
 		width: 16,
 		height: 16,
 		color: "#FFC104",
+		score: 50,
 		spawn({ x, y, color }) {
 			this.x = x
 			this.y = y
@@ -123,6 +124,8 @@ const Snake = () => {
 		state: null,
 		states: {},
 		seeking: 0,
+		score: 1000,
+		headScore: 500,
 		init() {
 			this.states.angry = {}
 			this.states.angry.colors = picker(["#080A32", "#FFC104"])
