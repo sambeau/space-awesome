@@ -449,8 +449,9 @@ export const spaceship = () => {
 					)) {
 						e.collider.colliding = true
 						b.collider.colliding = true
+						if (!b.dead) // stop multiple hits
+							e.onHit()
 						b.dead = true
-						e.onHit()
 					}
 				})
 			})

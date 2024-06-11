@@ -8,7 +8,7 @@ import {
 var eatenSound = new Howl({ src: ['/sounds/eaten.mp3'] });
 eatenSound.volume(0.2)
 var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
-bangSound.volume(0.025)
+bangSound.volume(0.1)
 
 const Segment = () => {
 	return {
@@ -160,7 +160,7 @@ const Snake = () => {
 			]
 			this.states.fleeLeft.update = () => {
 				const head = this.snake[0]
-				head.vx = -15
+				head.vx = -10
 				head.vy = randInt(10) - 5
 
 				if (head.x + head.width + head.vx + 1 < 0)
@@ -176,7 +176,7 @@ const Snake = () => {
 			]
 			this.states.fleeRight.update = () => {
 				const head = this.snake[0]
-				head.vx = 15
+				head.vx = 10
 				head.vy = randInt(10) - 5
 				if (head.x + head.vx > canvas.width)
 					this.state = this.states.hungry
@@ -318,7 +318,7 @@ const Snake = () => {
 
 			if (
 				!this.dead
-				&& this.snake.length > 20
+				&& this.snake.length > 30
 				&& this.state !== this.states.fleeLeft
 				&& this.state !== this.states.fleeRight
 			) {
