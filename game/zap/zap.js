@@ -14,7 +14,20 @@ export function collisionBetweenCircles(x1, y1, r1, x2, y2, r2) {
 	return (distanceBetweenPoints(x1, y1, x2, y2) < r1 + r2)
 }
 
-//
+export function moveDistanceAlongLine(dx, x1, y1, x2, y2) {
+	var a = { x: x2 - x1, y: y2 - y1 },
+		mag = Math.sqrt(a.x * a.x + a.y * a.y);
+	if (mag == 0) {
+		a.x = a.y = 0;
+	}
+	else {
+		a.x = a.x / mag * dx;
+		a.y = a.y / mag * dx;
+	}
+	return { vx: a.x, vy: a.y };
+}
+
+// things
 
 export function makeN(thing, n) {
 	let things = []
@@ -74,6 +87,14 @@ export function thingsAreColliding(thing1, thing2) {
 
 	return colliding
 }
+
+export function thingIsOnScreen(thing, screen) {
+	return (thing.x + thing.width + 1) > 0 &&
+		(thing.x < screen.width) &&
+		(thing.y + thing.height > 0) &&
+		(thing.y < screen.height)
+}
+
 // random
 
 export function randInt(n) {
