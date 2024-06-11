@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from "../game.js";
 import { bomb } from "./bombs.js";
 import { explode } from "./explosions.js";
-import { distanceBetweenPoints, picker, randInt, stereoFromScreenX } from "/zap/zap.js";
+import { distanceBetweenPoints, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
 
 let imagesLoaded = 0
 const numImagesToLoad = 2
@@ -107,6 +107,9 @@ const swarmer = () => {
 			if (this.outOfBoundsR())
 				this.x = 0 - this.width
 
+			if (this.ticks % 12 == 0)
+				this.fire()
+
 			this.animate()
 
 		},
@@ -180,9 +183,9 @@ const swarmer = () => {
 		fire() {
 			// fireSound.play()
 			// fireSound.stereo((this.x - screen.width / 2) / screen.width)
-			if (!thingIsOnScreen(this, screen) || Math.random() > 0.25) return
+			if (!thingIsOnScreen(this, screen) || Math.random() > 0.15) return
 			let newbomb = bomb()
-			this.defenders.bombs.push(newbomb)
+			this.swarmers.bombs.push(newbomb)
 			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })
 		}
 	}
@@ -192,6 +195,7 @@ const swarmer = () => {
 export const Swarmers = () => {
 	return {
 		swarmers: [],
+		bombs: [], // move to manager so it can be seen by ship
 		all() {
 			return this.swarmers
 		},
@@ -204,10 +208,18 @@ export const Swarmers = () => {
 			// this.spawnSingle({})
 		},
 		update(dt) {
+			this.bombs = this.bombs.filter((b) => { return b.dead !== true })
+
 			this.swarmers = this.swarmers.filter((b) => { return b.dead !== true })
 			this.swarmers.forEach((x) => x.update(dt))
+
+			this.bombs.forEach((s) => s.update())
+			this.noBombs = this.bombs.length
+
 		},
 		draw() {
+			this.bombs.forEach((s) => s.draw())
+
 			this.swarmers.forEach((x) => x.draw())
 		}
 	}

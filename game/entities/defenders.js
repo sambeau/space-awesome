@@ -148,7 +148,7 @@ export const defenders = () => {
 			this.defenders.forEach((x) => x.update(dt))
 
 			this.bombs.forEach((s) => s.update())
-			this.noShots = this.bombs.length
+			this.noBombs = this.bombs.length
 
 		},
 		draw() {
