@@ -8,14 +8,18 @@ import { randInt, stereoFromScreenX } from "/zap/zap.js";
 //
 
 let maxShots = 8
+
 var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
 bangSound.volume(0.25)
+
+var fireSound = new Howl({ src: ['/sounds/pyeeow.wav'] });
+fireSound.volume(0.1)
 
 const galaxian = () => {
 	return {
 		name: "galaxian",
 		color: "#FF0000",
-		score: 500,
+		score: 100,
 		x: 0,
 		y: 0,
 		vx: 0,
@@ -62,6 +66,8 @@ const galaxian = () => {
 		imageR4Loaded: false,
 
 		ticks: 0,
+		shots: 0,
+		maxShots: 4,
 		ship: null,
 		tick() {
 			this.ticks += 1
@@ -120,7 +126,12 @@ const galaxian = () => {
 			return false;
 		},
 		fire() {
-			if (this.galaxians.shots.length < maxShots) {
+			if (this.galaxians.shots.length < maxShots
+				&& this.shots < this.maxShots
+				&& this.ship.y - this.y < canvas.height * 0.9
+			) {
+				fireSound.play()
+				fireSound.stereo((this.x - screen.width / 2) / screen.width)
 				let newshot = shot()
 				this.galaxians.shots.push(newshot)
 				newshot.spawn({ atx: this.x + this.width / 2, aty: this.y, shooter: this })
@@ -131,13 +142,18 @@ const galaxian = () => {
 			this.y += this.vy + game.speed;
 
 			//seek!
-			if (Math.abs(this.ship.x - this.x) < this.vy) {
+			if (Math.abs(this.ship.x - this.x) < this.vy * 2) {
 				this.vx = 0
-				this.fire()
+				if (this.ticks % 12 == 0)
+					this.fire()
 			}
 			else if (this.x > this.ship.x) { this.vx = -this.vy }
 			else if (this.x < this.ship.x) { this.vx = this.vy }
 			else { this.vx = 0 }
+
+			if (this.ticks % 6 == 0)
+				if (Math.random() < 0.5)
+					this.fire()
 
 			this.x += this.vx
 

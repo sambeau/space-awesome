@@ -35,6 +35,7 @@ export const shot = () => {
 			this.y = aty + this.height / 4
 			this.vy = this.speed
 			this.shooter = shooter
+			this.shooter.shots++
 		},
 		outOfBoundsBottom() {
 			if (this.y >= canvas.height) return true
@@ -45,6 +46,7 @@ export const shot = () => {
 				this.y = 0
 				this.vy = 0
 				this.dead = true
+				this.shooter.shots--
 				// this.shooter.removeShot()
 			} else
 				this.y += this.vy + game.speed;
@@ -55,6 +57,7 @@ export const shot = () => {
 		},
 		onHit() {
 			this.dead = true
+			this.shooter.shots--
 			explode({
 				x: this.x + this.collider.ox,
 				y: this.y + this.collider.oy,
