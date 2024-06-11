@@ -15,7 +15,6 @@
 - [x] Saved spacemen count
 - [x] Ship hit
 
-
 ## Essentials
 
 - [ ] Name & Logo!
@@ -47,14 +46,18 @@
 - [x] Camera shake
 - [x] Hi-Score
 - [x] Minimap
-- [x] Snake
+- [ ] Snake
 	- [ ] Moving eyes
+	- [x] Split
+	- [x] Damage
+	- [ ] Spread out a little
+	- [ ] Flee sound
 	- [x] Munching mode
 	- [x] Angry mode
 - [ ] Swarmers
-	- [ ] Bombs 
+	- [x] Bombs 
 - [ ] Defenders 
-	- [ ] bombs
+	- [x] bombs
 	- [ ] Grab people and run away with them
 	- [ ] Mutants
 - [x] Scores
@@ -64,6 +67,13 @@
 	- [x] Pods: 1000
 	- [x] Swarmers: 150
 
+## Sounds
+- [ ] Bombs
+- [ ] Shots
+- [ ] Snake flee
+- [ ] Shield warnings
+- [ ] Bullet noise
+- [ ] “Bonus”
 
 ## Ideas to try
 
