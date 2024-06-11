@@ -2,14 +2,13 @@ import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
 import {
 	debugThing, distanceBetweenPoints,
-	findClosestThing, randInt,
-	stereoFromScreenX, thingsAreColliding, volumeFromY
+	findClosestThing, randInt, stereoFromScreenX, thingsAreColliding, volumeFromY
 } from "/zap/zap.js";
 
 var eatenSound = new Howl({ src: ['/sounds/eaten.mp3'] });
 eatenSound.volume(0.2)
 var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
-bangSound.volume(0.1)
+bangSound.volume(0.025)
 
 const Segment = () => {
 	return {
@@ -22,7 +21,9 @@ const Segment = () => {
 		height: 16,
 		color: "#FFC104",
 		score: 50,
-		spawn({ x, y }) {
+		snake: null,
+		spawn({ snake, x, y }) {
+			this.snake = snake
 			this.x = x
 			this.y = y
 			this.collider = {
@@ -99,9 +100,11 @@ const Segment = () => {
 		},
 		onHit() {
 			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.y))
+			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true;
+			console.log(this)
+			this.snake.split(this.x, this.y)
 			explode({
 				x: this.cx,
 				y: this.cy,
@@ -138,7 +141,7 @@ const Snake = () => {
 
 				head.vx -= (head.x - this.ship.x) * cohesion
 				head.vy -= (head.y - this.ship.y) * cohesion
-				this.snakes.forEach((s) => {
+				this.snakes.snakes.forEach((s) => {
 					head.vx += (head.x - s.x) * cohesion / 100
 					head.vy += (head.y - s.y) * cohesion / 100
 				})
@@ -147,8 +150,46 @@ const Snake = () => {
 				if (head.vy > 5) head.vy = 5
 				if (head.vy < -4) head.vy = -4
 			}
+			//
+			this.states.fleeLeft = {}
+			this.states.fleeLeft.colors = [
+				"#00ffff",
+				"#ff00ff",
+				"#ffff00",
+				"#ffffff",
+			]
+			this.states.fleeLeft.update = () => {
+				const head = this.snake[0]
+				head.vx = -15
+				head.vy = randInt(10) - 5
+
+				if (head.x + head.width + head.vx + 1 < 0)
+					this.state = this.states.hungry
+			}
+			//
+			this.states.fleeRight = {}
+			this.states.fleeRight.colors = [
+				"#00ffff",
+				"#ff00ff",
+				"#ffff00",
+				"#ffffff",
+			]
+			this.states.fleeRight.update = () => {
+				const head = this.snake[0]
+				head.vx = 15
+				head.vy = randInt(10) - 5
+				if (head.x + head.vx > canvas.width)
+					this.state = this.states.hungry
+			}
+			//
 			this.states.hungry = {}
-			this.states.hungry.colors = ["#ff00ff", "#ff00ff", "#ffff00", "#ffff00", "#00ffff", "#00ffff"]
+			this.states.hungry.colors = ["#ff00ff",
+				"#ff00ff",
+				"#ffff00",
+				"#ffff00",
+				"#00ffff",
+				"#00ffff"
+			]
 			this.states.hungry.update = () => {
 				const head = this.snake[0]
 
@@ -172,7 +213,7 @@ const Snake = () => {
 				}
 				if (thingsAreColliding(head, closestSpaceman)) {
 					eatenSound.play()
-					eatenSound.stereo(stereoFromScreenX(screen, this.y))
+					eatenSound.stereo(stereoFromScreenX(screen, this.x))
 					eatenSound.volume(0.2 * volumeFromY(screen, 3, this.y)) // 3==screens
 
 					closestSpaceman.onEat()
@@ -184,7 +225,7 @@ const Snake = () => {
 
 				head.vx -= (head.x - closestSpaceman.x) * cohesion
 				head.vy -= (head.y - closestSpaceman.y) * cohesion
-				this.snakes.forEach((s) => {
+				this.snakes.snakes.forEach((s) => {
 					head.vx += (head.x - s.x) * cohesion / 100
 					head.vy += (head.y - s.y) * cohesion / 100
 				})
@@ -194,8 +235,15 @@ const Snake = () => {
 				if (head.vy > 5) head.vy = 5
 				if (head.vy < -5) head.vy = -5
 			}
+			//
 			this.states.walking = {}
-			this.states.walking.colors = ["#ff00ff", "#ff00ff", "#ff00ff", "#ff00ff", "#ffff00", "#ffff00", "#ffff00", "#00ffff", "#00ffff", "#00ffff"]
+			this.states.walking.colors = [
+				"#ff00ff",
+				"#ffff00",
+				"#ffff00",
+				"#00ffff",
+				"#00ffff"
+			]
 			this.states.walking.update = () => {
 				const head = this.snake[0]
 
@@ -223,7 +271,7 @@ const Snake = () => {
 				}
 				let cohesion = 0.05
 
-				this.snakes.forEach((s) => {
+				this.snakes.snakes.forEach((s) => {
 					head.vx += (head.x - s.x) * cohesion / 100
 					head.vy += (head.y - s.y) * cohesion / 100
 				})
@@ -235,7 +283,7 @@ const Snake = () => {
 		all() {
 			return this.snake
 		},
-		spawn({ snakes, ship, spacemen, x, y, length }) {
+		spawn({ snakes, ship, spacemen, x, y, length, state }) {
 			this.ship = ship
 			this.snakes = snakes
 			this.spacemen = spacemen
@@ -249,21 +297,41 @@ const Snake = () => {
 
 			for (let i = 0; i < length; i++) {
 				this.snake[i] = Segment()
-				this.snake[i].spawn({ x: this.x, y: this.y })
+				this.snake[i].spawn({ snake: this, x: this.x, y: this.y })
 			}
+
+			if (state == "fleeLeft") this.state = this.states.fleeLeft
+			if (state == "fleeRight") this.state = this.states.fleeRight
 		},
 		grow(n) {
 			for (let i = 0; i < n; i++) {
 				const segment = Segment()
 				segment.spawn({
+					snake: this,
 					x: this.snake[this.snake.length - 1].x,
 					y: this.snake[this.snake.length - 1].y,
 				})
 				this.snake.push(segment)
 			}
 		},
+		split(x, y) {
+
+			if (
+				!this.dead
+				&& this.snake.length > 20
+				&& this.state !== this.states.fleeLeft
+				&& this.state !== this.states.fleeRight
+			) {
+				this.dead = true
+				this.snakes.spawnSingle({ ship: this.ship, spacemen: this.spacemen, x: x, y: y, length: this.snake.length / 2 - 1, state: "fleeLeft" })
+				this.snakes.spawnSingle({ ship: this.ship, spacemen: this.spacemen, x: x, y: y, length: this.snake.length / 2 - 1, state: "fleeRight" })
+			}
+
+		},
 		update() {
 			// move body
+			if (this.ticker % 300 == 0) this.grow(1) // keep on growing!
+
 			for (let i = this.snake.length - 1; i > 0; i--) {
 				// if (distanceBetweenPoints(
 				// 	this.snake[i].x,
@@ -324,9 +392,14 @@ const Snake = () => {
 
 			const colors = this.state.colors
 			const n = colors.length
-			for (let i = 0; i < this.snake.length; i++)
-				this.snake[i].color = colors[(i % n + n) % n]
 
+			if (this.state == this.states.fleeLeft
+				|| this.state == this.states.fleeRight)
+				for (let i = 0; i < this.snake.length; i++) // flash
+					this.snake[i].color = colors[randInt(this.snake.length)]
+			else
+				for (let i = 0; i < this.snake.length; i++)
+					this.snake[i].color = colors[(i % n + n) % n]
 			for (let i = this.snake.length - 1; i >= 0; i--) {
 				let position = "body"
 				if (i == this.snake.length - 1) position = "tail"
@@ -351,17 +424,17 @@ export const Snakes = () => {
 		spawn({ ship, spacemen }) {
 			this.spawnSingle({
 				ship: ship,
-				snakes: this.snakes,
+				snakes: this,
 				spacemen: spacemen,
 				x: canvas.width * Math.random(),
 				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
-				length: 10
+				length: 8
 			})
 		},
-		spawnSingle({ ship, spacemen, x, y, length }) {
+		spawnSingle({ ship, spacemen, x, y, length, state }) {
 			const snake = Snake()
 			this.snakes.push(snake)
-			snake.spawn({ snakes: this.snakes, ship: ship, spacemen: spacemen, x: x, y: y, length: length })
+			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state })
 		},
 		update() {
 			this.snakes = this.snakes.filter((x) => { return x.dead !== true })

@@ -174,7 +174,7 @@ const mine = () => {
 			this.sulking = true;
 			if (smart) {
 				bigBoomSound.play()
-				bigBoomSound.stereo(stereoFromScreenX(screen, this.y))
+				bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
 
 				this.dead = true
 				explode({
@@ -220,8 +220,8 @@ export const Mines = () => {
 		},
 		spawn({ ship }) {
 			this.spawnSingle({ ship: ship })
-			this.spawnSingle({ ship: ship })
-			this.spawnSingle({ ship: ship })
+			// this.spawnSingle({ ship: ship })
+			// this.spawnSingle({ ship: ship })
 		},
 		update(dt) {
 			this.mines = this.mines.filter((x) => { return x.dead !== true })

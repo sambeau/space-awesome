@@ -115,7 +115,7 @@ const pod = () => {
 		},
 		onHit() {
 			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.y))
+			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true
 			game.score += this.score

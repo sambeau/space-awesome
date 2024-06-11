@@ -7,7 +7,7 @@ import { randInt, stereoFromScreenX } from "/zap/zap.js";
 // TODO: REFACTOR, MODERNISE, EXPOSE shots
 //
 
-let maxShots = 8
+let maxShots = 5
 
 var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
 bangSound.volume(0.25)
@@ -152,7 +152,7 @@ const galaxian = () => {
 			else { this.vx = 0 }
 
 			if (this.ticks % 6 == 0)
-				if (Math.random() < 0.5)
+				if (Math.random() < 0.25)
 					this.fire()
 
 			this.x += this.vx
@@ -223,7 +223,7 @@ const galaxian = () => {
 		},
 		onHit() {
 			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.y))
+			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true
 			game.score += this.score
@@ -257,7 +257,6 @@ export const galaxians = () => {
 			this.spawnSingle({ ship: ship })
 			this.spawnSingle({ ship: ship })
 			this.spawnSingle({ ship: ship })
-
 		},
 		update(dt) {
 			this.shots = this.shots.filter((b) => { return b.dead !== true })

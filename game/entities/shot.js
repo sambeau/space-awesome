@@ -37,12 +37,17 @@ export const shot = () => {
 			this.shooter = shooter
 			this.shooter.shots++
 		},
-		outOfBoundsBottom() {
+		outOfBounds() {
 			if (this.y >= canvas.height) return true
+			if (this.y < 0) return true
+
+			if (this.x >= canvas.width) return true
+			if (this.x < 0) return true
+
 			return false;
 		},
 		update(/*dt*/) {
-			if (this.outOfBoundsBottom()) {
+			if (this.outOfBounds()) {
 				this.y = 0
 				this.vy = 0
 				this.dead = true

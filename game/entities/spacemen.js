@@ -130,9 +130,9 @@ const spaceman = () => {
 		},
 		onHit() {
 			crySound.play()
-			crySound.stereo(stereoFromScreenX(screen, this.y))
+			crySound.stereo(stereoFromScreenX(screen, this.x))
 			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.y))
+			bangSound.stereo(stereoFromScreenX(screen, this.x))
 			this.dead = true;
 			explode({
 				x: this.x + this.width / 2,
@@ -153,7 +153,7 @@ const spaceman = () => {
 
 		onCollect(ship) {
 			saveSound.play()
-			saveSound.stereo(stereoFromScreenX(screen, this.y))
+			saveSound.stereo(stereoFromScreenX(screen, this.x))
 			// saveSound.vol(sreen, n, this.y))
 			this.saved = true
 			this.dead = true

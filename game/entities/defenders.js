@@ -107,7 +107,7 @@ const defender = () => {
 		},
 		onHit() {
 			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.y))
+			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true
 			game.score += this.score
@@ -121,7 +121,7 @@ const defender = () => {
 		fire() {
 			// fireSound.play()
 			// fireSound.stereo((this.x - screen.width / 2) / screen.width)
-			if (!thingIsOnScreen(this, screen) || Math.random() > 0.25) return
+			if (!thingIsOnScreen(this, screen) || Math.random() > 0.125) return
 			let newbomb = bomb()
 			this.defenders.bombs.push(newbomb)
 			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })

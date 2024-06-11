@@ -98,7 +98,7 @@ const shield = () => {
 	return {
 		x: 0,
 		y: 0,
-		strength: 25, //50
+		strength: 50, //50
 		width: 0,
 		height: 0,
 		image: null,
@@ -166,7 +166,7 @@ const shield = () => {
 			this.hitTimer += 10
 			canvas.classList.add("hit-shake")
 			shieldSound.play()
-			shieldSound.stereo(stereoFromScreenX(screen, this.y))
+			shieldSound.stereo(stereoFromScreenX(screen, this.x))
 
 			setTimeout(() => {
 				canvas.classList.remove("hit-shake")
@@ -472,6 +472,7 @@ export const spaceship = () => {
 			entityTypes.forEach((et) => this.crashInto(et))
 		},
 		crashInto(entities) {
+			// return // <-- uncomment to disable crashing for debug
 			if (this.dead || game.over) return
 			let collider = this
 			if (this.shield.strength > 0)

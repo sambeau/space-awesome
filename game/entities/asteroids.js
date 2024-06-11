@@ -187,7 +187,7 @@ const asteroid = () => {
 		},
 		onHit() {
 			killSound.play()
-			killSound.stereo(stereoFromScreenX(screen, this.y))
+			killSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true;
 			game.score += this.score
@@ -195,7 +195,7 @@ const asteroid = () => {
 			switch (this.size) {
 				case 'L':
 					asteroidLSound.play()
-					asteroidLSound.stereo(stereoFromScreenX(screen, this.y))
+					asteroidLSound.stereo(stereoFromScreenX(screen, this.x))
 
 					explosionSize = 11
 					this.asteroids.spawnSingle({
@@ -216,7 +216,7 @@ const asteroid = () => {
 				case 'M':
 					explosionSize = 7
 					asteroidMSound.play()
-					asteroidMSound.stereo(stereoFromScreenX(screen, this.y))
+					asteroidMSound.stereo(stereoFromScreenX(screen, this.x))
 
 					this.asteroids.spawnSingle({
 						size: 'S',
@@ -242,7 +242,7 @@ const asteroid = () => {
 					break;
 				case 'S':
 					asteroidSSound.play()
-					asteroidSSound.stereo(stereoFromScreenX(screen, this.y))
+					asteroidSSound.stereo(stereoFromScreenX(screen, this.x))
 
 					explosionSize = 5
 			}
@@ -269,7 +269,6 @@ export const asteroids = () => {
 			a.spawn({ asteroids: this, size: size, x: x, y: y, vx: vx, vy: vy })
 		},
 		spawn() {
-			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })
 			this.spawnSingle({ size: 'L' })

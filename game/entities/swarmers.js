@@ -65,9 +65,9 @@ const swarmer = () => {
 		spawn({ swarmers, ship, x, y, vx, vy }) {
 			// console.log("spawn")
 			swarmerSound.play()
-			swarmerSound.stereo(stereoFromScreenX(screen, this.y))
+			swarmerSound.stereo(stereoFromScreenX(screen, this.x))
 			swarmerClassicSound.play()
-			swarmerClassicSound.stereo(stereoFromScreenX(screen, this.y))
+			swarmerClassicSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.swarmers = swarmers
 			this.ship = ship
@@ -85,7 +85,7 @@ const swarmer = () => {
 
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
-			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
+			this.collider.area = 1//Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 
 			this.images = picker([image1, image2])
 		},
@@ -169,7 +169,7 @@ const swarmer = () => {
 		},
 		onHit() {
 			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.y))
+			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true;
 			game.score += this.score

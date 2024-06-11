@@ -1,5 +1,5 @@
 import { canvas, ctx, game } from "../game.js";
-import { moveDistanceAlongLine, picker } from "../zap/zap.js";
+import { moveDistanceAlongLine, picker, stereoFromScreenX } from "../zap/zap.js";
 import { explode } from "./explosions.js";
 
 const debug = false
@@ -30,6 +30,9 @@ const bombImages = [
 let bombWidth = 10
 let bombSpeed = 10
 
+var bombSound = new Howl({ src: ['/sounds/bomb.mp3'] });
+bombSound.volume(0.05)
+
 export const bomb = () => {
 	return {
 		name: "bomb",
@@ -47,7 +50,7 @@ export const bomb = () => {
 			ox: bombWidth / 2,
 			oy: bombWidth / 2,
 			r: bombWidth / 2,
-			area: 10,
+			area: 5,
 			colliding: false
 		},
 		images: picker(bombImages),
@@ -66,6 +69,8 @@ export const bomb = () => {
 			this.vx = vx
 			this.vy = vy
 			this.bomber.bombs++
+			bombSound.play()
+			bombSound.stereo(stereoFromScreenX(screen, this.x))
 		},
 		outOfBoundsBottom() {
 			if (this.y >= canvas.height) return true
@@ -83,11 +88,12 @@ export const bomb = () => {
 			}
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
-
+			bombSound.stereo(stereoFromScreenX(screen, this.x))
 		},
 		onHit() {
 			this.dead = true
 			this.bomber.bombs--
+			bombSound.stop()
 			explode({
 				x: this.x + this.collider.ox,
 				y: this.y + this.collider.oy,
