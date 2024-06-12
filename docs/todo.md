@@ -48,12 +48,14 @@
 - [x] Minimap
 - [ ] Snake
 	- [ ] Moving eyes
+	- [x] Can’t crash when fleeing
 	- [x] Split
 	- [x] Damage
 	- [ ] Spread out a little
 	- [ ] Flee sound
 	- [x] Munching mode
 	- [x] Angry mode
+	- [ ] Mushrooms grow when hit
 - [ ] Swarmers
 	- [x] Bombs 
 - [ ] Defenders 

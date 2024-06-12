@@ -98,13 +98,13 @@ const Segment = () => {
 			}
 			ctx.restore()
 		},
-		onHit() {
+		onHit(smartbomb, crash) {
 			bangSound.play()
 			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true;
-			console.log(this)
-			this.snake.split(this.x, this.y)
+			if (!smartbomb && !crash && !this.isCrashProof())
+				this.snake.split(this.x, this.y)
 			explode({
 				x: this.cx,
 				y: this.cy,
@@ -112,6 +112,9 @@ const Segment = () => {
 				size: 10,
 			})
 		},
+		isCrashProof() {
+			return this.snake.isCrashProof
+		}
 	}
 }
 
@@ -129,6 +132,7 @@ const Snake = () => {
 		seeking: 0,
 		score: 1000,
 		headScore: 500,
+		isCrashProof: false,
 		init() {
 			this.states.angry = {}
 			this.states.angry.colors = ["#190533", "#190533", "#190533", "#ffff00", "#ffff00", "#ffff00"]
@@ -159,12 +163,15 @@ const Snake = () => {
 				"#ffffff",
 			]
 			this.states.fleeLeft.update = () => {
+				this.isCrashProof = true
 				const head = this.snake[0]
 				head.vx = -10
 				head.vy = randInt(10) - 5
 
-				if (head.x + head.width + head.vx + 1 < 0)
+				if (head.x + head.width + head.vx + 1 < 0) {
+					this.isCrashProof = false
 					this.state = this.states.hungry
+				}
 			}
 			//
 			this.states.fleeRight = {}
@@ -175,11 +182,14 @@ const Snake = () => {
 				"#ffffff",
 			]
 			this.states.fleeRight.update = () => {
+				this.isCrashProof = true
 				const head = this.snake[0]
 				head.vx = 10
 				head.vy = randInt(10) - 5
-				if (head.x + head.vx > canvas.width)
+				if (head.x + head.vx > canvas.width) {
+					this.isCrashProof = false
 					this.state = this.states.hungry
+				}
 			}
 			//
 			this.states.hungry = {}

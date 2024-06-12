@@ -351,6 +351,8 @@ export const spaceship = () => {
 			if (game.over || this.dead) {
 				this.vx = 0
 				this.vy = 0
+				this.x = screen.width / 2
+				this.y = screen.height * 2
 				game.speed = 2
 				return
 			}
@@ -480,7 +482,12 @@ export const spaceship = () => {
 				collider = this.shield
 			entities.forEach((e) => {
 				if (thingsAreColliding(collider, e)) {
+
 					console.log("Crash! into", e.name)
+
+					// exception for fleeing snake
+					if (e.isCrashProof && e.isCrashProof())
+						return
 
 					if (this.shield.strength > 0) {
 						this.shield.strength -= e.collider.area
@@ -499,7 +506,7 @@ export const spaceship = () => {
 						}
 						// this.onHit()
 					}
-					e.onHit()
+					e.onHit(false, true)
 
 				}
 			})
