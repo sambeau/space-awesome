@@ -5,7 +5,7 @@
 - [ ] Moving eyes
 - [ ] Limit FOV for all baddies
 - [ ] Mother Ship
-- [ ] Floating scores
+- [x] Floating scores
 - [ ] Name & Logo!
 - [ ] Levels
 - [ ] Saved spacemen bonus
@@ -20,7 +20,7 @@
 - [ ] Name & Logo!
 	- [x] Space Awesome!
 - [x] Show score
-	- [ ] Floating scores
+	- [x] Floating scores
 	- [x] Font
 - [x] Ship hit
 	- [x] Explosion
@@ -51,12 +51,12 @@
 	- [x] Can’t crash when fleeing
 	- [x] Split
 	- [x] Damage
-	- [ ] Spread out a little
+	- [x] Spread out a little
 	- [ ] Flee sound
 	- [x] Munching mode
 	- [x] Angry mode
 	- [ ] Mushrooms grow when hit
-- [ ] Swarmers
+- [x] Swarmers
 	- [x] Bombs 
 - [ ] Defenders 
 	- [x] bombs
