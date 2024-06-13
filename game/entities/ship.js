@@ -348,14 +348,8 @@ export const spaceship = () => {
 			return false
 		},
 		update(/*dt*/) {
-			if (game.over || this.dead) {
-				this.vx = 0
-				this.vy = 0
-				this.x = screen.width / 2
-				this.y = screen.height * 2
-				game.speed = 2
+			if (game.over || this.dead)
 				return
-			}
 
 			if (this.outOfBoundsTop()) {
 				this.y = 0
@@ -534,6 +528,11 @@ export const spaceship = () => {
 										canvas.classList.remove("game-over-shake")
 										setTimeout(() => {
 											gameOverSound.play()
+											this.vx = 0
+											this.vy = 0
+											this.x = screen.width / 2
+											this.y = screen.height * 2
+											game.speed = 2
 										}, 5300)
 									}, 500)
 								}, 500)
