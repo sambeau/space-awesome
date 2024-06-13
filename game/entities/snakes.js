@@ -335,8 +335,23 @@ const Snake = () => {
 				&& this.state !== this.states.fleeRight
 			) {
 				this.dead = true
-				this.snakes.spawnSingle({ ship: this.ship, spacemen: this.spacemen, x: x, y: y, length: this.snake.length / 2 - 1, state: "fleeLeft" })
-				this.snakes.spawnSingle({ ship: this.ship, spacemen: this.spacemen, x: x, y: y, length: this.snake.length / 2 - 1, state: "fleeRight" })
+				this.snakes.spawnSingle({
+					ship: this.ship,
+					spacemen: this.spacemen,
+					scores: this.scores,
+					x: x,
+					y: y,
+					length: this.snake.length / 2 - 1,
+					state: "fleeLeft"
+				})
+				this.snakes.spawnSingle({
+					ship: this.ship,
+					spacemen: this.spacemen,
+					scores: this.scores,
+					x: x,
+					y: y, length: this.snake.length / 2 - 1,
+					state: "fleeRight"
+				})
 			}
 
 		},
