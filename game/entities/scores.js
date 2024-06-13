@@ -62,11 +62,11 @@ const score = () => {
 			this.alpha = 1
 		},
 		update() {
-			if (this.ticks > 60)
+			if (this.ticks > 90)
 				this.dead = true
 
 			if (this.ticks > 20)
-				this.alpha *= 0.9
+				this.alpha *= 0.95
 
 
 			if (this.ticks % 10 == 0)
