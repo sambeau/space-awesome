@@ -28,7 +28,6 @@ export let Minimap = () => {
 		init(_ship, ents) {
 			ship = _ship
 			entities = ents
-			console.log(ship)
 
 			width = canvas.width / scale
 			height = canvas.height * 4 / scale
