@@ -1,5 +1,5 @@
-import { canvas, ctx } from "../game.js";
-import { picker } from "/zap/zap.js"
+import { canvas, ctx, game } from "../game.js";
+import { picker } from "/zap/zap.js";
 
 const debug = true
 
@@ -28,7 +28,7 @@ export let Minimap = () => {
 		init(_ship, ents) {
 			ship = _ship
 			entities = ents
-			// console.log(ship)
+			console.log(ship)
 
 			width = canvas.width / scale
 			height = canvas.height * 4 / scale
@@ -85,13 +85,12 @@ export let Minimap = () => {
 				})
 			})
 			ctx.fillStyle = "white";
-			if (ship && ship.x) {
+			if (ship && ship.x && !ship.dead && !game.over) { // why doesn't this work?
 				const shipx = ship.x / scale + x
 				const shipy = (ship.y + 3 * canvas.height + 2) / scale + y
 				ctx.fillRect(shipx, shipy, 2, 4)
 				ctx.fillRect(shipx, shipy, 2, 4)
 				ctx.fillRect(shipx - 2, shipy + 4, 6, 2)
-
 			}
 			ctx.restore()
 		}
