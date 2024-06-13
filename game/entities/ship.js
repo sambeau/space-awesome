@@ -478,8 +478,6 @@ export const spaceship = () => {
 			entities.forEach((e) => {
 				if (thingsAreColliding(collider, e)) {
 
-					console.log("Crash! into", e.name)
-
 					// exception for fleeing snake
 					if (e.isCrashProof && e.isCrashProof())
 						return

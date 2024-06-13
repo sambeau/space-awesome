@@ -252,7 +252,6 @@ const main = () => {
 
 	ship = Spaceship()
 	scores = Scores()
-	scores.spawnSingle({ cx: screen.width / 2, cy: screen.height / 2, type: 1000 })
 
 	asteroids = Asteroids()
 	asteroids.spawn()

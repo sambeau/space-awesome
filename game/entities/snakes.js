@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from "../game.js";
 import { explode } from "./explosions.js";
 import {
-	debugThing, distanceBetweenPoints,
+	distanceBetweenPoints,
 	findClosestThing, randInt, stereoFromScreenX, thingsAreColliding, volumeFromY
 } from "/zap/zap.js";
 
@@ -424,7 +424,7 @@ const Snake = () => {
 		},
 		draw() {
 			if (this.dead) return
-			debugThing(ctx, this.snake[0], this.snake.length.toString())
+			// debugThing(ctx, this.snake[0], this.snake.length.toString())
 
 			const colors = this.state.colors
 			const n = colors.length
