@@ -83,7 +83,8 @@ const mine = () => {
 			if (this.x > canvas.width) return true
 			return false;
 		},
-		spawn({ ship, x, y, vx, vy }) {
+		spawn({ scores, ship, x, y, vx, vy }) {
+			this.scores = scores
 			this.ship = ship
 			this.states = picker(mineStates, { start: 7, end: 7 })
 			this.image = (this.states.first()).image
@@ -177,6 +178,12 @@ const mine = () => {
 				bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
 
 				this.dead = true
+				game.scores += this.score
+				this.scores.spawnSingle({
+					cx: this.x + this.width / 2,
+					cy: this.y + this.height / 2,
+					type: this.score
+				})
 				explode({
 					x: this.x + this.width / 2,
 					y: this.y + this.height / 2,
@@ -213,13 +220,13 @@ export const Mines = () => {
 		all() {
 			return this.mines
 		},
-		spawnSingle({ ship, x, y, vx, vy }) {
+		spawnSingle({ scores, ship, x, y, vx, vy }) {
 			let a = mine()
 			this.mines.push(a)
-			a.spawn({ ship: ship, x: x, y: y, vx: vx, vy: vy })
+			a.spawn({ scores: scores, ship: ship, x: x, y: y, vx: vx, vy: vy })
 		},
-		spawn({ ship }) {
-			this.spawnSingle({ ship: ship })
+		spawn({ ship, scores }) {
+			this.spawnSingle({ ship: ship, scores: scores })
 			// this.spawnSingle({ ship: ship })
 			// this.spawnSingle({ ship: ship })
 		},

@@ -50,9 +50,11 @@ const pod = () => {
 				this.ticks = 0
 			return this.tick
 		},
-		spawn({ swarmers, ship }) {
+		spawn({ swarmers, ship, scores }) {
 			this.swarmers = swarmers
 			this.ship = ship //swarmers need ship to chase after
+			this.scores = scores
+
 			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
 			this.x = randInt(canvas.width)
 			this.y = 0 - randInt(canvas.height * 2) - canvas.height * 2
@@ -119,6 +121,12 @@ const pod = () => {
 
 			this.dead = true
 			game.score += this.score
+			this.scores.spawnSingle({
+				cx: this.x + this.width / 2,
+				cy: this.y + this.height / 2,
+				type: this.score
+			})
+
 			explode({
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,
@@ -144,9 +152,9 @@ export const Pods = () => {
 		all() {
 			return this.pods
 		},
-		spawn({ swarmers, ship }) {
+		spawn({ swarmers, ship, scores }) {
 			this.pods = makeN(pod, 2)
-			this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship }))
+			this.pods.forEach((x) => x.spawn({ swarmers: swarmers, ship: ship, scores: scores }))
 		},
 		update(dt) {
 			this.pods = this.pods.filter((b) => { return b.dead !== true })

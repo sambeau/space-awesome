@@ -63,8 +63,9 @@ const spaceman = () => {
 			if (this.x > canvas.width) return true
 			return false;
 		},
-		spawn({ id, x, y, vx, vy }) {
+		spawn({ scores, id, x, y, vx, vy }) {
 			this.id = id
+			this.scores = scores
 			this.images = picker(images)
 			this.image = this.images.first()
 
@@ -158,6 +159,11 @@ const spaceman = () => {
 			this.saved = true
 			this.dead = true
 			ship.onCollect(this.type)
+			this.scores.spawnSingle({
+				cx: this.x + this.width / 2,
+				cy: this.y + this.height / 2,
+				type: 500
+			})
 			game.particles.spawnCircle({
 				points: 64,
 				cx: ship.x + ship.width / 2,
@@ -194,24 +200,25 @@ export const Spacemen = () => {
 		count() {
 			return this.spacemen.length
 		},
-		spawnSingle({ x, y, vx, vy }) {
+		spawnSingle({ scores, x, y, vx, vy }) {
 			let a = spaceman()
 			this.spacemen.push(a)
 			this.ids++
-			a.spawn({ id: this.ids, x: x, y: y, vx: vx, vy: vy })
+			a.spawn({ scores: scores, id: this.ids, x: x, y: y, vx: vx, vy: vy })
 		},
-		spawn() {
-			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
-			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
-			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
-			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
-			this.spawnSingle({ y: randInt(canvas.height * 4) + canvas.height * 3 })
-			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 2 })
-			this.spawnSingle({ y: randInt(canvas.height * 3) + canvas.height * 1 })
-			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 1 })
-			this.spawnSingle({ y: randInt(canvas.height * 2) })
-			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
-			this.spawnSingle({ y: randInt(canvas.height * 2) + canvas.height * 4 })
+		spawn({ scores }) {
+			this.scores = scores
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 4) + canvas.height * 3 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 3) + canvas.height * 2 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 3) + canvas.height * 1 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 2) + canvas.height * 1 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 4) + canvas.height * 3 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 3) + canvas.height * 2 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 3) + canvas.height * 1 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 2) + canvas.height * 1 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 2) })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 2) + canvas.height * 4 })
+			this.spawnSingle({ scores: scores, y: randInt(canvas.height * 2) + canvas.height * 4 })
 		},
 		update(dt) {
 			let newlysaved = 0

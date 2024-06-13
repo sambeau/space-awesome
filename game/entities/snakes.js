@@ -103,6 +103,7 @@ const Segment = () => {
 			bangSound.stereo(stereoFromScreenX(screen, this.x))
 
 			this.dead = true;
+			game.score += this.score
 			if (!smartbomb && !crash && !this.isCrashProof())
 				this.snake.split(this.x, this.y)
 			explode({
@@ -293,10 +294,11 @@ const Snake = () => {
 		all() {
 			return this.snake
 		},
-		spawn({ snakes, ship, spacemen, x, y, length, state }) {
+		spawn({ snakes, ship, spacemen, x, y, length, state, scores }) {
 			this.ship = ship
 			this.snakes = snakes
 			this.spacemen = spacemen
+			this.scores = scores
 
 			this.x = x
 			this.y = y
@@ -386,10 +388,19 @@ const Snake = () => {
 				if (this.snake[i].dead) dead++
 				this.snake[i].dead = false
 			}
-			if (dead > 0)
+			if (dead > 0) {
+				this.lastHead = this.snake[0]
 				this.snake = this.snake.slice(0, -dead)
+			}
 			if (this.snake.length < 1) {
 				this.dead = true
+				game.score += this.score
+				this.scores.spawnSingle({
+					cx: this.lastHead.x + this.lastHead.width / 2,
+					cy: this.lastHead.y + this.lastHead.height / 2,
+					type: 1000
+				})
+
 				return
 			}
 
@@ -431,20 +442,21 @@ export const Snakes = () => {
 			})
 			return allSnakes
 		},
-		spawn({ ship, spacemen }) {
+		spawn({ ship, spacemen, scores }) {
 			this.spawnSingle({
 				ship: ship,
 				snakes: this,
 				spacemen: spacemen,
+				scores: scores,
 				x: canvas.width * Math.random(),
 				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
 				length: 8
 			})
 		},
-		spawnSingle({ ship, spacemen, x, y, length, state }) {
+		spawnSingle({ ship, spacemen, x, y, length, state, scores }) {
 			const snake = Snake()
 			this.snakes.push(snake)
-			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state })
+			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, scores: scores })
 		},
 		update() {
 			this.snakes = this.snakes.filter((x) => { return x.dead !== true })
