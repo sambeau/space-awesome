@@ -212,6 +212,13 @@ const asteroid = () => {
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					})
+					this.asteroids.spawnSingle({
+						size: 'M',
+						x: this.x,
+						y: this.y,
+						vx: Math.random() + 2,
+						vy: this.vy + 2,
+					})
 					break;
 				case 'M':
 					explosionSize = 7
