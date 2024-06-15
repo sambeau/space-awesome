@@ -14,6 +14,7 @@
 - colliders are always an array (or use Array.isArray())
 - colliders are a sub-entity with updater and draw function for debug
 - entities all have a debug function to draw text beside them
+- floaters as part of engine
 
 
 

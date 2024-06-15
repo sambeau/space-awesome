@@ -3,8 +3,8 @@
 ## Priority List
 
 - [ ] Moving eyes
-- [ ] Limit FOV for all baddies
 - [ ] Mother Ship
+- [ ] Limit FOV for all baddies
 - [x] Floating scores
 - [ ] Name & Logo!
 - [ ] Levels
