@@ -29,12 +29,11 @@ imageStates.forEach((i) => {
 var bigBoomSound = new Howl({ src: ['/sounds/impact.mp3'] });
 bigBoomSound.volume(0.25)
 
-const angryImage = new Image()
-let angryImageLoaded = false
-angryImage.src = "images/mine-angry.png"
-angryImage.onload = () => { angryImageLoaded = true }
+// const angryImage = new Image()
+// let angryImageLoaded = false
+// angryImage.src = "images/mine-angry.png"
+// angryImage.onload = () => { angryImageLoaded = true }
 
-const HP = 50
 const mine = () => {
 	return {
 		ship: null,
@@ -56,7 +55,7 @@ const mine = () => {
 		color: "black",
 		immuneToCrash: true,
 		score: 1500,
-		// hp: HP,
+
 		tick() {
 			this.ticker++
 			if (this.ticker == this.animationSpeed) {
@@ -66,10 +65,6 @@ const mine = () => {
 			this.ticks++
 			if (this.ticks === 1000)
 				this.ticks = 0
-			// this.hsec++
-			// if (this.hsec == 30)
-			// 	this.hsec = 0
-			// return this.tick
 		},
 		outOfBoundsV() {
 			if (this.y > canvas.height + this.height) return true
@@ -83,8 +78,8 @@ const mine = () => {
 			if (this.x > canvas.width) return true
 			return false;
 		},
-		spawn({ scores, ship, x, y, vx, vy }) {
-			this.scores = scores
+		spawn({ floaters, ship, x, y, vx, vy }) {
+			this.floaters = floaters
 			this.ship = ship
 			this.states = picker(mineStates, { start: 7, end: 7 })
 			this.image = (this.states.first()).image
@@ -141,15 +136,6 @@ const mine = () => {
 				icon.drawImage(this.image, 0, 0, this.width, this.height)
 
 				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
-				// if (this.hp < HP / 2) {
-				// 	const opacity = (HP - this.hp) * (1 / HP)
-				// 	if (angryImageLoaded) {
-				// 		ctx.save()
-				// 		ctx.globalAlpha = Math.sin((this.hsec / 60) * Math.PI * 2) * opacity
-				// 		ctx.drawImage(angryImage, this.x + 45.15, this.y + 45.63, 84.73, 84.73)
-				// 		ctx.restore()
-				// 	}
-				// }
 			}
 		},
 		animate() {
@@ -178,8 +164,8 @@ const mine = () => {
 				bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
 
 				this.dead = true
-				game.scores += this.score
-				this.scores.spawnSingle({
+				game.score += this.score
+				this.floaters.spawnSingle({
 					cx: this.x + this.width / 2,
 					cy: this.y + this.height / 2,
 					type: this.score
@@ -220,13 +206,13 @@ export const Mines = () => {
 		all() {
 			return this.mines
 		},
-		spawnSingle({ scores, ship, x, y, vx, vy }) {
+		spawnSingle({ floaters, ship, x, y, vx, vy }) {
 			let a = mine()
 			this.mines.push(a)
-			a.spawn({ scores: scores, ship: ship, x: x, y: y, vx: vx, vy: vy })
+			a.spawn({ floaters: floaters, ship: ship, x: x, y: y, vx: vx, vy: vy })
 		},
-		spawn({ ship, scores }) {
-			this.spawnSingle({ ship: ship, scores: scores })
+		spawn({ ship, floaters }) {
+			this.spawnSingle({ ship: ship, floaters: floaters })
 			// this.spawnSingle({ ship: ship })
 			// this.spawnSingle({ ship: ship })
 		},

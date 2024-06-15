@@ -261,7 +261,7 @@ export const spaceship = () => {
 		bullets: [],
 		shield: shield(),
 		smartBomb: smartBomb(),
-		spawn(entities) {
+		spawn({ entities: entities, floaters: floaters }) {
 			this.width = 50
 			this.height = 64
 			this.image1.onload = () => {
@@ -278,6 +278,7 @@ export const spaceship = () => {
 			this.image3.src = "images/ship-l-3.png"
 
 			this.entities = entities
+			this.floaters = floaters
 
 			this.y = canvas.height - this.height * 2;
 			this.x = canvas.width / 2;
@@ -581,9 +582,19 @@ export const spaceship = () => {
 					break;
 				case 'life':
 					game.lives++
+					this.floaters.spawnSingle({
+						cx: this.cx,
+						cy: this.cy,
+						type: '1up'
+					})
 					break;
 				case 'smart':
 					this.smartBomb.charges++
+					this.floaters.spawnSingle({
+						cx: this.cx,
+						cy: this.cy,
+						type: 'bomb'
+					})
 					break;
 				case 'shield':
 					this.boostShields()

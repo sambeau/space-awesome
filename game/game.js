@@ -6,12 +6,12 @@ import { defenders as Defenders } from "./entities/defenders.js";
 import { galaxians as Galaxians } from "./entities/galaxians.js";
 import { starfield as Starfield } from "./entities/stars.js";
 
+import { Floaters } from "./entities/floaters.js";
 import { Hud } from "./entities/hud.js";
 import { Mines } from "./entities/mines.js";
 import { Particles } from "./entities/particles.js";
 import { Pods } from "./entities/pods.js";
 import { Powerups } from "./entities/powerups.js";
-import { Scores } from "./entities/scores.js";
 import { spaceship as Spaceship } from "./entities/ship.js";
 import { Snakes } from "./entities/snakes.js";
 import { Spacemen } from "./entities/spacemen.js";
@@ -59,7 +59,7 @@ let defenders
 let galaxians
 let snakes
 let powerups
-let scores
+let floaters
 let hud
 
 
@@ -117,7 +117,7 @@ const gameLoop = (dt) => {
 	snakes.update(dt)
 	ship.update(dt)
 	game.particles.update(dt)
-	scores.update(dt)
+	floaters.update(dt)
 
 	hud.update(dt)
 
@@ -149,7 +149,7 @@ const gameLoop = (dt) => {
 	powerups.draw()
 	ship.draw()
 	game.particles.draw()
-	scores.draw()
+	floaters.draw()
 
 	hud.draw()
 
@@ -251,45 +251,48 @@ const main = () => {
 	game.particles = Particles()
 
 	ship = Spaceship()
-	scores = Scores()
+	floaters = Floaters()
 
 	asteroids = Asteroids()
-	asteroids.spawn()
+	// asteroids.spawn()
 
 	mines = Mines()
-	mines.spawn({ ship: ship, scores: scores })
+	mines.spawn({ ship: ship, floaters: floaters })
 
 	spacemen = Spacemen()
-	spacemen.spawn({ ship: ship, scores: scores })
+	// spacemen.spawn({ ship: ship, scores: scores })
 
 	swarmers = Swarmers()
 	pods = Pods()
-	pods.spawn({ swarmers: swarmers, ship: ship, scores: scores })
+	// pods.spawn({ swarmers: swarmers, ship: ship, scores: scores })
 
 	defenders = Defenders()
-	defenders.spawn({ ship: ship })
+	// defenders.spawn({ ship: ship })
 
 	galaxians = Galaxians()
-	galaxians.spawn({ ship: ship })
+	// galaxians.spawn({ ship: ship })
 
 	snakes = Snakes()
-	snakes.spawn({ ship: ship, spacemen: spacemen, scores: scores })
+	// snakes.spawn({ ship: ship, spacemen: spacemen, scores: scores })
 
 	powerups = Powerups()
 	powerups.spawn({ ship: ship })
 
 
-	ship.spawn([
-		asteroids,
-		pods,
-		swarmers,
-		defenders,
-		galaxians,
-		powerups,
-		spacemen,
-		snakes,
-		mines
-	])
+	ship.spawn({
+		entities: [
+			asteroids,
+			pods,
+			swarmers,
+			defenders,
+			galaxians,
+			powerups,
+			spacemen,
+			snakes,
+			mines,
+		],
+		floaters: floaters
+	})
 
 
 	hud = Hud()
