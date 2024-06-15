@@ -294,11 +294,11 @@ const Snake = () => {
 		all() {
 			return this.snake
 		},
-		spawn({ snakes, ship, spacemen, x, y, length, state, scores }) {
+		spawn({ snakes, ship, spacemen, x, y, length, state, floaters }) {
 			this.ship = ship
 			this.snakes = snakes
 			this.spacemen = spacemen
-			this.scores = scores
+			this.floaters = floaters
 
 			this.x = x
 			this.y = y
@@ -338,7 +338,7 @@ const Snake = () => {
 				this.snakes.spawnSingle({
 					ship: this.ship,
 					spacemen: this.spacemen,
-					scores: this.scores,
+					floaters: this.floaters,
 					x: x,
 					y: y,
 					length: this.snake.length / 2 - 1,
@@ -347,7 +347,7 @@ const Snake = () => {
 				this.snakes.spawnSingle({
 					ship: this.ship,
 					spacemen: this.spacemen,
-					scores: this.scores,
+					floaters: this.floaters,
 					x: x,
 					y: y, length: this.snake.length / 2 - 1,
 					state: "fleeRight"
@@ -410,7 +410,7 @@ const Snake = () => {
 			if (this.snake.length < 1) {
 				this.dead = true
 				game.score += this.score
-				this.scores.spawnSingle({
+				this.floaters.spawnSingle({
 					cx: this.lastHead.x + this.lastHead.width / 2,
 					cy: this.lastHead.y + this.lastHead.height / 2,
 					type: 1000
@@ -457,21 +457,21 @@ export const Snakes = () => {
 			})
 			return allSnakes
 		},
-		spawn({ ship, spacemen, scores }) {
+		spawn({ ship, spacemen, floaters }) {
 			this.spawnSingle({
 				ship: ship,
 				snakes: this,
 				spacemen: spacemen,
-				scores: scores,
+				floaters: floaters,
 				x: canvas.width * Math.random(),
 				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
 				length: 8
 			})
 		},
-		spawnSingle({ ship, spacemen, x, y, length, state, scores }) {
+		spawnSingle({ ship, spacemen, x, y, length, state, floaters }) {
 			const snake = Snake()
 			this.snakes.push(snake)
-			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, scores: scores })
+			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, floaters: floaters })
 		},
 		update() {
 			this.snakes = this.snakes.filter((x) => { return x.dead !== true })
