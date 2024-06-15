@@ -1,6 +1,6 @@
 import { ctx, game } from "../game.js";
 import { bullet } from "./bullet.js";
-import { collisionBetweenCircles, pick, randInt, stereoFromScreenX, thingsAreColliding } from "/zap/zap.js";
+import { collisionBetweenCircles, pick, picker, randInt, stereoFromScreenX, thingsAreColliding } from "/zap/zap.js";
 
 const smartBombRadius = 500
 const flashes = 12
@@ -15,6 +15,27 @@ smartBombImage2.src = "/images/smart-2.png"
 smartBombImage3.src = "/images/smart-3.png"
 smartBombImage4.src = "/images/smart-4.png"
 
+const shieldFizzleImage1 = new Image()
+const shieldFizzleImage2 = new Image()
+const shieldFizzleImage3 = new Image()
+const shieldFizzleImage4 = new Image()
+
+shieldFizzleImage1.src = "/images/shield-fizzle-1.png"
+shieldFizzleImage2.src = "/images/shield-fizzle-2.png"
+shieldFizzleImage3.src = "/images/shield-fizzle-3.png"
+shieldFizzleImage4.src = "/images/shield-fizzle-4.png"
+
+const shieldCriticalImage1 = new Image()
+const shieldCriticalImage2 = new Image()
+const shieldCriticalImage3 = new Image()
+const shieldCriticalImage4 = new Image()
+
+shieldCriticalImage1.src = "/images/shield-critical-1.png"
+shieldCriticalImage2.src = "/images/shield-critical-2.png"
+shieldCriticalImage3.src = "/images/shield-critical-3.png"
+shieldCriticalImage4.src = "/images/shield-critical-4.png"
+
+
 // var deadSound = new Howl({ src: ['/sounds/ship-dead.mp3'] });
 var gameOverSound = new Howl({ src: ['/sounds/game-over.mp3'] });
 var epicSound = new Howl({ src: ['/sounds/epic.mp3'] });
@@ -23,12 +44,22 @@ var hugeExplosionSound = new Howl({ src: ['/sounds/huge-explosion.mp3'] });
 var shieldSound = new Howl({ src: ['/sounds/one-shot.mp3'] });
 var smartBombSound = new Howl({ src: ['/sounds/smart-bomb.mp3'] });
 
+var laserSound = new Howl({ src: ['/sounds/laser.mp3'] });
+var laser2Sound = new Howl({ src: ['/sounds/laser2.mp3'] });
+var laser3Sound = new Howl({ src: ['/sounds/laser3.mp3'] });
+
 impactSound.volume(0.33)
 gameOverSound.volume(1.0)
 epicSound.volume(0.33)
 hugeExplosionSound.volume(0.33)
 shieldSound.volume(0.25)
 smartBombSound.volume(0.6)
+
+laserSound.volume(0.05)
+laser2Sound.volume(0.05)
+laser3Sound.volume(0.05)
+
+const fizzleSize = 243 / 230
 
 const smartBomb = () => {
 	return {
@@ -90,6 +121,7 @@ const smartBomb = () => {
 			image = pick([smartBombImage1, smartBombImage2, smartBombImage3, smartBombImage4])
 
 			ctx.drawImage(image, this.cx - this.width / 2, this.cy - this.height / 2, this.width, this.height)
+
 		}
 	}
 }
@@ -109,6 +141,13 @@ const shield = () => {
 		hitTimer: 0,
 		hit: false,
 		collider: {},
+		fizzleImages: null,
+		criticalImages: null,
+		fizzleImage: null,
+		criticalImage: null,
+		fizzling: false,
+		critical: true,
+		recharging: 100,
 		tick() {
 			this.ticker++
 			if (this.ticker == 30) {
@@ -121,6 +160,7 @@ const shield = () => {
 			if (this.hitTimer === 0) {
 				this.hit = false
 			}
+			this.recharging--
 		},
 		spawn({ height }) {
 			this.width = height
@@ -132,13 +172,42 @@ const shield = () => {
 			}
 			this.hitImage.src = "images/shield-hit.png"
 			this.image = this.normalImage
+			this.fizzleImages = picker([
+				shieldFizzleImage1,
+				shieldFizzleImage2,
+				shieldFizzleImage3,
+				shieldFizzleImage4,
+			])
+			this.criticalImages = picker([
+				shieldCriticalImage1,
+				shieldCriticalImage2,
+				shieldCriticalImage3,
+				shieldCriticalImage4,
+			])
+
+			this.fizzleImage = this.fizzleImages.first()
+			this.criticalImage = this.criticalImages.first()
+
 			this.updateCollider()
 		},
 		update({ shipCX, shipCY, health }) {
 			this.tick()
+
 			this.x = shipCX - (this.width / 2) - this.strength
 			this.y = shipCY - (this.height / 2) - this.strength
 			this.updateCollider()
+
+			this.fizzling = false
+			if (this.recharging > 0)
+				this.fizzling = true
+
+			this.critical = false
+			if (this.strength < 25) this.critical = true
+
+			if (this.fizzling && this.ticker % 2 == 0)
+				this.fizzleImage = this.fizzleImages.next()
+			if (this.critical && this.ticker % 2 == 0)
+				this.criticalImage = this.criticalImages.next()
 		},
 		updateCollider() {
 			this.collider = {
@@ -154,10 +223,34 @@ const shield = () => {
 		draw() {
 			ctx.save()
 			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.strength / 50
+
 			if (this.hit)
 				ctx.drawImage(this.hitImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
 			else
 				ctx.drawImage(this.normalImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
+
+			ctx.restore()
+
+			ctx.save()
+			ctx.globalAlpha = 1.0
+
+			if (this.fizzling && (Math.random() > 0.33))
+				ctx.drawImage(
+					this.fizzleImage,
+					this.x - 2,
+					this.y - 2,
+					this.width * fizzleSize + this.strength * 2,
+					this.height * fizzleSize + this.strength * 2
+				);
+			if (this.critical && (Math.random() > 0.33))
+				ctx.drawImage(
+					this.criticalImage,
+					this.x - 2,
+					this.y - 2,
+					this.width * fizzleSize + this.strength * 2,
+					this.height * fizzleSize + this.strength * 2
+				);
+
 			ctx.restore()
 
 		},
@@ -293,20 +386,31 @@ export const spaceship = () => {
 		},
 		boostShields() {
 			this.shield.strength += 50
+			this.shield.recharging = 100
 		},
 		fire() {
 			this.maxbullets = 10 * this.guns
+			if (this.guns == 1)
+				laserSound.play()
+			else if (this.guns == 2)
+				laser2Sound.play()
+			else if (this.guns == 3)
+				laser3Sound.play()
+
 			if ((this.guns == 1 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+				laserSound.play()
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+				laserSound.play()
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
 			}
 			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+				laserSound.play()
 				let newbullet = bullet()
 				this.bullets.push(newbullet)
 				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
