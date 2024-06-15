@@ -254,26 +254,26 @@ const main = () => {
 	floaters = Floaters()
 
 	asteroids = Asteroids()
-	// asteroids.spawn()
+	asteroids.spawn()
 
 	mines = Mines()
 	mines.spawn({ ship: ship, floaters: floaters })
 
 	spacemen = Spacemen()
-	// spacemen.spawn({ ship: ship, scores: scores })
+	spacemen.spawn({ ship: ship, floaters: floaters })
 
 	swarmers = Swarmers()
 	pods = Pods()
-	// pods.spawn({ swarmers: swarmers, ship: ship, scores: scores })
+	pods.spawn({ swarmers: swarmers, ship: ship, floaters: floaters })
 
 	defenders = Defenders()
-	// defenders.spawn({ ship: ship })
+	defenders.spawn({ ship: ship })
 
 	galaxians = Galaxians()
-	// galaxians.spawn({ ship: ship })
+	galaxians.spawn({ ship: ship })
 
 	snakes = Snakes()
-	// snakes.spawn({ ship: ship, spacemen: spacemen, scores: scores })
+	snakes.spawn({ ship: ship, spacemen: spacemen, floaters: floaters })
 
 	powerups = Powerups()
 	powerups.spawn({ ship: ship })
