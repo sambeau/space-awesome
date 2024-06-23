@@ -545,10 +545,7 @@ export const spaceship = () => {
 			// console.log(entities)
 			this.bullets.forEach((b) => {
 				entities.forEach((e) => {
-					if (collisionBetweenCircles(
-						e.collider.x, e.collider.y, e.collider.r,
-						b.collider.x, b.collider.y, b.collider.r
-					)) {
+					if (thingsAreColliding(e, b)) {
 						e.collider.colliding = true
 						b.collider.colliding = true
 						if (!b.dead) // stop multiple hits
@@ -559,12 +556,7 @@ export const spaceship = () => {
 			})
 			if (!this.smartBomb.dead) {
 				entities.forEach((e) => {
-					if (collisionBetweenCircles(
-						e.collider.x, e.collider.y, e.collider.r,
-						this.smartBomb.collider.x,
-						this.smartBomb.collider.y,
-						this.smartBomb.collider.r
-					)) {
+					if (thingsAreColliding(e, this.smartBomb)) {
 						e.collider.colliding = true
 						e.onHit(true)
 					}
