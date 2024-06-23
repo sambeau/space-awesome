@@ -94,13 +94,14 @@ const gameLoop = (dt) => {
 			asteroids.asteroids,
 			galaxians.galaxians,
 			defenders.defenders,
-			// mothers.mothers,
+			mothers.mothers,
 			pods.pods,
 			swarmers.swarmers,
 			mines.mines,
 			galaxians.shots,
 			defenders.bombs,
 			swarmers.bombs,
+			mothers.bombs,
 			snakes.all()
 		])
 

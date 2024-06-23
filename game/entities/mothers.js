@@ -1,7 +1,7 @@
-import { ctx, game } from "../game.js";
+import { canvas, ctx, game } from "../game.js";
 import { bomb } from "./bombs.js";
 import { explode } from "./explosions.js";
-import { picker, thingIsOnScreen } from "/zap/zap.js";
+import { picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
 
 let numImagesLoaded = 0
 const motherImages = []
@@ -13,31 +13,27 @@ imageStates.forEach((i) => {
 	motherImages[i - 1].onload = () => { numImagesLoaded++ }
 	motherImages[i - 1].src = `images/mother-${i}.png`
 })
-// var bigBoomSound = new Howl({ src: ['/sounds/impact.mp3'] });
-// bigBoomSound.volume(0.25)
+var bigBoomSound = new Howl({ src: ['/sounds/impact.mp3'] });
+bigBoomSound.volume(0.25)
 
-// const angryImage = new Image()
-// let angryImageLoaded = false
-// angryImage.src = "images/mother-angry.png"
-// angryImage.onload = () => { angryImageLoaded = true }
-
+const msize = 2.5
 const mother = () => {
 	return {
 		ship: null,
 		images: null,
 		image: null,
-		x: 0,
-		y: 0,
+		x: canvas.width * 2 + randInt(canvas.width / 2) + randInt(canvas.width / 2),
+		y: randInt(canvas.height / 2) + randInt(canvas.height / 2),
 		vx: 0,
 		vy: 0,
-		width: 170 / 2,
-		height: 59 / 2,
+		width: 170 / msize,
+		height: 59 / msize,
 		collider: [
-			{ type: "circle", ox: 28.75 / 2, oy: 31.25 / 2, r: 28.25 / 2, area: 20, colliding: false },
-			{ type: "circle", ox: 130.75 / 2, oy: 31.25 / 2, r: 28.25 / 2, area: 20, colliding: false },
-			{ type: "circle", ox: 79.75 / 2, oy: 30 / 2, r: 29.5 / 2, area: 20, colliding: false },
-			{ type: "circle", ox: 54.875 / 2, oy: 30 / 2, r: 29.5 / 2, area: 20, colliding: false },
-			{ type: "circle", ox: 104.625 / 2, oy: 30 / 2, r: 29.5 / 2, area: 20, colliding: false },
+			{ type: "circle", ox: 28.75 / msize, oy: 31.25 / msize, r: 28.25 / msize, area: 20, colliding: false },
+			{ type: "circle", ox: 130.75 / msize, oy: 31.25 / msize, r: 28.25 / msize, area: 20, colliding: false },
+			{ type: "circle", ox: 79.75 / msize, oy: 30 / msize, r: 29.5 / msize, area: 20, colliding: false },
+			{ type: "circle", ox: 54.875 / msize, oy: 30 / msize, r: 29.5 / msize, area: 20, colliding: false },
+			{ type: "circle", ox: 104.625 / msize, oy: 30 / msize, r: 29.5 / msize, area: 20, colliding: false },
 		],
 		animationSpeed: 3,
 		ticker: 0,
@@ -46,7 +42,8 @@ const mother = () => {
 		color: "#00BA02",
 		immuneToCrash: true,
 		score: 1000,
-
+		direction: 'left',
+		speed: 10,
 		tick() {
 			this.ticker++
 			if (this.ticker == this.animationSpeed) {
@@ -87,23 +84,29 @@ const mother = () => {
 				this.fire()
 			this.tick()
 
-			this.y += this.vy + game.speed;
-			this.x += this.vx;
-
+			if (this.direction == 'right') {
+				this.x += this.speed;
+				if (this.x > screen.width * 2)
+					this.direction = 'left'
+			} else if (this.direction == 'left') {
+				this.x -= this.speed;
+				if (this.x < 0 - screen.width * 2)
+					this.direction = 'right'
+			}
 			this.collider.forEach((c) => {
 				c.x = this.x + c.ox
 				c.y = this.y + c.oy
 			})
 
-			if (this.outOfBoundsV()) {
-				// this.x = randInt(canvas.width)
-				this.y = 0 - canvas.height * 3//randInt(canvas.height * 2)
-				this.collider.colliding = false
-			}
-			if (this.outOfBoundsL())
-				this.x = canvas.width
-			if (this.outOfBoundsR())
-				this.x = 0 - this.width
+			// if (this.outOfBoundsV()) {
+			// 	// this.x = randInt(canvas.width)
+			// 	this.y = 0 - canvas.height * 3//randInt(canvas.height * 2)
+			// 	this.collider.colliding = false
+			// }
+			// if (this.outOfBoundsL())
+			// 	this.x = canvas.width
+			// if (this.outOfBoundsR())
+			// 	this.x = 0 - this.width
 		},
 		draw() {
 			if (numImagesLoaded >= allImagesLoadedCount) {
@@ -116,16 +119,16 @@ const mother = () => {
 		fire() {
 			// fireSound.play()
 			// fireSound.stereo((this.x - screen.width / 2) / screen.width)
-			if (!thingIsOnScreen(this, screen) || Math.random() > 0.15) return
+			if (!thingIsOnScreen(this, screen) || Math.random() > 0.33) return
 			let newbomb = bomb()
 			this.mothers.bombs.push(newbomb)
 			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })
 		},
 		onHit(smart) {
 			// return
-			// bigBoomSound.play()
-			// bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
-
+			bigBoomSound.play()
+			bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
+			console.log(this)
 			this.dead = true
 			game.score += this.score
 			this.floaters.spawnSingle({
@@ -144,6 +147,30 @@ const mother = () => {
 					"#FFBA11",
 					"#C14501"],
 				size: 25,
+			})
+			explode({
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				styles: ["#ffffff",
+					"#ffffff",
+					"#ffffff",
+					"#00BA02",
+					"#00BA02",
+					"#FFBA11",
+					"#C14501"],
+				size: 15,
+			})
+			explode({
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				styles: ["#ffffff",
+					"#ffffff",
+					"#ffffff",
+					"#00BA02",
+					"#00BA02",
+					"#FFBA11",
+					"#C14501"],
+				size: 10,
 			})
 
 		}
