@@ -15,6 +15,9 @@
 - colliders are a sub-entity with updater and draw function for debug
 - entities all have a debug function to draw text beside them
 - floaters as part of engine
+- Break things in objects and sprites
+- Sprite strips like ship-7
+- Opacity-based collisions
 
 
 

@@ -9,6 +9,7 @@ import { starfield as Starfield } from "./entities/stars.js";
 import { Floaters } from "./entities/floaters.js";
 import { Hud } from "./entities/hud.js";
 import { Mines } from "./entities/mines.js";
+import { Mothers } from "./entities/mothers.js";
 import { Particles } from "./entities/particles.js";
 import { Pods } from "./entities/pods.js";
 import { Powerups } from "./entities/powerups.js";
@@ -51,6 +52,7 @@ let raf;
 let stars
 let ship
 let asteroids
+let mothers
 let mines
 let spacemen
 let pods
@@ -80,6 +82,7 @@ const gameLoop = (dt) => {
 			asteroids.asteroids,
 			galaxians.galaxians,
 			defenders.defenders,
+			mothers.mothers,
 			pods.pods,
 			swarmers.swarmers,
 			mines.mines,
@@ -91,6 +94,7 @@ const gameLoop = (dt) => {
 			asteroids.asteroids,
 			galaxians.galaxians,
 			defenders.defenders,
+			// mothers.mothers,
 			pods.pods,
 			swarmers.swarmers,
 			mines.mines,
@@ -110,6 +114,7 @@ const gameLoop = (dt) => {
 	asteroids.update(dt)
 	mines.update(dt)
 	spacemen.update(dt)
+	mothers.update(dt)
 	pods.update(dt)
 	swarmers.update(dt)
 	defenders.update(dt)
@@ -142,6 +147,7 @@ const gameLoop = (dt) => {
 	asteroids.draw()
 	mines.draw()
 	spacemen.draw()
+	mothers.draw()
 	pods.draw()
 	swarmers.draw()
 	defenders.draw()
@@ -259,6 +265,9 @@ const main = () => {
 	mines = Mines()
 	mines.spawn({ ship: ship, floaters: floaters })
 
+	mothers = Mothers()
+	mothers.spawn({ ship: ship, floaters: floaters })
+
 	spacemen = Spacemen()
 	spacemen.spawn({ ship: ship, floaters: floaters })
 
@@ -282,6 +291,7 @@ const main = () => {
 	ship.spawn({
 		entities: [
 			asteroids,
+			mothers,
 			pods,
 			swarmers,
 			defenders,
@@ -298,6 +308,7 @@ const main = () => {
 	hud = Hud()
 	hud.init(ship, spacemen, [
 		asteroids,
+		mothers,
 		pods,
 		swarmers,
 		defenders,
