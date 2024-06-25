@@ -10,6 +10,7 @@ import { Floaters } from "./entities/floaters.js";
 import { Hud } from "./entities/hud.js";
 import { Mines } from "./entities/mines.js";
 import { Mothers } from "./entities/mothers.js";
+import { Mushrooms } from "./entities/mushrooms.js";
 import { Particles } from "./entities/particles.js";
 import { Pods } from "./entities/pods.js";
 import { Powerups } from "./entities/powerups.js";
@@ -34,7 +35,7 @@ export const game = {
 	fontLoaded: false,
 	debug: false,
 	showColliders: false,
-	massConstant: 500, //460,
+	massConstant: 400, //460,
 }
 
 let font1 = new FontFace("Robotron", "url(fonts/WilliamsRobotron.woff2)");
@@ -57,6 +58,7 @@ let mines
 let spacemen
 let pods
 let swarmers
+let mushrooms
 let defenders
 let galaxians
 let snakes
@@ -85,6 +87,7 @@ const gameLoop = (dt) => {
 			mothers.mothers,
 			pods.pods,
 			swarmers.swarmers,
+			mushrooms.mushrooms,
 			mines.mines,
 			spacemen.spacemen
 		])
@@ -97,6 +100,7 @@ const gameLoop = (dt) => {
 			mothers.mothers,
 			pods.pods,
 			swarmers.swarmers,
+			mushrooms.mushrooms,
 			mines.mines,
 			galaxians.shots,
 			defenders.bombs,
@@ -118,6 +122,7 @@ const gameLoop = (dt) => {
 	mothers.update(dt)
 	pods.update(dt)
 	swarmers.update(dt)
+	mushrooms.update(dt)
 	defenders.update(dt)
 	galaxians.update(dt)
 	snakes.update(dt)
@@ -144,6 +149,7 @@ const gameLoop = (dt) => {
 
 	// draw entities
 	stars.draw()
+	mushrooms.draw()
 	snakes.draw()
 	asteroids.draw()
 	mines.draw()
@@ -210,18 +216,26 @@ const gameLoop = (dt) => {
 				galaxians.galaxians,
 				pods.pods,
 				swarmers.swarmers,
+				mushrooms.mushrooms,
 				defenders.defenders,
 				powerups.powerups,
 				mines.mines,
+				mothers.mothers,
 				snakes.all(),
 				spacemen.spacemen,
 				galaxians.shots,
 			].forEach((ent) => {
 				ent.forEach((e) => {
-					ctx.beginPath();
-					ctx.arc(e.collider.x, e.collider.y, e.collider.r, 0, 2 * Math.PI);
-					ctx.stroke();
-
+					const collider = (!Array.isArray(e.collider))
+						?
+						[e.collider]
+						:
+						e.collider
+					collider.forEach((c) => {
+						ctx.beginPath();
+						ctx.arc(c.x, c.y, c.r, 0, 2 * Math.PI);
+						ctx.stroke();
+					})
 				})
 			})
 			ctx.beginPath();
@@ -282,8 +296,10 @@ const main = () => {
 	galaxians = Galaxians()
 	galaxians.spawn({ ship: ship })
 
+	mushrooms = Mushrooms()
+
 	snakes = Snakes()
-	snakes.spawn({ ship: ship, spacemen: spacemen, floaters: floaters })
+	snakes.spawn({ ship: ship, spacemen: spacemen, floaters: floaters, mushrooms: mushrooms })
 
 	powerups = Powerups()
 	powerups.spawn({ ship: ship })
@@ -295,6 +311,7 @@ const main = () => {
 			mothers,
 			pods,
 			swarmers,
+			mushrooms,
 			defenders,
 			galaxians,
 			powerups,
@@ -308,6 +325,7 @@ const main = () => {
 
 	hud = Hud()
 	hud.init(ship, spacemen, [
+		mushrooms,
 		asteroids,
 		mothers,
 		pods,

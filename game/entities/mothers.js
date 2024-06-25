@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from "../game.js";
 import { bomb } from "./bombs.js";
 import { explode } from "./explosions.js";
-import { picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
+import { debugThing, getColliderArea, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
 
 let numImagesLoaded = 0
 const motherImages = []
@@ -76,6 +76,7 @@ const mother = () => {
 			this.collider.forEach((c) => {
 				c.x = this.x + c.ox
 				c.y = this.y + c.oy
+				c.area = Math.round(Math.PI * c.r * c.r / game.massConstant)
 			})
 		},
 		update(/*dt*/) {
@@ -110,6 +111,7 @@ const mother = () => {
 		},
 		draw() {
 			if (numImagesLoaded >= allImagesLoadedCount) {
+				debugThing(ctx, this, `${getColliderArea(this)}`)
 				ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
 			}
 		},

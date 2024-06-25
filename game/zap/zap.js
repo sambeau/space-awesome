@@ -87,6 +87,20 @@ export function thingsAreColliding(thing1, thing2) {
 
 	return colliding
 }
+export function getColliderArea(thing) {
+	if (!thing.collider) return 0
+	const colliders =
+		(!Array.isArray(thing.collider))
+			?
+			[thing.collider]
+			:
+			thing.collider
+	let area = 0
+	colliders.forEach((c) => {
+		area += c.area
+	})
+	return area
+}
 
 export function thingIsOnScreen(thing, screen) {
 	return (thing.x + thing.width + 1) > 0 &&

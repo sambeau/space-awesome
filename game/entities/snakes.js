@@ -104,6 +104,18 @@ const Segment = () => {
 
 			this.dead = true;
 			game.score += this.score
+			console.log(this.snake)
+			let type = 'yellow'
+			if (this.snake.state == this.snake.states.angry)
+				type = 'black'
+			else if (this.snake.state == this.snake.states.fleeLeft
+				|| this.snake.state == this.snake.states.fleeRight
+			)
+				type = 'white'
+
+			if (Math.random() > 0.333)
+				this.snake.mushrooms.spawnSingle({ cx: this.cx, cy: this.cy, type: type })
+
 			if (!smartbomb && !crash && !this.isCrashProof())
 				this.snake.split(this.x, this.y)
 			explode({
@@ -134,6 +146,7 @@ const Snake = () => {
 		score: 1000,
 		headScore: 500,
 		isCrashProof: false,
+		mushrooms: null,
 		init() {
 			this.states.angry = {}
 			this.states.angry.colors = ["#190533", "#190533", "#190533", "#ffff00", "#ffff00", "#ffff00"]
@@ -294,11 +307,12 @@ const Snake = () => {
 		all() {
 			return this.snake
 		},
-		spawn({ snakes, ship, spacemen, x, y, length, state, floaters }) {
+		spawn({ snakes, ship, spacemen, x, y, length, state, floaters, mushrooms }) {
 			this.ship = ship
 			this.snakes = snakes
 			this.spacemen = spacemen
 			this.floaters = floaters
+			this.mushrooms = mushrooms
 
 			this.x = x
 			this.y = y
@@ -339,6 +353,7 @@ const Snake = () => {
 					ship: this.ship,
 					spacemen: this.spacemen,
 					floaters: this.floaters,
+					mushrooms: this.mushrooms,
 					x: x,
 					y: y,
 					length: this.snake.length / 2 - 1,
@@ -348,6 +363,7 @@ const Snake = () => {
 					ship: this.ship,
 					spacemen: this.spacemen,
 					floaters: this.floaters,
+					mushrooms: this.mushrooms,
 					x: x,
 					y: y, length: this.snake.length / 2 - 1,
 					state: "fleeRight"
@@ -457,21 +473,22 @@ export const Snakes = () => {
 			})
 			return allSnakes
 		},
-		spawn({ ship, spacemen, floaters }) {
+		spawn({ ship, spacemen, floaters, mushrooms }) {
 			this.spawnSingle({
 				ship: ship,
 				snakes: this,
 				spacemen: spacemen,
 				floaters: floaters,
+				mushrooms: mushrooms,
 				x: canvas.width * Math.random(),
 				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
 				length: 8
 			})
 		},
-		spawnSingle({ ship, spacemen, x, y, length, state, floaters }) {
+		spawnSingle({ ship, spacemen, x, y, length, state, floaters, mushrooms }) {
 			const snake = Snake()
 			this.snakes.push(snake)
-			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, floaters: floaters })
+			snake.spawn({ snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, floaters: floaters, mushrooms: mushrooms })
 		},
 		update() {
 			this.snakes = this.snakes.filter((x) => { return x.dead !== true })

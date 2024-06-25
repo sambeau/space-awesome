@@ -1,6 +1,14 @@
 import { ctx, game } from "../game.js";
 import { bullet } from "./bullet.js";
-import { collisionBetweenCircles, pick, picker, randInt, stereoFromScreenX, thingsAreColliding } from "/zap/zap.js";
+import {
+	collisionBetweenCircles,
+	getColliderArea,
+	pick,
+	picker,
+	randInt,
+	stereoFromScreenX,
+	thingsAreColliding
+} from "/zap/zap.js";
 
 const smartBombRadius = 500
 const flashes = 12
@@ -580,7 +588,7 @@ export const spaceship = () => {
 						return
 
 					if (this.shield.strength > 0) {
-						this.shield.strength -= e.collider.area
+						this.shield.strength -= getColliderArea(e)
 						this.shield.onHit()
 					} else {
 						this.shield.strength = 0
