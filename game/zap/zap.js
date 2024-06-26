@@ -189,3 +189,13 @@ export function volumeFromY(screen, n, y) {
 	if (y > 0) return 1.0
 	return 1.0 - Math.abs(y) / (screen.height * n)
 }
+
+// bring sounds gradually on screen from the edges
+export function volumeFromX(screen, n, x) {
+	const M = screen.width / 2
+	const R = Math.abs(x - M)
+	const D = (screen.width * n - R)
+	const V = (D / screen.width) / n
+	if (V < 0) return 0
+	return V
+}

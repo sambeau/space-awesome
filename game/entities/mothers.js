@@ -1,7 +1,7 @@
 import { canvas, ctx, game } from "../game.js";
 import { bomb } from "./bombs.js";
 import { explode } from "./explosions.js";
-import { picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
+import { picker, randInt, stereoFromScreenX, thingIsOnScreen, volumeFromX } from "/zap/zap.js";
 
 let numImagesLoaded = 0
 const motherImages = []
@@ -15,6 +15,12 @@ imageStates.forEach((i) => {
 })
 var bigBoomSound = new Howl({ src: ['/sounds/impact.mp3'] });
 bigBoomSound.volume(0.25)
+
+var motherSound = new Howl({
+	src: ['/sounds/mother.mp3'],
+	volume: 0,
+	loop: true,
+});
 
 const msize = 2.5
 const mother = () => {
@@ -87,33 +93,37 @@ const mother = () => {
 
 			if (this.direction == 'right') {
 				this.x += this.speed;
-				if (this.x > screen.width * 2)
+				if (this.x > screen.width * 2) {
 					this.direction = 'left'
+					this.y = randInt(canvas.height / 2) + randInt(canvas.height / 2)
+				}
 			} else if (this.direction == 'left') {
 				this.x -= this.speed;
-				if (this.x < 0 - screen.width * 2)
+				if (this.x < 0 - screen.width * 2) {
 					this.direction = 'right'
+					this.y = randInt(canvas.height / 2) + randInt(canvas.height / 2)
+				}
 			}
 			this.collider.forEach((c) => {
 				c.x = this.x + c.ox
 				c.y = this.y + c.oy
 			})
 
-			// if (this.outOfBoundsV()) {
-			// 	// this.x = randInt(canvas.width)
-			// 	this.y = 0 - canvas.height * 3//randInt(canvas.height * 2)
-			// 	this.collider.colliding = false
-			// }
-			// if (this.outOfBoundsL())
-			// 	this.x = canvas.width
-			// if (this.outOfBoundsR())
-			// 	this.x = 0 - this.width
+			this.sound()
+
 		},
 		draw() {
 			if (numImagesLoaded >= allImagesLoadedCount) {
 				// debugThing(ctx, this, `${getColliderArea(this)}`)
 				ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
 			}
+		},
+		sound() {
+			if (!motherSound.playing()) {
+				motherSound.play()
+			}
+			motherSound.stereo(stereoFromScreenX(screen, this.x))
+			motherSound.volume(volumeFromX(screen, 1.5, this.x) * 0.0075)
 		},
 		animate() {
 			this.image = this.states.next()
@@ -128,6 +138,7 @@ const mother = () => {
 		},
 		onHit(smart) {
 			// return
+			motherSound.stop()
 			bigBoomSound.play()
 			bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
 			console.log(this)
