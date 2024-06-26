@@ -123,7 +123,7 @@ const mother = () => {
 				motherSound.play()
 			}
 			motherSound.stereo(stereoFromScreenX(screen, this.x))
-			motherSound.volume(volumeFromX(screen, 1.5, this.x) * 0.0075)
+			motherSound.volume(volumeFromX(screen, 1.5, this.x) * 0.0015)
 		},
 		animate() {
 			this.image = this.states.next()
