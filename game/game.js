@@ -347,12 +347,12 @@ const main = () => {
 			// console.log(event.code)
 			switch (event.code) {
 				case "ArrowDown":
-					ship.flameOn = false
+					ship.thrustOff()
 					ship.break = true
 					break;
 				case "ArrowUp":
 					// Handle "forward"
-					ship.flameOn = true
+					ship.thrust()
 					break;
 				case "ArrowLeft":
 					// Handle "turn left"
@@ -413,7 +413,7 @@ const main = () => {
 					ship.break = false
 				case "ArrowUp":
 					// Handle "forward"
-					ship.flameOn = false
+					ship.thrustOff()
 					break;
 				case "ArrowLeft":
 					// Handle "turn left"

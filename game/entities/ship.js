@@ -69,6 +69,14 @@ laser3Sound.volume(0.05)
 
 const fizzleSize = 243 / 230
 
+var flameSound = new Howl({
+	src: ['/sounds/ship-thrust.mp3'],
+	volume: 0,
+	loop: true,
+});
+const lov = 0//0.02
+const hiv = 0.1
+
 const smartBomb = () => {
 	return {
 		dead: true,
@@ -362,6 +370,7 @@ export const spaceship = () => {
 		bullets: [],
 		shield: shield(),
 		smartBomb: smartBomb(),
+		fading: false,
 		spawn({ entities: entities, floaters: floaters }) {
 			this.width = 50
 			this.height = 64
@@ -391,10 +400,25 @@ export const spaceship = () => {
 			this.heightWithFlame = canvas.height - this.flames.height
 
 			this.shield.spawn({ height: this.height })
+
+			if (!flameSound.playing()) {
+				flameSound.play()
+			}
+
 		},
 		boostShields() {
 			this.shield.strength += 50
 			this.shield.recharging = 100
+		},
+		thrust() {
+			const vol = flameSound.volume()
+			flameSound.fade(vol, hiv, 10)
+			this.flameOn = true
+		},
+		thrustOff() {
+			const vol = flameSound.volume()
+			flameSound.fade(vol, lov, 500)
+			this.flameOn = false
 		},
 		fire() {
 			this.maxbullets = 10 * this.guns
@@ -444,6 +468,9 @@ export const spaceship = () => {
 				return true
 
 			return false
+		},
+		sound() {
+			flameSound.stereo(stereoFromScreenX(screen, this.x))
 		},
 		outOfBoundsTop() {
 			if (this.y <= 0) return true
@@ -525,6 +552,7 @@ export const spaceship = () => {
 				if (this.firing)
 					this.fire()
 			}
+			this.sound()
 		},
 		draw() {
 			// draw ship
