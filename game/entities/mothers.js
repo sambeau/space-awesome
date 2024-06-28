@@ -136,12 +136,15 @@ const mother = () => {
 			this.mothers.bombs.push(newbomb)
 			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })
 		},
-		onHit(smart) {
+		onHit(smartbomb) {
 			// return
+
 			motherSound.stop()
-			bigBoomSound.play()
-			bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
-			console.log(this)
+			if (!smartbomb) {
+				bigBoomSound.play()
+				bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
+			}
+
 			this.dead = true
 			game.score += this.score
 			this.floaters.spawnSingle({

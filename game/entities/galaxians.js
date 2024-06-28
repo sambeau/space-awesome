@@ -221,10 +221,11 @@ const galaxian = () => {
 				ctx.restore()
 			}
 		},
-		onHit() {
-			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.x))
-
+		onHit(smartbomb) {
+			if (!smartbomb) {
+				bangSound.play()
+				bangSound.stereo(stereoFromScreenX(screen, this.x))
+			}
 			this.dead = true
 			game.score += this.score
 			explode({

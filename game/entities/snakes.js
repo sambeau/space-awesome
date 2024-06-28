@@ -99,9 +99,10 @@ const Segment = () => {
 			ctx.restore()
 		},
 		onHit(smartbomb, crash) {
-			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.x))
-
+			if (!smartbomb) {
+				bangSound.play()
+				bangSound.stereo(stereoFromScreenX(screen, this.x))
+			}
 			this.dead = true;
 			game.score += this.score
 			console.log(this.snake)

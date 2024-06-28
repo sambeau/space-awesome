@@ -185,10 +185,11 @@ const asteroid = () => {
 			if (this.vy > 1) this.vy = 1
 			if (this.vy < -1) this.vy = -1
 		},
-		onHit() {
-			killSound.play()
-			killSound.stereo(stereoFromScreenX(screen, this.x))
-
+		onHit(smartbomb) {
+			if (!smartbomb) {
+				killSound.play()
+				killSound.stereo(stereoFromScreenX(screen, this.x))
+			}
 			this.dead = true;
 			game.score += this.score
 			let explosionSize = 0

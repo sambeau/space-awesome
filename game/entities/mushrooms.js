@@ -107,8 +107,10 @@ const mushroom = () => {
 			ctx.drawImage(mushroomImage[this.type][4 - this.HP], this.x, this.y, this.width, this.height)
 		},
 		onHit(smartbomb, crash) {
-			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.x))
+			if (!smartbomb) {
+				bangSound.play()
+				bangSound.stereo(stereoFromScreenX(screen, this.x))
+			}
 			this.HP -= 1
 			if (this.HP == 0 || crash) {
 				this.dead = true

@@ -167,10 +167,12 @@ const swarmer = () => {
 			if (this.ticks % 5 == 0)
 				this.image = this.images.next()
 		},
-		onHit() {
-			bangSound.play()
-			bangSound.stereo(stereoFromScreenX(screen, this.x))
+		onHit(smartbomb) {
+			if (!smartbomb) {
 
+				bangSound.play()
+				bangSound.stereo(stereoFromScreenX(screen, this.x))
+			}
 			this.dead = true;
 			game.score += this.score
 			explode({
