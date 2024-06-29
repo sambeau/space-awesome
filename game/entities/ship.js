@@ -411,13 +411,18 @@ export const spaceship = () => {
 			this.shield.recharging = 100
 		},
 		thrust() {
-			const vol = flameSound.volume()
-			flameSound.fade(vol, hiv, 10)
+			if (!this.flameOn) {
+				const vol = flameSound.volume()
+				flameSound.fade(vol, hiv, 5)
+				// flameSound.volume(hiv)
+			}
 			this.flameOn = true
 		},
 		thrustOff() {
-			const vol = flameSound.volume()
-			flameSound.fade(vol, lov, 500)
+			if (this.flameOn) {
+				const vol = flameSound.volume()
+				flameSound.fade(vol, lov, 500)
+			}
 			this.flameOn = false
 		},
 		fire() {
