@@ -93,7 +93,7 @@ const mother = () => {
 
 			if (this.direction == 'right') {
 				this.x += this.speed;
-				if (this.x > screen.width * 2) {
+				if (this.x > screen.width * 3) {
 					this.direction = 'left'
 					this.y = randInt(canvas.height / 2) + randInt(canvas.height / 2)
 				}
