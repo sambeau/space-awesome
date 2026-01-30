@@ -1,228 +1,185 @@
-import { canvas, ctx, game } from "../game.js";
-import { bomb } from "./bombs.js";
-import { explode } from "./explosions.js";
-import { distanceBetweenPoints, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js";
+import { canvas, ctx, game } from "../game.js"
+import { createEntity, loadImages, loadSound } from "./Entity.js"
+import { distanceBetweenPoints, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
-let imagesLoaded = 0
-const numImagesToLoad = 2
+import { bomb } from "./bombs.js"
+import { explode } from "./explosions.js"
 
-const image1 = new Image()
-const image2 = new Image()
+// ─────────────────────────────────────────────────────────────────────────────
+// Assets (loaded once, cached)
+// ─────────────────────────────────────────────────────────────────────────────
+const assets = loadImages( [ "images/swarmer-1.png", "images/swarmer-2.png" ] )
+const swarmerSound = loadSound( '/sounds/swarmer.mp3', 0.10 )
+const swarmerClassicSound = loadSound( '/sounds/swarmer2.mp3', 0.05 )
+const bangSound = loadSound( '/sounds/bang.mp3', 0.10 )
 
-image1.src = "images/swarmer-1.png"
-image2.src = "images/swarmer-2.png"
-
-image1.onload = () => { imagesLoaded++ }
-image2.onload = () => { imagesLoaded++ }
-
-var swarmerSound = new Howl({ src: ['/sounds/swarmer.mp3'] });
-swarmerSound.volume(0.10)
-var swarmerClassicSound = new Howl({ src: ['/sounds/swarmer2.mp3'] });
-swarmerClassicSound.volume(0.05)
-var bangSound = new Howl({ src: ['/sounds/bang.mp3'] });
-bangSound.volume(0.10)
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Swarmer Entity
+// ─────────────────────────────────────────────────────────────────────────────
 const swarmer = () => {
 	return {
-		name: "swarmer",
+		...createEntity( {
+			name: "swarmer",
+			width: 41 / 2,
+			height: 33 / 2,
+			score: 150,
+			collider: {
+				type: "circle",
+				ox: ( -2 + ( 45 / 2 ) ) / 2,
+				oy: ( -5 + ( 45 / 2 ) ) / 2,
+				r: ( ( 45 / 2 ) ) / 2,
+				colliding: false,
+			}
+		} ),
+
+		// Swarmer-specific properties
 		color: "#FF0000",
 		ship: null,
-		score: 150,
-		x: 0,
-		y: 0,
-		vx: 0,
 		vy: 2,
-		width: 41 / 2,
-		height: 33 / 2,
-		image: image1,
-		collider: {
-			type: "circle",
-			ox: (-2 + (45 / 2)) / 2,
-			oy: (-5 + (45 / 2)) / 2,
-			r: ((45 / 2)) / 2,
-			colliding: false,
-		},
-		ticks: 0,
+		image: null,
+		images: null,
 		closestDistance: 0,
-		tick() {
-			this.ticks += 1
-			if (this.ticks === 1000)
-				this.ticks = 0
-			return this.tick
-		},
-		outOfBoundsB() {
-			if (this.y > canvas.height + this.height) return true
-			return false;
-		},
-		outOfBoundsL() {
-			if (this.x + this.width < 0) return true
-			return false;
-		},
-		outOfBoundsR() {
-			if (this.x > canvas.width) return true
-			return false;
-		},
-		spawn({ swarmers, ship, x, y, vx, vy }) {
-			// console.log("spawn")
+
+		spawn ( { swarmers, ship, x, y, vx, vy } ) {
 			swarmerSound.play()
-			swarmerSound.stereo(stereoFromScreenX(screen, this.x))
+			swarmerSound.stereo( stereoFromScreenX( screen, this.x ) )
 			swarmerClassicSound.play()
-			swarmerClassicSound.stereo(stereoFromScreenX(screen, this.x))
+			swarmerClassicSound.stereo( stereoFromScreenX( screen, this.x ) )
 
 			this.swarmers = swarmers
 			this.ship = ship
 
-			if (x) this.x = x
-			else
-				this.x = randInt(canvas.width)
+			this.x = x ?? randInt( canvas.width )
+			this.y = y ?? -randInt( canvas.height )
+			this.vx = vx ?? Math.random() - 0.5
+			this.vy = vy ?? Math.random() * 3
 
-			if (y) this.y = y
-			else
-				this.y = 0 - randInt(canvas.height * 1)
+			this.syncCollider()
+			this.collider.area = 1
 
-			if (vx) this.vx = vx ? vx : Math.random() - 0.5
-			if (vy) this.vy = vy ? vy : Math.random() * 3
-
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
-			this.collider.area = 1//Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
-
-			this.images = picker([image1, image2])
+			this.images = picker( assets.images )
+			this.image = this.images.first()
 		},
-		update(/*dt*/) {
+
+		update (/*dt*/ ) {
 			this.tick()
-			//flock
 			this.flock()
-			this.x += this.vx;
-			this.y += this.vy + game.speed;
+			this.x += this.vx
+			this.y += this.vy + game.speed
+			this.syncCollider()
+			this.wrapScreen()
 
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
-			if (this.outOfBoundsB()) {
-				this.y = 0 - canvas.height * 3
-				this.collider.colliding = false
-			}
-			if (this.outOfBoundsL())
-				this.x = canvas.width
-			if (this.outOfBoundsR())
-				this.x = 0 - this.width
-
-			if (this.ticks % 12 == 0)
-				this.fire()
-
-			this.animate()
-
+			if ( this.ticks % 12 === 0 ) this.fire()
+			if ( this.ticks % 5 === 0 ) this.image = this.images.next()
 		},
-		draw() {
-			if (imagesLoaded >= numImagesToLoad) {
-				ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
-			}
+
+		draw () {
+			if ( !assets.loaded() ) return
+			ctx.drawImage( this.image, this.x, this.y, this.width, this.height )
 		},
-		flock() {
-			let cohesion = 0.03//0.01
-			// const visibleDistance = 100
 
-			// console.log(this)
-			let closestswarmer1 = this.ship // add ship here?
-			let closestswarmer2 = this.ship // add ship here?
-			let closestDistance1 = distanceBetweenPoints(this.x, this.y, this.ship.x, this.ship.y)
-			let closestDistance2 = distanceBetweenPoints(this.x, this.y, this.ship.x, this.ship.y)
+		flock () {
+			const cohesion = 0.03
 
-			this.swarmers.swarmers.forEach((a) => {
-				if (a == this) // skip
-					return
-				const d = distanceBetweenPoints(this.x, this.y, a.x, a.y)
-				if (d == 0) return
-				// if (d < visibleDistance) {
-				if (closestDistance1 !== 0 && d < closestDistance1) {
-					closestDistance2 = closestDistance1
-					closestswarmer2 = closestswarmer1
-					closestDistance1 = d
-					closestswarmer1 = a
-				}
-				else if (d < closestDistance2) {
-					closestDistance2 = d
-					closestswarmer2 = a
-				}
-				// }
-				// move towards closest swarmer
-			})
-			if (closestswarmer1 !== null && closestswarmer2 !== null) {
-				this.vx += ((closestswarmer1.x + closestswarmer2.x) / 2 - this.x) * cohesion
-				this.vy += ((closestswarmer1.y + closestswarmer2.y) / 2 - this.y) * cohesion// * 0.5
+			// Start with ship as the default targets
+			let closest1 = this.ship
+			let closest2 = this.ship
+			let dist1 = distanceBetweenPoints( this.x, this.y, this.ship.x, this.ship.y )
+			let dist2 = dist1
 
-				if (closestDistance1 < (this.width + closestswarmer2.width) / 2 + 5) {
-					this.vx += (this.x - closestswarmer1.x) * cohesion
-					this.vy += (this.y - closestswarmer1.y) * cohesion// * 0.5
+			// Find the two closest swarmers (or ship)
+			for ( const other of this.swarmers.swarmers ) {
+				if ( other === this ) continue
+				const d = distanceBetweenPoints( this.x, this.y, other.x, other.y )
+				if ( d === 0 ) continue
+
+				if ( dist1 !== 0 && d < dist1 ) {
+					dist2 = dist1
+					closest2 = closest1
+					dist1 = d
+					closest1 = other
+				} else if ( d < dist2 ) {
+					dist2 = d
+					closest2 = other
 				}
 			}
 
-			// tamp them down
-			if (this.vx > 3) this.vx = 6.6  //3.3
-			if (this.vx < -3) this.vx = 6.6  //-3.3
-			if (this.vy > 1) this.vy = 2.6  //1.3
-			if (this.vy < -1) this.vy = -2.6  //-1.3
-		},
-		animate() {
-			if (this.ticks % 5 == 0)
-				this.image = this.images.next()
-		},
-		onHit(smartbomb) {
-			if (!smartbomb) {
+			// Move towards the midpoint of closest two
+			if ( closest1 && closest2 ) {
+				const midX = ( closest1.x + closest2.x ) / 2
+				const midY = ( closest1.y + closest2.y ) / 2
+				this.vx += ( midX - this.x ) * cohesion
+				this.vy += ( midY - this.y ) * cohesion
 
+				// Separation: push away if too close
+				const minDist = ( this.width + closest2.width ) / 2 + 5
+				if ( dist1 < minDist ) {
+					this.vx += ( this.x - closest1.x ) * cohesion
+					this.vy += ( this.y - closest1.y ) * cohesion
+				}
+			}
+
+			// Clamp velocities
+			if ( this.vx > 3 ) this.vx = 6.6
+			if ( this.vx < -3 ) this.vx = -6.6
+			if ( this.vy > 1 ) this.vy = 2.6
+			if ( this.vy < -1 ) this.vy = -2.6
+		},
+
+		onHit ( smartbomb ) {
+			if ( !smartbomb ) {
 				bangSound.play()
-				bangSound.stereo(stereoFromScreenX(screen, this.x))
+				bangSound.stereo( stereoFromScreenX( screen, this.x ) )
 			}
-			this.dead = true;
+			this.dead = true
 			game.score += this.score
-			explode({
+			explode( {
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,
-				styles: ["white", "#FE0600", "#00BE00"],
+				styles: [ "white", "#FE0600", "#00BE00" ],
 				size: 6,
-			})
+			} )
 		},
-		fire() {
-			// fireSound.play()
-			// fireSound.stereo((this.x - screen.width / 2) / screen.width)
-			if (!thingIsOnScreen(this, screen) || Math.random() > 0.15) return
-			let newbomb = bomb()
-			this.swarmers.bombs.push(newbomb)
-			newbomb.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this })
+
+		fire () {
+			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.15 ) return
+			const newbomb = bomb()
+			this.swarmers.bombs.push( newbomb )
+			newbomb.spawn( { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		}
 	}
-};
+}
 
 
 export const Swarmers = () => {
 	return {
 		swarmers: [],
 		bombs: [], // move to manager so it can be seen by ship
-		all() {
+		all () {
 			return this.swarmers
 		},
-		spawnSingle({ ship, x, y, vx, vy }) {
+		spawnSingle ( { ship, x, y, vx, vy } ) {
 			let a = swarmer()
-			this.swarmers.push(a)
-			a.spawn({ swarmers: this, ship: ship, x: x, y: y, vx: vx, vy: vy })
+			this.swarmers.push( a )
+			a.spawn( { swarmers: this, ship: ship, x: x, y: y, vx: vx, vy: vy } )
 		},
-		spawn() {
+		spawn () {
 			// this.spawnSingle({})
 		},
-		update(dt) {
-			this.bombs = this.bombs.filter((b) => { return b.dead !== true })
+		update ( dt ) {
+			this.bombs = this.bombs.filter( ( b ) => { return b.dead !== true } )
 
-			this.swarmers = this.swarmers.filter((b) => { return b.dead !== true })
-			this.swarmers.forEach((x) => x.update(dt))
+			this.swarmers = this.swarmers.filter( ( b ) => { return b.dead !== true } )
+			this.swarmers.forEach( ( x ) => x.update( dt ) )
 
-			this.bombs.forEach((s) => s.update())
+			this.bombs.forEach( ( s ) => s.update() )
 			this.noBombs = this.bombs.length
 
 		},
-		draw() {
-			this.bombs.forEach((s) => s.draw())
+		draw () {
+			this.bombs.forEach( ( s ) => s.draw() )
 
-			this.swarmers.forEach((x) => x.draw())
+			this.swarmers.forEach( ( x ) => x.draw() )
 		}
 	}
 }

@@ -2,13 +2,13 @@
 
 ## Priority List
 
-- [ ] Moving eyes
-- [ ] Mother Ship
+- [ ] Saved spacemen bonus at end of wave
 - [ ] Limit FOV for all baddies
+- [x] Moving eyes
+- [x] Mother Ship
 - [x] Floating scores
-- [ ] Name & Logo!
-- [ ] Levels
-- [ ] Saved spacemen bonus
+- [x] Name & Logo!
+- [x] Levels
 - [x] Sound
 - [x] Camera shake
 - [x] Munching mode for snake
@@ -17,7 +17,25 @@
 
 ## Essentials
 
-- [ ] Name & Logo!
+- [ ] Limit FOV for all baddies
+	- [ ] To on-screen, so we don't get the big line
+- [ ] Snake
+	- [ ] Flee sound
+	- [x] Moving eyes
+	- [x] Can’t crash when fleeing
+	- [x] Split
+	- [x] Damage
+	- [x] Spread out a little
+	- [x] Munching mode
+	- [x] Angry mode
+	- [x] Mushrooms grow when hit
+- [x] Swarmers
+	- [x] Bombs 
+- [ ] Defenders 
+	- [ ] Grab people and run away with them
+	- [ ] Mutants
+	- [x] bombs
+- [x] Name & Logo!
 	- [x] Space Awesome!
 - [x] Show score
 	- [x] Floating scores
@@ -25,8 +43,6 @@
 - [x] Ship hit
 	- [x] Explosion
 	- [x] Lives
-- [ ] Limit FOV for all baddies
-	- [ ] To on-screen, so we don't get the big line
 - [x] Shields
 	- [x] Damage based on baddie area
 	- [x] Running out
@@ -36,32 +52,17 @@
 	- [x] Guns
 - [x] Saved spacemen count
 - [x] Lives
-- [ ] Mother Ship
-	- [ ] Fire round bombs at angles
-	- [ ] Shields
+- [x] Mother Ship
+	- [x] Fire round bombs at angles
+	- [x] Shields (not sure what this is)
 - [x] Shrinking Asteroids
 - [x] Pods & Swarmers
-- [ ] Levels
+- [x] Levels
 - [x] Sound
 - [x] Camera shake
 - [x] Hi-Score
 - [x] Minimap
-- [ ] Snake
-	- [ ] Moving eyes
-	- [x] Can’t crash when fleeing
-	- [x] Split
-	- [x] Damage
-	- [x] Spread out a little
-	- [ ] Flee sound
-	- [x] Munching mode
-	- [x] Angry mode
-	- [ ] Mushrooms grow when hit
-- [x] Swarmers
-	- [x] Bombs 
-- [ ] Defenders 
-	- [x] bombs
-	- [ ] Grab people and run away with them
-	- [ ] Mutants
+
 - [x] Scores
 	- [x] Defenders (Landers): 150
 	- [x] Mutants: 150
@@ -70,25 +71,24 @@
 	- [x] Swarmers: 150
 
 ## Sounds
-- [ ] Bombs
-- [ ] Shots
+- [x] Bombs
+- [x] Shots
 - [ ] Snake flee
 - [ ] Shield warnings
-- [ ] Bullet noise
+- [x] Bullet noise
 - [ ] “Bonus”
 
 ## Ideas to try
-
-- [x] Smart Bombs
-- [x] Swarming
-- [x] Seeking
-- [x] Centipede
+- [ ] Lazers
 - [ ] Bombers
-	- [ ] Dropping stationary x bombs
+	- [ ] Dropping stationary ‘x’ bombs
 - [ ] Teleporting baddies
 	- [ ] Teleporting in
 - [ ] Swirling baddies
 	- [ ] sine wave
 	- [ ] following paths
-- [ ] Lazers
+- [x] Smart Bombs
+- [x] Swarming
+- [x] Seeking
+- [x] Centipede
 - [x] Small/large with changing hit target
