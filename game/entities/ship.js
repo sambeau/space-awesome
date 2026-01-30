@@ -1,5 +1,4 @@
-import { ctx, game, GameStates } from "../game.js";
-import { bullet } from "./bullet.js";
+import { GameStates, ctx, game } from "../game.js"
 import {
 	collisionBetweenCircles,
 	getColliderArea,
@@ -8,7 +7,9 @@ import {
 	randInt,
 	stereoFromScreenX,
 	thingsAreColliding
-} from "/zap/zap.js";
+} from "/zap/zap.js"
+
+import { bullet } from "./bullet.js"
 
 const smartBombRadius = 500
 const flashes = 12
@@ -45,35 +46,35 @@ shieldCriticalImage4.src = "/images/shield-critical-4.png"
 
 
 // var deadSound = new Howl({ src: ['/sounds/ship-dead.mp3'] });
-var gameOverSound = new Howl({ src: ['/sounds/game-over.mp3'] });
-var epicSound = new Howl({ src: ['/sounds/epic.mp3'] });
-var impactSound = new Howl({ src: ['/sounds/impact.mp3'] });
-var hugeExplosionSound = new Howl({ src: ['/sounds/huge-explosion.mp3'] });
-var shieldSound = new Howl({ src: ['/sounds/one-shot.mp3'] });
-var smartBombSound = new Howl({ src: ['/sounds/smart-bomb.mp3'] });
+var gameOverSound = new Howl( { src: [ '/sounds/game-over.mp3' ] } )
+var epicSound = new Howl( { src: [ '/sounds/epic.mp3' ] } )
+var impactSound = new Howl( { src: [ '/sounds/impact.mp3' ] } )
+var hugeExplosionSound = new Howl( { src: [ '/sounds/huge-explosion.mp3' ] } )
+var shieldSound = new Howl( { src: [ '/sounds/one-shot.mp3' ] } )
+var smartBombSound = new Howl( { src: [ '/sounds/smart-bomb.mp3' ] } )
 
-var laserSound = new Howl({ src: ['/sounds/laser.mp3'] });
-var laser2Sound = new Howl({ src: ['/sounds/laser2.mp3'] });
-var laser3Sound = new Howl({ src: ['/sounds/laser3.mp3'] });
+var laserSound = new Howl( { src: [ '/sounds/laser.mp3' ] } )
+var laser2Sound = new Howl( { src: [ '/sounds/laser2.mp3' ] } )
+var laser3Sound = new Howl( { src: [ '/sounds/laser3.mp3' ] } )
 
-impactSound.volume(0.33)
-gameOverSound.volume(1.0)
-epicSound.volume(0.33)
-hugeExplosionSound.volume(0.33)
-shieldSound.volume(0.25)
-smartBombSound.volume(0.6)
+impactSound.volume( 0.33 )
+gameOverSound.volume( 1.0 )
+epicSound.volume( 0.33 )
+hugeExplosionSound.volume( 0.33 )
+shieldSound.volume( 0.25 )
+smartBombSound.volume( 0.6 )
 
-laserSound.volume(0.05)
-laser2Sound.volume(0.05)
-laser3Sound.volume(0.05)
+laserSound.volume( 0.05 )
+laser2Sound.volume( 0.05 )
+laser3Sound.volume( 0.05 )
 
 const fizzleSize = 243 / 230
 
-var flameSound = new Howl({
-	src: ['/sounds/ship-thrust.mp3'],
+var flameSound = new Howl( {
+	src: [ '/sounds/ship-thrust.mp3' ],
 	volume: 0,
 	loop: true,
-});
+} )
 const lov = 0//0.02
 const hiv = 0.1
 
@@ -93,18 +94,18 @@ const smartBomb = () => {
 		},
 		charges: 1,
 		ticker: 0,
-		tick() {
+		tick () {
 			this.ticker++
-			if (this.ticker == flashes) {
+			if ( this.ticker == flashes ) {
 				this.dead = true
 			}
 		},
-		fire({ shipCX, shipCY }) {
+		fire ( { shipCX, shipCY } ) {
 			//only one at a time
-			if (!this.dead)
+			if ( !this.dead )
 				return
 			// do we have a bomb ready?
-			if (this.charges < 1)
+			if ( this.charges < 1 )
 				return
 			smartBombSound.play()
 			this.charges--
@@ -113,17 +114,17 @@ const smartBomb = () => {
 			this.cy = shipCY
 			this.ticker = 0
 		},
-		update({ shipCX, shipCY }) {
+		update ( { shipCX, shipCY } ) {
 			this.cx = shipCX
 			this.cy = shipCY
 
 			this.collider.x = this.cx
 			this.collider.y = this.cy
 
-			if (this.dead) return
+			if ( this.dead ) return
 			this.tick()
 		},
-		draw() {
+		draw () {
 			// if (game.showColliders) { // show even when not firing
 			// 	ctx.save()
 			// 	ctx.lineWidth = 1;
@@ -132,11 +133,11 @@ const smartBomb = () => {
 			// 	ctx.stroke()
 			// 	ctx.restore()
 			// }
-			if (this.dead) return
+			if ( this.dead ) return
 			let image
-			image = pick([smartBombImage1, smartBombImage2, smartBombImage3, smartBombImage4])
+			image = pick( [ smartBombImage1, smartBombImage2, smartBombImage3, smartBombImage4 ] )
 
-			ctx.drawImage(image, this.cx - this.width / 2, this.cy - this.height / 2, this.width, this.height)
+			ctx.drawImage( image, this.cx - this.width / 2, this.cy - this.height / 2, this.width, this.height )
 
 		}
 	}
@@ -164,21 +165,21 @@ const shield = () => {
 		fizzling: false,
 		critical: true,
 		recharging: 100,
-		tick() {
+		tick () {
 			this.ticker++
-			if (this.ticker == 30) {
+			if ( this.ticker == 30 ) {
 				this.ticker = 0
 				this.strength -= 0.5
-				if (this.strength < 0) this.strength = 0
+				if ( this.strength < 0 ) this.strength = 0
 			}
-			if (this.hitTimer > 0)
+			if ( this.hitTimer > 0 )
 				this.hitTimer--
-			if (this.hitTimer === 0) {
+			if ( this.hitTimer === 0 ) {
 				this.hit = false
 			}
 			this.recharging--
 		},
-		spawn({ height }) {
+		spawn ( { height } ) {
 			this.width = height
 			this.height = height
 
@@ -188,44 +189,44 @@ const shield = () => {
 			}
 			this.hitImage.src = "images/shield-hit.png"
 			this.image = this.normalImage
-			this.fizzleImages = picker([
+			this.fizzleImages = picker( [
 				shieldFizzleImage1,
 				shieldFizzleImage2,
 				shieldFizzleImage3,
 				shieldFizzleImage4,
-			])
-			this.criticalImages = picker([
+			] )
+			this.criticalImages = picker( [
 				shieldCriticalImage1,
 				shieldCriticalImage2,
 				shieldCriticalImage3,
 				shieldCriticalImage4,
-			])
+			] )
 
 			this.fizzleImage = this.fizzleImages.first()
 			this.criticalImage = this.criticalImages.first()
 
 			this.updateCollider()
 		},
-		update({ shipCX, shipCY, health }) {
+		update ( { shipCX, shipCY, health } ) {
 			this.tick()
 
-			this.x = shipCX - (this.width / 2) - this.strength
-			this.y = shipCY - (this.height / 2) - this.strength
+			this.x = shipCX - ( this.width / 2 ) - this.strength
+			this.y = shipCY - ( this.height / 2 ) - this.strength
 			this.updateCollider()
 
 			this.fizzling = false
-			if (this.recharging > 0)
+			if ( this.recharging > 0 )
 				this.fizzling = true
 
 			this.critical = false
-			if (this.strength < 25) this.critical = true
+			if ( this.strength < 25 ) this.critical = true
 
-			if (this.fizzling && this.ticker % 2 == 0)
+			if ( this.fizzling && this.ticker % 2 == 0 )
 				this.fizzleImage = this.fizzleImages.next()
-			if (this.critical && this.ticker % 2 == 0)
+			if ( this.critical && this.ticker % 2 == 0 )
 				this.criticalImage = this.criticalImages.next()
 		},
-		updateCollider() {
+		updateCollider () {
 			this.collider = {
 				type: "circle",
 				ox: this.width / 2 + this.strength,
@@ -236,50 +237,50 @@ const shield = () => {
 			this.collider.x = this.x + this.collider.ox
 			this.collider.y = this.y + this.collider.oy
 		},
-		draw() {
+		draw () {
 			ctx.save()
-			ctx.globalAlpha = (Math.random() + Math.sin(this.ticker / 30)) * this.strength / 50
+			ctx.globalAlpha = ( Math.random() + Math.sin( this.ticker / 30 ) ) * this.strength / 50
 
-			if (this.hit)
-				ctx.drawImage(this.hitImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
+			if ( this.hit )
+				ctx.drawImage( this.hitImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2 )
 			else
-				ctx.drawImage(this.normalImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2);
+				ctx.drawImage( this.normalImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2 )
 
 			ctx.restore()
 
 			ctx.save()
 			ctx.globalAlpha = 1.0
 
-			if (this.fizzling && (Math.random() > 0.33))
+			if ( this.fizzling && ( Math.random() > 0.33 ) )
 				ctx.drawImage(
 					this.fizzleImage,
 					this.x - 2,
 					this.y - 2,
 					this.width * fizzleSize + this.strength * 2,
 					this.height * fizzleSize + this.strength * 2
-				);
-			if (this.critical && (Math.random() > 0.33))
+				)
+			if ( this.critical && ( Math.random() > 0.33 ) )
 				ctx.drawImage(
 					this.criticalImage,
 					this.x - 2,
 					this.y - 2,
 					this.width * fizzleSize + this.strength * 2,
 					this.height * fizzleSize + this.strength * 2
-				);
+				)
 
 			ctx.restore()
 
 		},
-		onHit() {
+		onHit () {
 			this.hit = true
 			this.hitTimer += 10
-			canvas.classList.add("hit-shake")
+			canvas.classList.add( "hit-shake" )
 			shieldSound.play()
-			shieldSound.stereo(stereoFromScreenX(screen, this.x))
+			shieldSound.stereo( stereoFromScreenX( screen, this.x ) )
 
-			setTimeout(() => {
-				canvas.classList.remove("hit-shake")
-			}, 250)
+			setTimeout( () => {
+				canvas.classList.remove( "hit-shake" )
+			}, 250 )
 		}
 	}
 }
@@ -301,7 +302,7 @@ const flames = () => {
 		brightflame: false,
 		flamelength: 10,
 
-		spawn({ offsetx, offsety }) {
+		spawn ( { offsetx, offsety } ) {
 			this.offsetx = offsetx
 			this.offsety = offsety
 			this.flame1.onload = () => {
@@ -313,27 +314,27 @@ const flames = () => {
 			this.flame1.src = "images/flame-1.png"
 			this.flame2.src = "images/flame-2.png"
 		},
-		update({ parentx, parenty, flameOn }) {
+		update ( { parentx, parenty, flameOn } ) {
 			this.flameOn = flameOn
 			this.flamecounter += 1
-			if (this.flamecounter == this.flamelength) {
-				if (this.brightflame)
+			if ( this.flamecounter == this.flamelength ) {
+				if ( this.brightflame )
 					this.brightflame = false
 				else
 					this.brightflame = true
 				this.flamecounter = 0
-				this.flamelength = 1 + randInt(10) + randInt(10)
+				this.flamelength = 1 + randInt( 10 ) + randInt( 10 )
 			}
 			this.x = parentx + this.offsetx
 			this.y = parenty + this.offsety
 		},
-		draw() {
-			if (this.flame1Loaded && this.flame2Loaded && this.flameOn) {
-				if (!randInt(5) == 0)
-					if (this.brightflame)
-						ctx.drawImage(this.flame2, this.x, this.y, this.width, this.height);
+		draw () {
+			if ( this.flame1Loaded && this.flame2Loaded && this.flameOn ) {
+				if ( !randInt( 5 ) == 0 )
+					if ( this.brightflame )
+						ctx.drawImage( this.flame2, this.x, this.y, this.width, this.height )
 					else
-						ctx.drawImage(this.flame1, this.x, this.y, this.width, this.height);
+						ctx.drawImage( this.flame1, this.x, this.y, this.width, this.height )
 			}
 
 		},
@@ -371,7 +372,7 @@ export const spaceship = () => {
 		shield: shield(),
 		smartBomb: smartBomb(),
 		fading: false,
-		spawn({ entities: entities, floaters: floaters }) {
+		spawn ( { entities: entities, floaters: floaters } ) {
 			this.width = 50
 			this.height = 64
 			this.image1.onload = () => {
@@ -390,77 +391,77 @@ export const spaceship = () => {
 			this.entities = entities
 			this.floaters = floaters
 
-			this.y = canvas.height - this.height * 2;
-			this.x = canvas.width / 2;
+			this.y = canvas.height - this.height * 2
+			this.x = canvas.width / 2
 
 			this.cx = this.x + this.width / 2
 			this.cy = this.y + this.height / 2
 
-			this.flames.spawn({ offsetx: 17.25, offsety: 55.5 })
+			this.flames.spawn( { offsetx: 17.25, offsety: 55.5 } )
 			this.heightWithFlame = canvas.height - this.flames.height
 
-			this.shield.spawn({ height: this.height })
+			this.shield.spawn( { height: this.height } )
 
-			if (!flameSound.playing()) {
+			if ( !flameSound.playing() ) {
 				flameSound.play()
 			}
 
 		},
-		boostShields() {
+		boostShields () {
 			this.shield.strength += 50
 			this.shield.recharging = 100
 			this.shield.updateCollider()
 		},
-		thrust() {
-			if (!this.flameOn) {
+		thrust () {
+			if ( !this.flameOn ) {
 				const vol = flameSound.volume()
-				flameSound.fade(vol, hiv, 5)
+				flameSound.fade( vol, hiv, 5 )
 				// flameSound.volume(hiv)
 			}
 			this.flameOn = true
 		},
-		thrustOff() {
-			if (this.flameOn) {
+		thrustOff () {
+			if ( this.flameOn ) {
 				const vol = flameSound.volume()
-				flameSound.fade(vol, lov, 500)
+				flameSound.fade( vol, lov, 500 )
 			}
 			this.flameOn = false
 		},
-		fire() {
+		fire () {
 			this.maxbullets = 10 * this.guns
-			if (this.guns == 1)
+			if ( this.guns == 1 )
 				laserSound.play()
-			else if (this.guns == 2)
+			else if ( this.guns == 2 )
 				laser2Sound.play()
-			else if (this.guns == 3)
+			else if ( this.guns == 3 )
 				laser3Sound.play()
 
-			if ((this.guns == 1 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+			if ( ( this.guns == 1 || this.guns == 3 ) && this.bullets.length < this.maxbullets ) {
 				laserSound.play()
 				let newbullet = bullet()
-				this.bullets.push(newbullet)
-				newbullet.spawn({ atx: this.x + this.width / 2, aty: this.y, ship: this })
+				this.bullets.push( newbullet )
+				newbullet.spawn( { atx: this.x + this.width / 2, aty: this.y, ship: this } )
 			}
-			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+			if ( ( this.guns == 2 || this.guns == 3 ) && this.bullets.length < this.maxbullets ) {
 				laserSound.play()
 				let newbullet = bullet()
-				this.bullets.push(newbullet)
-				newbullet.spawn({ atx: this.x + 4.4, aty: this.y + 22, ship: this })
+				this.bullets.push( newbullet )
+				newbullet.spawn( { atx: this.x + 4.4, aty: this.y + 22, ship: this } )
 			}
-			if ((this.guns == 2 || this.guns == 3) && this.bullets.length < this.maxbullets) {
+			if ( ( this.guns == 2 || this.guns == 3 ) && this.bullets.length < this.maxbullets ) {
 				laserSound.play()
 				let newbullet = bullet()
-				this.bullets.push(newbullet)
-				newbullet.spawn({ atx: this.x + 44.15, aty: this.y + 22, ship: this })
+				this.bullets.push( newbullet )
+				newbullet.spawn( { atx: this.x + 44.15, aty: this.y + 22, ship: this } )
 			}
 		},
-		stopFiring() {
+		stopFiring () {
 			this.firing = false
 		},
-		startFiring() {
+		startFiring () {
 			this.firing = true
 		},
-		cleanup() {
+		cleanup () {
 			// Stop ship activity and fade out sounds
 			try {
 				this.thrustOff() // Fades flame sound to 0
@@ -468,126 +469,126 @@ export const spaceship = () => {
 				this.flameOn = false
 				// Don't call flameSound.stop() - it breaks the sound for next game
 				// Instead, just fade to 0 volume which thrustOff() already does
-				if (flameSound && flameSound.volume) {
-					flameSound.volume(0) // Ensure volume is 0
+				if ( flameSound && flameSound.volume ) {
+					flameSound.volume( 0 ) // Ensure volume is 0
 				}
-			} catch (e) {
-				console.error('Error in ship cleanup:', e)
+			} catch ( e ) {
+				console.error( 'Error in ship cleanup:', e )
 			}
 		},
-		removeBullet() {
-			delete (this.bullet)
+		removeBullet () {
+			delete ( this.bullet )
 		},
-		fireSmartBomb() {
-			this.smartBomb.fire({ x: this.cx, y: this.cy })
+		fireSmartBomb () {
+			this.smartBomb.fire( { x: this.cx, y: this.cy } )
 		},
-		flicker() {
+		flicker () {
 			this.flickerCounter += 1
-			if (this.flickerCounter === 10)
+			if ( this.flickerCounter === 10 )
 				this.flickerCounter = 0
-			if (this.flickerCounter >= 4)
+			if ( this.flickerCounter >= 4 )
 				return true
 
 			return false
 		},
-		sound() {
-			flameSound.stereo(stereoFromScreenX(screen, this.x))
+		sound () {
+			flameSound.stereo( stereoFromScreenX( screen, this.x ) )
 		},
-		outOfBoundsTop() {
-			if (this.y <= 0) return true
-			return false;
-		},
-		outOfBoundsBottom() {
-			if (this.y >= this.heightWithFlame) return true
-			return false;
-		},
-		outOfBoundsLeft() {
-			if (this.cx <= 0) return true
+		outOfBoundsTop () {
+			if ( this.y <= 0 ) return true
 			return false
 		},
-		outOfBoundsRight() {
-			if (this.cx >= canvas.width) return true
+		outOfBoundsBottom () {
+			if ( this.y >= this.heightWithFlame ) return true
 			return false
 		},
-		update(/*dt*/) {
-			if (game.over || this.dead)
+		outOfBoundsLeft () {
+			if ( this.cx <= 0 ) return true
+			return false
+		},
+		outOfBoundsRight () {
+			if ( this.cx >= canvas.width ) return true
+			return false
+		},
+		update (/*dt*/ ) {
+			if ( game.over || this.dead )
 				return
 
-			if (this.outOfBoundsTop()) {
+			if ( this.outOfBoundsTop() ) {
 				this.y = 0
 				this.vy = 0
-			} else if (this.outOfBoundsBottom()) {
+			} else if ( this.outOfBoundsBottom() ) {
 				this.y = this.heightWithFlame
 				this.vy = 0
 				this.break = false
 			}
-			if (this.flameOn) {
+			if ( this.flameOn ) {
 				this.vy = -8
-				if (game.speed < 15) game.speed *= 1.04
+				if ( game.speed < 15 ) game.speed *= 1.04
 			} else {
-				if (this.break) {
+				if ( this.break ) {
 					this.vy = 6
-					if (game.speed > 2) game.speed *= 0.9
+					if ( game.speed > 2 ) game.speed *= 0.9
 				} else {
 					this.vy = 4
-					if (game.speed > 2) game.speed *= 0.99
+					if ( game.speed > 2 ) game.speed *= 0.99
 				}
 			}
 			this.x += this.turn
-			if (this.outOfBoundsLeft()) {
+			if ( this.outOfBoundsLeft() ) {
 				this.x = 1 - this.width / 2
 				this.vx = 0
-			} else if (this.outOfBoundsRight()) {
+			} else if ( this.outOfBoundsRight() ) {
 				this.x = canvas.width - this.width / 2 - 1
 				this.vx = 0
 			}
 
-			this.y += this.vy;
-			this.x += this.vx;
+			this.y += this.vy
+			this.x += this.vx
 
 			this.cx = this.x + this.width / 2
 			this.cy = this.y + this.height / 2
 
-			this.collider[0].x = this.x + this.collider[0].ox
-			this.collider[0].y = this.y + this.collider[0].oy
-			this.collider[1].x = this.x + this.collider[1].ox
-			this.collider[1].y = this.y + this.collider[1].oy
+			this.collider[ 0 ].x = this.x + this.collider[ 0 ].ox
+			this.collider[ 0 ].y = this.y + this.collider[ 0 ].oy
+			this.collider[ 1 ].x = this.x + this.collider[ 1 ].ox
+			this.collider[ 1 ].y = this.y + this.collider[ 1 ].oy
 
-			this.flames.update({ parentx: this.x, parenty: this.y, flameOn: this.flameOn })
+			this.flames.update( { parentx: this.x, parenty: this.y, flameOn: this.flameOn } )
 
-			this.shield.update({
-				shipCX: this.x + (this.width / 2),
-				shipCY: this.y + (this.height / 2),
+			this.shield.update( {
+				shipCX: this.x + ( this.width / 2 ),
+				shipCY: this.y + ( this.height / 2 ),
 				health: 1000,
-			})
+			} )
 
-			this.bullets = this.bullets.filter((b) => { return b.dead !== true })
-			this.bullets.forEach((b) => b.update())
-			this.smartBomb.update({
+			this.bullets = this.bullets.filter( ( b ) => { return b.dead !== true } )
+			this.bullets.forEach( ( b ) => b.update() )
+			this.smartBomb.update( {
 				shipCX: this.x + this.width / 2,
 				shipCY: this.y + this.height / 2
-			})
+			} )
 			this.firingTicker++
-			if ((this.firingTicker == this.firingRate)) {
+			if ( ( this.firingTicker == this.firingRate ) ) {
 				this.firingTicker = 0
-				if (this.firing)
+				if ( this.firing )
 					this.fire()
 			}
 			this.sound()
 		},
-		draw() {
+		draw () {
 			// draw ship
-			if (game.over || this.dead) return
+			if ( game.over || this.dead ) return
 
-			if (this.image1Loaded && this.image2Loaded && this.image3Loaded) {
-				this.bullets.forEach((b) => b.draw())
-				if (this.flameOn)
-					ctx.drawImage(this.image3, this.x, this.y, this.width, this.height);
+			if ( this.image1Loaded && this.image2Loaded && this.image3Loaded ) {
+				this.bullets.forEach( ( b ) => b.draw() )
+				if ( this.flameOn )
+					ctx.drawImage( this.image3, this.x, this.y, this.width, this.height )
 				else
-					if (this.flicker())
-						ctx.drawImage(this.image1, this.x, this.y, this.width, this.height);
+					if ( this.flicker() )
+						ctx.drawImage( this.image1, this.x, this.y, this.width, this.height )
 					else
-						ctx.drawImage(this.image2, this.x, this.y, this.width, this.height);
+						ctx.drawImage( this.image2, this.x, this.y, this.width, this.height )
 
 				this.flames.draw()
 			}
@@ -595,104 +596,104 @@ export const spaceship = () => {
 			this.shield.draw()
 			this.smartBomb.draw()
 		},
-		collideWeaponsWithAll(entityTypes) {
-			entityTypes.forEach((et) => this.collideWeaponsWith(et))
+		collideWeaponsWithAll ( entityTypes ) {
+			entityTypes.forEach( ( et ) => this.collideWeaponsWith( et ) )
 		},
-		collideWeaponsWith(entities) {
+		collideWeaponsWith ( entities ) {
 			// console.log(entities)
-			this.bullets.forEach((b) => {
-				entities.forEach((e) => {
-					if (thingsAreColliding(e, b)) {
+			this.bullets.forEach( ( b ) => {
+				entities.forEach( ( e ) => {
+					if ( thingsAreColliding( e, b ) ) {
 						e.collider.colliding = true
 						b.collider.colliding = true
-						if (!b.dead) // stop multiple hits
+						if ( !b.dead ) // stop multiple hits
 							e.onHit()
 						b.dead = true
 					}
-				})
-			})
-			if (!this.smartBomb.dead) {
-				entities.forEach((e) => {
-					if (thingsAreColliding(e, this.smartBomb)) {
+				} )
+			} )
+			if ( !this.smartBomb.dead ) {
+				entities.forEach( ( e ) => {
+					if ( thingsAreColliding( e, this.smartBomb ) ) {
 						e.collider.colliding = true
-						e.onHit(true)
+						e.onHit( true )
 					}
-				})
+				} )
 			}
 		},
-		crashIntoAll(entityTypes) {
-			entityTypes.forEach((et) => this.crashInto(et))
+		crashIntoAll ( entityTypes ) {
+			entityTypes.forEach( ( et ) => this.crashInto( et ) )
 		},
-		crashInto(entities) {
+		crashInto ( entities ) {
 			// return // <-- uncomment to disable crashing for debug
-			if (this.dead || game.over) return
+			if ( this.dead || game.over ) return
 			let collider = this
-			if (this.shield.strength > 0)
+			if ( this.shield.strength > 0 )
 				collider = this.shield
-			entities.forEach((e) => {
-				if (thingsAreColliding(collider, e)) {
+			entities.forEach( ( e ) => {
+				if ( thingsAreColliding( collider, e ) ) {
 
 					// exception for fleeing snake
-					if (e.isCrashProof && e.isCrashProof())
+					if ( e.isCrashProof && e.isCrashProof() )
 						return
 
-					if (this.shield.strength > 0) {
-						this.shield.strength -= getColliderArea(e)
+					if ( this.shield.strength > 0 ) {
+						this.shield.strength -= getColliderArea( e )
 						this.shield.onHit()
 					} else {
 						this.shield.strength = 0
-						e.onHit(false, true)
+						e.onHit( false, true )
 						this.dead = true  // Just set flag, state machine handles rest
 					}
-					e.onHit(false, true)
+					e.onHit( false, true )
 				}
-			})
+			} )
 		},
-		collect(powerups) {
-			if (this.dead || game.over) return
+		collect ( powerups ) {
+			if ( this.dead || game.over ) return
 			// console.log(entities)
-			powerups.forEach((powerup) => {
+			powerups.forEach( ( powerup ) => {
 				if (
 					collisionBetweenCircles(
 						powerup.collider.x, powerup.collider.y, powerup.collider.r,
-						this.collider[0].x, this.collider[0].y, this.collider[0].r
+						this.collider[ 0 ].x, this.collider[ 0 ].y, this.collider[ 0 ].r
 					)
 					|| collisionBetweenCircles(
 						powerup.collider.x, powerup.collider.y, powerup.collider.r,
-						this.collider[1].x, this.collider[1].y, this.collider[1].r
-					)) {
-					powerup.onCollect(this)
+						this.collider[ 1 ].x, this.collider[ 1 ].y, this.collider[ 1 ].r
+					) ) {
+					powerup.onCollect( this )
 				}
-			})
+			} )
 		},
-		onCollect(type) {
-			switch (type) {
+		onCollect ( type ) {
+			switch ( type ) {
 				case 'bullet':
 					this.guns++
-					if (this.guns > 3)
+					if ( this.guns > 3 )
 						this.guns = 3
-					break;
+					break
 				case 'life':
 					game.lives++
-					this.floaters.spawnSingle({
+					this.floaters.spawnSingle( {
 						cx: this.cx,
 						cy: this.cy,
 						type: '1up'
-					})
-					break;
+					} )
+					break
 				case 'smart':
 					this.smartBomb.charges++
-					this.floaters.spawnSingle({
+					this.floaters.spawnSingle( {
 						cx: this.cx,
 						cy: this.cy,
 						type: 'bomb'
-					})
-					break;
+					} )
+					break
 				case 'shield':
 					this.boostShields()
-					break;
+					break
 				case 'spaceman':
-					break;
+					break
 			}
 		}
 	}
