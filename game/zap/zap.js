@@ -64,6 +64,17 @@ export function rectsCollide ( x1, y1, w1, h1, x2, y2, w2, h2 ) {
 	return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2
 }
 
+// Rectangle vs circle collision
+export function rectCircleCollide ( rx, ry, rw, rh, cx, cy, cr ) {
+	// Find closest point on rectangle to circle center
+	const closestX = clamp( cx, rx, rx + rw )
+	const closestY = clamp( cy, ry, ry + rh )
+	// Check if closest point is within circle radius
+	const dx = cx - closestX
+	const dy = cy - closestY
+	return ( dx * dx + dy * dy ) < ( cr * cr )
+}
+
 export function moveDistanceAlongLine ( dx, x1, y1, x2, y2 ) {
 	var a = { x: x2 - x1, y: y2 - y1 },
 		mag = Math.sqrt( a.x * a.x + a.y * a.y )
