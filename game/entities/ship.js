@@ -1,4 +1,4 @@
-import { ctx, game } from "../game.js";
+import { ctx, game, GameStates } from "../game.js";
 import { bullet } from "./bullet.js";
 import {
 	collisionBetweenCircles,
@@ -459,6 +459,21 @@ export const spaceship = () => {
 		startFiring() {
 			this.firing = true
 		},
+		cleanup() {
+			// Stop ship activity and fade out sounds
+			try {
+				this.thrustOff() // Fades flame sound to 0
+				this.stopFiring()
+				this.flameOn = false
+				// Don't call flameSound.stop() - it breaks the sound for next game
+				// Instead, just fade to 0 volume which thrustOff() already does
+				if (flameSound && flameSound.volume) {
+					flameSound.volume(0) // Ensure volume is 0
+				}
+			} catch (e) {
+				console.error('Error in ship cleanup:', e)
+			}
+		},
 		removeBullet() {
 			delete (this.bullet)
 		},
@@ -625,73 +640,12 @@ export const spaceship = () => {
 						this.shield.onHit()
 					} else {
 						this.shield.strength = 0
-						this.explode()
-						game.lives--
-						this.dead = true
-						game.over = true // just for now
-						// do something way more sophisticated here!
-						if (game.lives == 0) {
-							console.log("GAME OVER")
-							game.over = true
-							return
-						}
-						// this.onHit()
+						e.onHit(false, true)
+						this.dead = true  // Just set flag, state machine handles rest
 					}
 					e.onHit(false, true)
-
 				}
 			})
-		},
-		explode() { // BIG! probably for Game Over
-			if (this.dead || game.over) return
-			// deadSound.play()
-			hugeExplosionSound.play()
-			epicSound.play()
-			canvas.classList.add("game-over-shake")
-			this.explosion()
-			setTimeout(() => {
-				this.explosion()
-				setTimeout(() => {
-					this.explosion()
-					setTimeout(() => {
-						this.explosion()
-						setTimeout(() => {
-							this.explosion()
-							setTimeout(() => {
-								this.explosion()
-								setTimeout(() => {
-									this.explosion()
-									setTimeout(() => {
-										canvas.classList.remove("game-over-shake")
-										setTimeout(() => {
-											gameOverSound.play()
-											this.vx = 0
-											this.vy = 0
-											this.x = screen.width / 2
-											this.y = screen.height * 2
-											game.speed = 2
-										}, 5300)
-									}, 500)
-								}, 500)
-							}, 400)
-						}, 300)
-					}, 200)
-				}, 100)
-			}, 100)
-		},
-		explosion() {
-			impactSound.play()
-			for (let i = 100; i > 4; i = i / 2)
-				game.particles.spawnCircle({
-					points: i,
-					cx: this.x + this.width / 2,
-					cy: this.y + this.width / 2,
-					width: 20,
-					height: 20,
-					speed: i / 2,
-					lifespan: 50,
-					style: "glitter",
-				})
 		},
 		collect(powerups) {
 			if (this.dead || game.over) return

@@ -35,16 +35,20 @@ const star = () => {
 			}
 		},
 		draw() {
+			ctx.save()
+			ctx.fillStyle = this.color;
+			// ctx.globalAlpha = 0.5
 			ctx.beginPath();
 			if (this.radius > 2) {
 				ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
 				ctx.closePath();
-				ctx.fillStyle = this.color;
 				ctx.fill();
 			}
-			else
+			else {
 				ctx.fillRect(this.x, this.y, this.radius * 2, this.radius * 2)
+			}
 
+			ctx.restore()
 		},
 	}
 };
@@ -59,9 +63,9 @@ const starfield = () => {
 			this.stars1 = makeN(star, 64)
 			this.stars2 = makeN(star, 64)
 			this.stars3 = makeN(star, 32)
-			this.stars1.forEach((b) => b.spawn({ color: "#ffdddd44", size: 2, speed: 0.125 }))
-			this.stars2.forEach((b) => b.spawn({ color: "#ddddff66", size: 3, speed: 0.25 }))
-			this.stars3.forEach((b) => b.spawn({ color: "#ffffee66", size: 4, speed: 0.5 }))
+			this.stars1.forEach((b) => b.spawn({ color: "#ff88ff66", size: 2, speed: 0.125 }))
+			this.stars2.forEach((b) => b.spawn({ color: "#88ffff66", size: 3, speed: 0.25 }))
+			this.stars3.forEach((b) => b.spawn({ color: "#ffff8888", size: 4, speed: 0.5 }))
 		},
 		update(dt) {
 			this.stars1.forEach((b) => b.update(dt))
