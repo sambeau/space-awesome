@@ -21,6 +21,17 @@ The game has a ship, missiles, smart bombs, spacemen to save, and lots of nasty 
 
 The aim is to get the next high-score while saving as many spacemen as possible.
 
+## How to play
+
+There's a tiny Go server in the ``server/`` directory. Use it to server the game.
+
+```
+cd server
+go run serve.go ../game
+```
+
+Browse to ``localhost:8100``.
+
 ---
 
 ## How It Works
