@@ -169,10 +169,8 @@ The woo-woo-woo is in stereo but also the volume is locked to the distance away 
 
 Almost none:
 
-- **[Howler.js](https://howlerjs.com/)** — Audio. Handles Web Audio API quirks, gives me stereo panning and volume control.
+- **[Howler.js](https://howlerjs.com/)** — Audio. Handles Web Audio API quirks, stereo panning and volume control.
 - **That's it.**
-
-No React. No Webpack. No npm install. Just load `index.html` in a browser.
 
 ---
 
@@ -185,29 +183,5 @@ Check out the docs:
 - [zap.js Reference](docs/zap.md) — All the utility functions
 
 Or just read the code. I've tried to keep it simple enough that you can follow along.
-
----
-
-## What would I do differently?
-
-Next time I would do this (UPDATE: I’m currently moving to an entity-based system so this is a little fluid):
-
-- create basic entity system ✅
-- use centre-point for *everything*
-- shared timer/callback system
-- simple animation system based on shared timer
-- load all images first with standard loader ✅
-- simple standard out-of-bounds system ✅
-- be careful about saving and restoring context
-- consider sprite sheets
-- a few text tools (e.g. centre)
-- a tiny maths library (e.g draw circle point/distance/collision) ✅
-- colliders are always an array (or use Array.isArray())
-- colliders are a sub-entity with updater and draw function for debug
-- entities all have a debug function to draw text beside them
-- floaters as part of engine
-- Break things in objects and sprites
-- Sprite strips like ship-7
-- Opacity-based collisions
 
 
