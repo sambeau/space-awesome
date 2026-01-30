@@ -120,8 +120,34 @@ export function findClosestThing ( thing, things ) {
 	return closestThing
 }
 
+// Check collision between two colliders (circle or rect)
+function collidersCollide ( c1, c2 ) {
+	const t1 = c1.type || "circle"
+	const t2 = c2.type || "circle"
+
+	// Circle vs Circle
+	if ( t1 === "circle" && t2 === "circle" ) {
+		return collisionBetweenCircles( c1.x, c1.y, c1.r, c2.x, c2.y, c2.r )
+	}
+
+	// Rect vs Rect
+	if ( t1 === "rect" && t2 === "rect" ) {
+		return rectsCollide( c1.x, c1.y, c1.w, c1.h, c2.x, c2.y, c2.w, c2.h )
+	}
+
+	// Circle vs Rect (or Rect vs Circle)
+	if ( t1 === "circle" && t2 === "rect" ) {
+		return rectCircleCollide( c2.x, c2.y, c2.w, c2.h, c1.x, c1.y, c1.r )
+	}
+	if ( t1 === "rect" && t2 === "circle" ) {
+		return rectCircleCollide( c1.x, c1.y, c1.w, c1.h, c2.x, c2.y, c2.r )
+	}
+
+	return false
+}
+
 export function thingsAreColliding ( thing1, thing2 ) {
-	if ( !thing1.collider || !thing1.collider ) return false
+	if ( !thing1.collider || !thing2.collider ) return false
 	const colliders1 =
 		( !Array.isArray( thing1.collider ) )
 			?
@@ -139,10 +165,7 @@ export function thingsAreColliding ( thing1, thing2 ) {
 	let colliding = false
 	colliders1.forEach( ( c1 ) => {
 		colliders2.forEach( ( c2 ) => {
-			if ( collisionBetweenCircles(
-				c1.x, c1.y, c1.r,
-				c2.x, c2.y, c2.r
-			) ) {
+			if ( collidersCollide( c1, c2 ) ) {
 				colliding = true
 			}
 		} )

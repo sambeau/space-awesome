@@ -64,12 +64,29 @@ rectCircleCollide(rx, ry, rw, rh, cx, cy, cr)    // → true/false
 // Point inside rectangle?
 pointInRect(px, py, rx, ry, rw, rh)               // → true/false
 
-// Two game objects colliding? (handles arrays of colliders)
+// Two game objects colliding? (handles arrays of colliders, circles and rects)
 thingsAreColliding(enemy, bullet)                 // → true/false
 
 // Is thing visible on screen?
 thingIsOnScreen(enemy, screen)                    // → true/false
 ```
+
+### Collider Definitions
+
+Entities can have a `collider` property (single or array) with these types:
+
+```javascript
+// Circle collider
+{ type: "circle", ox: 24, oy: 24, r: 20 }
+
+// Rectangle collider  
+{ type: "rect", ox: 0, oy: 0, w: 48, h: 32 }
+```
+
+- `ox`, `oy` — offset from entity position
+- `r` — radius (circles)
+- `w`, `h` — width/height (rectangles)
+- `type` defaults to `"circle"` if omitted
 
 ---
 
