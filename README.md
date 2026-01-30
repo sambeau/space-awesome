@@ -126,9 +126,9 @@ I went a little overboard with states for space snakes:
 - **Hungry**: Chases the nearest spaceman. If it catches one, it *eats* it and grows longer.
 - **Angry**: No spacemen left? Now it chases YOU.
 - **Fleeing**: Shoot it and the whole snake panics, break in two, and each new snake zooms off-screen before regrouping.
-- ***Shrinking:*** Bit-by-bit they leave mushrooms behind as their segments are hit (in space? *shrug*)
+- **Shrinking:** Bit-by-bit they leave mushrooms behind as their segments are hit (in space? *shrug*)
 
-The colour of the snake tells you its mood. Yellow/cyan = hungry for spacemen. Black and yellow = angry and coming for you. Rainbow = fleeing (free shots!).
+The colour of the snake tells you its mood. Yellow/cyan = hungry for spacemen. Black and yellow = angry and coming for you. Flashing = fleeing (free shots!).
 
 ### Stereo Audio
 
@@ -148,7 +148,7 @@ The animation frames and colliders pulse together—as the mine opens up, its hi
 
 ### Motherships
 
-Chunky ships that drift across the screen going *woo-woo-woo*. They're made of *multiple* circle colliders (tbh, they’d be better as rectangles but I’d only added circles when I added them). They also fire targeted bombs constantly, so you want to take them out fast.
+Chunky ships that drift across the screen going *woo-woo-woo*. They're made of *multiple* circle colliders (tbh, they’d be better as rectangles but I’d only added circle-to-circle collision when I added them—I should probably update them now I have circle-to-rectangle collision). They also fire targeted bombs constantly, so you want to take them out fast.
 
 The woo-woo-woo is in stereo but also the volume is locked to the distance away from you so you can hear them even when they are off-screen.
 

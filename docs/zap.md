@@ -58,6 +58,9 @@ collisionBetweenCircles(x1, y1, r1, x2, y2, r2)  // → true/false
 // Rectangle vs rectangle
 rectsCollide(x1, y1, w1, h1, x2, y2, w2, h2)     // → true/false
 
+// Rectangle vs circle
+rectCircleCollide(rx, ry, rw, rh, cx, cy, cr)    // → true/false
+
 // Point inside rectangle?
 pointInRect(px, py, rx, ry, rw, rh)               // → true/false
 
@@ -165,7 +168,7 @@ debugThing(ctx, enemy, `HP: ${enemy.hp}`)
 |----------|-----------|
 | **Math** | `lerp`, `clamp` |
 | **Geometry** | `distanceBetweenPoints`, `angleOfLineInRads/Degs`, `normalize`, `vectorFromAngle`, `moveDistanceAlongLine`, `wrapAngle`, `rotationDirection` |
-| **Collision** | `collisionBetweenCircles`, `rectsCollide`, `pointInRect`, `thingsAreColliding`, `thingIsOnScreen` |
+| **Collision** | `collisionBetweenCircles`, `rectsCollide`, `rectCircleCollide`, `pointInRect`, `thingsAreColliding`, `thingIsOnScreen` |
 | **Random** | `randInt`, `randRange`, `randFloat`, `pick`, `shuffle` |
 | **Animation** | `getFrame`, `picker`, `easeInQuad`, `easeOutQuad`, `easeInOutQuad` |
 | **Audio** | `stereoFromScreenX`, `volumeFromY`, `volumeFromX` |
