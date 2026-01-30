@@ -38,6 +38,19 @@ export class TitleState extends BaseState {
 		drawBackground(this.game.ctx, this.game.canvas)
 		this.game.stars.draw()
 		this.logo.draw()
+
+		// Draw high score at bottom
+		const ctx = this.game.ctx
+		const canvas = this.game.canvas
+		const highScore = this.game.highScoreManager.getHighScore()
+
+		ctx.save()
+		ctx.fillStyle = '#FFFF00'
+		ctx.font = '32px Robotron'
+		ctx.textAlign = 'center'
+		ctx.textBaseline = 'bottom'
+		ctx.fillText(`HIGH SCORE: ${highScore}`, canvas.width / 2, canvas.height - 40)
+		ctx.restore()
 	}
 
 	exit() {

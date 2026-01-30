@@ -56,6 +56,9 @@ export class PlayState extends BaseState {
 		this.lives = data.lives || 3
 		this.score = data.score || 0
 
+		// Sync lives to game object for HUD
+		this.game.lives = this.lives
+
 		// Reset death sequence flags
 		this.deathSequenceActive = false
 		this.deathSequenceComplete = false
@@ -227,13 +230,14 @@ export class PlayState extends BaseState {
 		// If death sequence is complete, handle respawn or game over
 		if (this.deathSequenceComplete) {
 			this.lives--
+			this.game.lives = this.lives  // Sync to game object for HUD
 			if (this.lives <= 0) {
 				// Game over - clean up ship sounds
 				if (this.ship && this.ship.cleanup) {
 					this.ship.cleanup()
 				}
 				this.game.stateManager.transition('gameOver', {
-					score: this.ship.score
+					score: this.game.score  // Use game.score, not ship.score
 				})
 				return
 			} else {
@@ -250,7 +254,7 @@ export class PlayState extends BaseState {
 			this.game.stateManager.transition('waveTransition', {
 				wave: this.wave,
 				lives: this.lives,
-				score: this.ship.score
+				score: this.game.score  // Use game.score
 			})
 			return
 		}
@@ -330,12 +334,27 @@ export class PlayState extends BaseState {
 		this.hud.draw()
 	}
 
-	startDeathSequence() {
+	async startDeathSequence() {
+		// Wait for audio context to be ready before playing sounds
+		if (this.game.audioManager) {
+			try {
+				await this.game.audioManager.forceResume()
+				console.log('Audio context ready for death sequence')
+			} catch (e) {
+				console.error('Failed to resume audio:', e)
+			}
+		}
+
 		// Get sounds (lazily initialized)
 		const getSounds = () => {
 			if (typeof Howl === 'undefined') {
 				console.warn('Howl is not defined - sounds disabled')
 				return null
+			}
+
+			// Check audio context state
+			if (typeof Howler !== 'undefined' && Howler.ctx) {
+				console.log('AudioContext state:', Howler.ctx.state)
 			}
 
 			try {

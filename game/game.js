@@ -7,7 +7,10 @@ import { PlayState } from "./states/PlayState.js"
 import { PlayerDeathState } from "./states/PlayerDeathState.js"
 import { WaveTransitionState } from "./states/WaveTransitionState.js"
 import { GameOverState } from "./states/GameOverState.js"
+import { NewHighScoreState } from "./states/NewHighScoreState.js"
 import { starfield as Starfield } from "./entities/stars.js"
+import { AudioManager } from "./audioManager.js"
+import { HighScoreManager } from "./systems/HighScoreManager.js"
 
 // Setup canvas
 export const canvas = document.getElementById("canvas")
@@ -32,7 +35,9 @@ export const game = {
 	massConstant: 400,
 	canvas: canvas,
 	ctx: ctx,
-	stateManager: null
+	stateManager: null,
+	audioManager: null,
+	highScoreManager: null
 }
 
 // Legacy GameStates export for ship.js (will be removed after ship.js is updated)
@@ -60,6 +65,12 @@ font1.load().then(() => {
 game.stars = Starfield()
 game.stars.spawn()
 
+// Initialize audio manager to handle AudioContext state
+game.audioManager = new AudioManager()
+
+// Initialize high score manager
+game.highScoreManager = new HighScoreManager()
+
 // Initialize state manager
 game.stateManager = new StateManager(game)
 
@@ -69,6 +80,7 @@ game.stateManager.register('play', new PlayState(game))
 game.stateManager.register('playerDeath', new PlayerDeathState(game))
 game.stateManager.register('waveTransition', new WaveTransitionState(game))
 game.stateManager.register('gameOver', new GameOverState(game))
+game.stateManager.register('newHighScore', new NewHighScoreState(game))
 
 // Track time for delta calculation
 let lastTime = 0

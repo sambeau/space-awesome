@@ -96,7 +96,13 @@ export const Spacemen = () => {
 			const width = 69 / 4
 			const height = 69 / 4
 			const x = canvas.width - width - padding
-			const y = 485
+
+			// Calculate Y position: below minimap
+			// Minimap: y = 52 + 15 + 55 = 122, height = canvas.height * 0.4
+			const minimapTop = 52 + gap * 3 + 55
+			const minimapHeight = canvas.height * 4 / 10
+			const y = minimapTop + minimapHeight + gap * 2
+
 			for (let i = 0; i < this.spacemen.saved; i++) {
 				ctx.drawImage(this.savedImages.any(), x - (i * (width - 5)), y, width, height)
 			}
@@ -171,6 +177,14 @@ export const Hud = () => {
 			this.spacemen.draw()
 			// Game over rendering now handled by GameOverState
 
+			// Debug: Show audio context state
+			if (game.debug && typeof Howler !== 'undefined' && Howler.ctx) {
+				ctx.save()
+				ctx.fillStyle = Howler.ctx.state === 'running' ? '#00FF00' : '#FF0000'
+				ctx.font = '16px monospace'
+				ctx.fillText(`Audio: ${Howler.ctx.state}`, 10, canvas.height - 10)
+				ctx.restore()
+			}
 		}
 	}
 }
