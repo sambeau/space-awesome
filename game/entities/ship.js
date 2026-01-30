@@ -409,6 +409,7 @@ export const spaceship = () => {
 		boostShields() {
 			this.shield.strength += 50
 			this.shield.recharging = 100
+			this.shield.updateCollider()
 		},
 		thrust() {
 			if (!this.flameOn) {
