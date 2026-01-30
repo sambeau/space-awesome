@@ -87,6 +87,10 @@ No dependencies. Just functions. You could copy it into any project.
 
 ## The Fun Stuff
 
+### Screen shake
+
+This is just some CSS on the canvas. Take a look at ``style.css``. I simple apply a css class for a bit, then remove it. I was amazed at how effective this turned out.
+
 ### Asteroids That Flock Together
 
 Asteroids use a simplified [boids algorithm](https://en.wikipedia.org/wiki/Boids). Each asteroid finds its two nearest neighbours and gently drifts toward their midpoint. If it gets too close, it pushes away. The result: they clump into loose groups that slowly drift across the screen.
@@ -112,13 +116,18 @@ Swarmers use targeted bombs. Being they are in a pack they work together to be a
 
 ### Space Snakes
 
-Snakes are my favourite. They're a chain of segments where the head moves and each body segment follows the one in front of it. But the clever bit is the state machine:
+The Space Snakes are my attempt at combining snake *and* centipede. They're a chain of segments where the head moves and each body segment follows the one in front of it. 
+
+As you hit a snake it shrinks. As a snake easts spacemen it grows. Hit a large snake and it will break in two. Now you have two angry snakes to deal with.
+
+I went a little overboard with states for space snakes:
 
 - **Hungry**: Chases the nearest spaceman. If it catches one, it *eats* it and grows longer.
 - **Angry**: No spacemen left? Now it chases YOU.
-- **Fleeing**: Shoot the head and the whole snake panics, zooming off-screen before regrouping.
+- **Fleeing**: Shoot it and the whole snake panics, break in two, and each new snake zooms off-screen before regrouping.
+- ***Shrinking:*** Bit-by-bit they leave mushrooms behind as their segments are hit (in space? *shrug*)
 
-The colour of the snake tells you its mood. Yellow/cyan = hungry for spacemen. Dark purple = angry and coming for you. Rainbow = fleeing (free shots!).
+The colour of the snake tells you its mood. Yellow/cyan = hungry for spacemen. Black and yellow = angry and coming for you. Rainbow = fleeing (free shots!).
 
 ### Stereo Audio
 
