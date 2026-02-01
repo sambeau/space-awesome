@@ -1,7 +1,10 @@
 // Main gameplay state - handles collision, updates, rendering, and transitions
 
+import { asteroids as Asteroids } from '../entities/asteroids.js'
 import { BaseState } from './BaseState.js'
+import { defenders as Defenders } from '../entities/defenders.js'
 import { Floaters } from '../entities/floaters.js'
+import { galaxians as Galaxians } from '../entities/galaxians.js'
 import { Hud } from '../entities/hud.js'
 import { Mines } from '../entities/mines.js'
 import { Mothers } from '../entities/mothers.js'
@@ -9,18 +12,15 @@ import { Mushrooms } from '../entities/mushrooms.js'
 import { Particles } from '../entities/particles.js'
 import { Pods } from '../entities/pods.js'
 import { Powerups } from '../entities/powerups.js'
-import { spaceship as Spaceship } from '../entities/ship.js'
 import { Snakes } from '../entities/snakes.js'
 import { Spacemen } from '../entities/spacemen.js'
+import { spaceship as Spaceship } from '../entities/ship.js'
 import { Swarmers } from '../entities/swarmers.js'
-import { asteroids as Asteroids } from '../entities/asteroids.js'
-import { defenders as Defenders } from '../entities/defenders.js'
-import { galaxians as Galaxians } from '../entities/galaxians.js'
 import { drawBackground } from '../rendering.js'
 
 export class PlayState extends BaseState {
-	constructor(game) {
-		super(game)
+	constructor( game ) {
+		super( game )
 
 		// Entities (stars are shared via game.stars)
 		this.ship = null
@@ -48,8 +48,8 @@ export class PlayState extends BaseState {
 		this.deathSequenceComplete = false
 	}
 
-	enter(data = {}) {
-		super.enter(data)
+	enter ( data = {} ) {
+		super.enter( data )
 
 		// Restore state from transition data
 		this.wave = data.wave || 1
@@ -70,7 +70,7 @@ export class PlayState extends BaseState {
 		this.setupInputHandlers()
 	}
 
-	initializeEntities() {
+	initializeEntities () {
 		// Stars are shared via game.stars
 		this.game.particles = Particles()
 
@@ -81,33 +81,33 @@ export class PlayState extends BaseState {
 		this.asteroids.spawn()
 
 		this.mines = Mines()
-		this.mines.spawn({ ship: this.ship, floaters: this.floaters })
+		this.mines.spawn( { ship: this.ship, floaters: this.floaters } )
 
 		this.mothers = Mothers()
-		this.mothers.spawn({ ship: this.ship, floaters: this.floaters })
+		this.mothers.spawn( { ship: this.ship, floaters: this.floaters } )
 
 		this.spacemen = Spacemen()
-		this.spacemen.spawn({ ship: this.ship, floaters: this.floaters })
+		this.spacemen.spawn( { ship: this.ship, floaters: this.floaters } )
 
 		this.swarmers = Swarmers()
 		this.pods = Pods()
-		this.pods.spawn({ swarmers: this.swarmers, ship: this.ship, floaters: this.floaters })
+		this.pods.spawn( { swarmers: this.swarmers, ship: this.ship, floaters: this.floaters } )
 
 		this.defenders = Defenders()
-		this.defenders.spawn({ ship: this.ship })
+		this.defenders.spawn( { ship: this.ship } )
 
 		this.galaxians = Galaxians()
-		this.galaxians.spawn({ ship: this.ship })
+		this.galaxians.spawn( { ship: this.ship } )
 
 		this.mushrooms = Mushrooms()
 
 		this.snakes = Snakes()
-		this.snakes.spawn({ ship: this.ship, spacemen: this.spacemen, floaters: this.floaters, mushrooms: this.mushrooms })
+		this.snakes.spawn( { ship: this.ship, spacemen: this.spacemen, floaters: this.floaters, mushrooms: this.mushrooms } )
 
 		this.powerups = Powerups()
-		this.powerups.spawn({ ship: this.ship })
+		this.powerups.spawn( { ship: this.ship } )
 
-		this.ship.spawn({
+		this.ship.spawn( {
 			entities: [
 				this.asteroids,
 				this.mothers,
@@ -122,10 +122,10 @@ export class PlayState extends BaseState {
 				this.mines,
 			],
 			floaters: this.floaters
-		})
+		} )
 
 		this.hud = Hud()
-		this.hud.init(this.ship, this.spacemen, [
+		this.hud.init( this.ship, this.spacemen, [
 			this.mushrooms,
 			this.asteroids,
 			this.mothers,
@@ -137,14 +137,14 @@ export class PlayState extends BaseState {
 			this.spacemen,
 			this.snakes,
 			this.mines
-		])
+		] )
 	}
 
-	setupInputHandlers() {
-		const keydownHandler = (event) => {
-			if (event.defaultPrevented) return
+	setupInputHandlers () {
+		const keydownHandler = ( event ) => {
+			if ( event.defaultPrevented ) return
 
-			switch (event.code) {
+			switch ( event.code ) {
 				case "ArrowDown":
 					this.ship.thrustOff()
 					this.ship.break = true
@@ -162,15 +162,15 @@ export class PlayState extends BaseState {
 					this.ship.startFiring()
 					break
 				case "Digit1":
-					console.log("guns 1")
+					console.log( "guns 1" )
 					this.ship.guns = 1
 					break
 				case "Digit2":
-					console.log("guns 2")
+					console.log( "guns 2" )
 					this.ship.guns = 2
 					break
 				case "Digit3":
-					console.log("guns 3")
+					console.log( "guns 3" )
 					this.ship.guns = 3
 					break
 				case "Backquote":
@@ -180,13 +180,55 @@ export class PlayState extends BaseState {
 					this.game.showColliders = !this.game.showColliders
 					break
 				case "KeyW":
-					this.asteroids.spawnSingle({})
+					this.asteroids.spawnSingle( {} )
 					break
 				case "KeyQ":
-					this.galaxians.spawnSingle({ ship: this.ship })
+					this.galaxians.spawnSingle( { ship: this.ship } )
 					break
 				case "Slash":
 					this.ship.boostShields()
+					break
+				case "Backslash":
+					// Set shields to 0 for testing
+					this.ship.shield.strength = 0
+					this.ship.shield.updateCollider()
+					console.log( "Shields set to 0" )
+					break
+				case "KeyN":
+					// Skip to next wave (kill all enemies)
+					this.asteroids.asteroids = []
+					this.galaxians.galaxians = []
+					this.defenders.defenders = []
+					this.mothers.mothers = []
+					this.pods.pods = []
+					this.swarmers.swarmers = []
+					this.mines.mines = []
+					console.log( "Skipping to next wave" )
+					break
+				case "KeyL":
+					// Add a life
+					this.lives++
+					this.game.lives++
+					console.log( `Lives: ${this.lives}` )
+					break
+				case "KeyK":
+					// Add 1 saved spaceman
+					this.spacemen.saved++
+					console.log( `Saved spacemen: ${this.spacemen.saved}` )
+					break
+				case "KeyI":
+					// Toggle invincibility
+					this.ship.invincible = !this.ship.invincible
+					console.log( `Invincibility: ${this.ship.invincible ? 'ON' : 'OFF'}` )
+					break
+				case "KeyT":
+					// Test wave transition with current state
+					this.game.stateManager.transition( 'waveTransition', {
+						wave: this.wave,
+						lives: this.lives,
+						score: this.game.score,
+						survivingSpacemen: this.spacemen.saved
+					} )
 					break
 				case "Enter":
 					this.ship.fireSmartBomb()
@@ -194,10 +236,10 @@ export class PlayState extends BaseState {
 			}
 		}
 
-		const keyupHandler = (event) => {
-			if (event.defaultPrevented) return
+		const keyupHandler = ( event ) => {
+			if ( event.defaultPrevented ) return
 
-			switch (event.code) {
+			switch ( event.code ) {
 				case "ArrowDown":
 					this.ship.break = false
 				case "ArrowUp":
@@ -215,30 +257,30 @@ export class PlayState extends BaseState {
 			}
 		}
 
-		this.addEventListener(window, 'keydown', keydownHandler, true)
-		this.addEventListener(window, 'keyup', keyupHandler, true)
+		this.addEventListener( window, 'keydown', keydownHandler, true )
+		this.addEventListener( window, 'keyup', keyupHandler, true )
 	}
 
-	update(dt) {
+	update ( dt ) {
 		// Check for ship death and start death sequence
-		if (this.ship.dead && !this.deathSequenceActive && !this.deathSequenceComplete) {
+		if ( this.ship.dead && !this.deathSequenceActive && !this.deathSequenceComplete ) {
 			this.deathSequenceActive = true
 			this.startDeathSequence()
 			// Don't return - let entities continue updating
 		}
 
 		// If death sequence is complete, handle respawn or game over
-		if (this.deathSequenceComplete) {
+		if ( this.deathSequenceComplete ) {
 			this.lives--
 			this.game.lives = this.lives  // Sync to game object for HUD
-			if (this.lives <= 0) {
+			if ( this.lives <= 0 ) {
 				// Game over - clean up ship sounds
-				if (this.ship && this.ship.cleanup) {
+				if ( this.ship && this.ship.cleanup ) {
 					this.ship.cleanup()
 				}
-				this.game.stateManager.transition('gameOver', {
+				this.game.stateManager.transition( 'gameOver', {
 					score: this.game.score  // Use game.score, not ship.score
-				})
+				} )
 				return
 			} else {
 				// Respawn - keep all entities, just reset ship with shield
@@ -250,17 +292,18 @@ export class PlayState extends BaseState {
 		}
 
 		// Check for wave completion
-		if (this.isWaveComplete()) {
-			this.game.stateManager.transition('waveTransition', {
+		if ( this.isWaveComplete() ) {
+			this.game.stateManager.transition( 'waveTransition', {
 				wave: this.wave,
 				lives: this.lives,
-				score: this.game.score  // Use game.score
-			})
+				score: this.game.score,  // Use game.score
+				survivingSpacemen: this.spacemen.saved
+			} )
 			return
 		}
 
 		// Collision detection
-		this.ship.collideWeaponsWithAll([
+		this.ship.collideWeaponsWithAll( [
 			this.asteroids.asteroids,
 			this.galaxians.galaxians,
 			this.defenders.defenders,
@@ -270,9 +313,9 @@ export class PlayState extends BaseState {
 			this.mushrooms.mushrooms,
 			this.mines.mines,
 			this.spacemen.spacemen
-		])
+		] )
 
-		this.ship.crashIntoAll([
+		this.ship.crashIntoAll( [
 			this.asteroids.asteroids,
 			this.galaxians.galaxians,
 			this.defenders.defenders,
@@ -286,33 +329,33 @@ export class PlayState extends BaseState {
 			this.swarmers.bombs,
 			this.mothers.bombs,
 			this.snakes.all()
-		])
+		] )
 
-		this.ship.collect(this.powerups.powerups)
-		this.ship.collect(this.spacemen.spacemen)
+		this.ship.collect( this.powerups.powerups )
+		this.ship.collect( this.spacemen.spacemen )
 
 		// Update all entities
-		this.powerups.update(dt)
-		this.game.stars.update(dt)
-		this.asteroids.update(dt)
-		this.mines.update(dt)
-		this.spacemen.update(dt)
-		this.mothers.update(dt)
-		this.pods.update(dt)
-		this.swarmers.update(dt)
-		this.mushrooms.update(dt)
-		this.defenders.update(dt)
-		this.galaxians.update(dt)
-		this.snakes.update(dt)
-		this.ship.update(dt)
-		this.game.particles.update(dt)
-		this.floaters.update(dt)
+		this.powerups.update( dt )
+		this.game.stars.update( dt )
+		this.asteroids.update( dt )
+		this.mines.update( dt )
+		this.spacemen.update( dt )
+		this.mothers.update( dt )
+		this.pods.update( dt )
+		this.swarmers.update( dt )
+		this.mushrooms.update( dt )
+		this.defenders.update( dt )
+		this.galaxians.update( dt )
+		this.snakes.update( dt )
+		this.ship.update( dt )
+		this.game.particles.update( dt )
+		this.floaters.update( dt )
 
-		this.hud.update(dt)
+		this.hud.update( dt )
 	}
 
-	draw() {
-		drawBackground(this.game.ctx, this.game.canvas)
+	draw () {
+		drawBackground( this.game.ctx, this.game.canvas )
 
 		// Draw all entities
 		this.game.stars.draw()
@@ -334,38 +377,38 @@ export class PlayState extends BaseState {
 		this.hud.draw()
 	}
 
-	async startDeathSequence() {
+	async startDeathSequence () {
 		// Wait for audio context to be ready before playing sounds
-		if (this.game.audioManager) {
+		if ( this.game.audioManager ) {
 			try {
 				await this.game.audioManager.forceResume()
-				console.log('Audio context ready for death sequence')
-			} catch (e) {
-				console.error('Failed to resume audio:', e)
+				console.log( 'Audio context ready for death sequence' )
+			} catch ( e ) {
+				console.error( 'Failed to resume audio:', e )
 			}
 		}
 
 		// Get sounds (lazily initialized)
 		const getSounds = () => {
-			if (typeof Howl === 'undefined') {
-				console.warn('Howl is not defined - sounds disabled')
+			if ( typeof Howl === 'undefined' ) {
+				console.warn( 'Howl is not defined - sounds disabled' )
 				return null
 			}
 
 			// Check audio context state
-			if (typeof Howler !== 'undefined' && Howler.ctx) {
-				console.log('AudioContext state:', Howler.ctx.state)
+			if ( typeof Howler !== 'undefined' && Howler.ctx ) {
+				console.log( 'AudioContext state:', Howler.ctx.state )
 			}
 
 			try {
 				return {
-					huge: new Howl({ src: ['/sounds/huge-explosion.mp3'], volume: 0.33 }),
-					epic: new Howl({ src: ['/sounds/epic.mp3'], volume: 0.33 }),
-					impact: new Howl({ src: ['/sounds/impact.mp3'], volume: 0.33 }),
-					gameOver: new Howl({ src: ['/sounds/game-over.mp3'], volume: 1.0 })
+					huge: new Howl( { src: [ '/sounds/huge-explosion.mp3' ], volume: 0.33 } ),
+					epic: new Howl( { src: [ '/sounds/epic.mp3' ], volume: 0.33 } ),
+					impact: new Howl( { src: [ '/sounds/impact.mp3' ], volume: 0.33 } ),
+					gameOver: new Howl( { src: [ '/sounds/game-over.mp3' ], volume: 1.0 } )
 				}
-			} catch (e) {
-				console.error('Error creating sounds:', e)
+			} catch ( e ) {
+				console.error( 'Error creating sounds:', e )
 				return null
 			}
 		}
@@ -373,21 +416,24 @@ export class PlayState extends BaseState {
 		const sounds = getSounds()
 		const canvas = this.game.canvas
 		const isGameOver = this.lives - 1 <= 0
-
-		console.log('Death sequence starting, sounds available:', !!sounds)
+		if ( isGameOver ) { // we won't make it back to do this // this should be done earlier
+			this.lives--
+			this.game.lives = this.lives  // Sync to game object for HUD
+		}
+		console.log( 'Death sequence starting, sounds available:', !!sounds )
 
 		// Play initial sounds
-		if (sounds) {
+		if ( sounds ) {
 			sounds.huge.play()
 			sounds.epic.play()
 		}
-		canvas.classList.add("game-over-shake")
+		canvas.classList.add( "game-over-shake" )
 
 		// Create explosion effect at ship position
 		const explosion = () => {
-			if (sounds) sounds.impact.play()
-			for (let i = 100; i > 4; i = i / 2) {
-				this.game.particles.spawnCircle({
+			if ( sounds ) sounds.impact.play()
+			for ( let i = 100; i > 4; i = i / 2 ) {
+				this.game.particles.spawnCircle( {
 					points: i,
 					cx: this.ship.x + this.ship.width / 2,
 					cy: this.ship.y + this.ship.height / 2,
@@ -396,51 +442,51 @@ export class PlayState extends BaseState {
 					speed: i / 2,
 					lifespan: 50,
 					style: "glitter"
-				})
+				} )
 			}
 		}
 
 		// Run explosion sequence (matching original timing)
 		explosion()
-		setTimeout(() => {
+		setTimeout( () => {
 			explosion()
-			setTimeout(() => {
+			setTimeout( () => {
 				explosion()
-				setTimeout(() => {
+				setTimeout( () => {
 					explosion()
-					setTimeout(() => {
+					setTimeout( () => {
 						explosion()
-						setTimeout(() => {
+						setTimeout( () => {
 							explosion()
-							if (isGameOver) {
-								setTimeout(() => {
+							if ( isGameOver ) {
+								setTimeout( () => {
 									explosion()
-									setTimeout(() => {
-										canvas.classList.remove("game-over-shake")
-										setTimeout(() => {
-											if (sounds) sounds.gameOver.play()
+									setTimeout( () => {
+										canvas.classList.remove( "game-over-shake" )
+										setTimeout( () => {
+											if ( sounds ) sounds.gameOver.play()
 											this.game.speed = 2
-											setTimeout(() => {
+											setTimeout( () => {
 												this.deathSequenceComplete = true
-											}, 2000)
-										}, 5300)
-									}, 500)
-								}, 500)
+											}, 2000 )
+										}, 5300 )
+									}, 500 )
+								}, 500 )
 							} else {
 								this.game.speed = 2
-								canvas.classList.remove("game-over-shake")
-								setTimeout(() => {
+								canvas.classList.remove( "game-over-shake" )
+								setTimeout( () => {
 									this.deathSequenceComplete = true
-								}, 1000)
+								}, 1000 )
 							}
-						}, 400)
-					}, 300)
-				}, 200)
-			}, 100)
-		}, 100)
+						}, 400 )
+					}, 300 )
+				}, 200 )
+			}, 100 )
+		}, 100 )
 	}
 
-	respawnShip() {
+	respawnShip () {
 		// Reset ship to center of screen
 		this.ship.x = this.game.canvas.width / 2 - this.ship.width / 2
 		this.ship.y = this.game.canvas.height / 2 - this.ship.height / 2
@@ -450,14 +496,14 @@ export class PlayState extends BaseState {
 		this.ship.dead = false
 
 		// Give full shield to compensate for immediate danger
-		if (this.ship.shield) {
+		if ( this.ship.shield ) {
 			this.ship.shield.strength = this.ship.shield.maxStrength || 100
 		}
 
-		console.log(`Respawning with ${this.lives} lives remaining, shield at full strength`)
+		console.log( `Respawning with ${this.lives} lives remaining, shield at full strength` )
 	}
 
-	isWaveComplete() {
+	isWaveComplete () {
 		// Wave is complete when all primary enemies are defeated
 		// Primary enemies: asteroids, galaxians, defenders, mothers, pods, swarmers, mines
 		return (
@@ -471,11 +517,11 @@ export class PlayState extends BaseState {
 		)
 	}
 
-	exit() {
-		console.log('PlayState exiting')
+	exit () {
+		console.log( 'PlayState exiting' )
 
 		// Clean up ship sounds (fade to 0, don't stop completely)
-		if (this.ship && this.ship.cleanup) {
+		if ( this.ship && this.ship.cleanup ) {
 			this.ship.cleanup()
 		}
 

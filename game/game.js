@@ -87,9 +87,12 @@ let lastTime = 0
 
 // Main game loop
 const gameLoop = (timestamp) => {
-	// Calculate delta time
-	const dt = timestamp - lastTime
+	// Calculate delta time, cap to prevent huge jumps on first frame or after tab switch
+	let dt = timestamp - lastTime
 	lastTime = timestamp
+	
+	// Cap dt to ~3 frames worth (50ms) to prevent timing issues
+	if (dt > 50) dt = 50
 
 	// Update and draw current state
 	game.stateManager.update(dt)

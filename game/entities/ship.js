@@ -347,6 +347,7 @@ export const spaceship = () => {
 		vx: 0,
 		vy: 0,
 		dead: false,
+		invincible: false,
 		collider: [
 			{ type: "circle", ox: 0 + 49.5 / 2, oy: 16 + 49.5 / 2, r: 49.5 / 2, colliding: false },
 			{ type: "circle", ox: 16.5 + 16.5 / 2, oy: 5 + 16.5 / 2, r: 16.5 / 2, colliding: false },
@@ -626,7 +627,7 @@ export const spaceship = () => {
 		},
 		crashInto ( entities ) {
 			// return // <-- uncomment to disable crashing for debug
-			if ( this.dead || game.over ) return
+			if ( this.dead || game.over || this.invincible ) return
 			let collider = this
 			if ( this.shield.strength > 0 )
 				collider = this.shield

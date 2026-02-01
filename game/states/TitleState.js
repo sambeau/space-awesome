@@ -5,37 +5,37 @@ import { Logo } from '../entities/logo.js'
 import { drawBackground } from '../rendering.js'
 
 export class TitleState extends BaseState {
-	constructor(game) {
-		super(game)
+	constructor( game ) {
+		super( game )
 		this.logo = null
 	}
 
-	enter(data = {}) {
-		super.enter(data)
+	enter ( data = {} ) {
+		super.enter( data )
 
 		// Initialize logo (stars are shared via game.stars)
 		this.logo = Logo()
 		this.logo.spawn()
 
 		// Listen for Space key to start game
-		const spaceHandler = (event) => {
-			if (event.defaultPrevented) return
+		const spaceHandler = ( event ) => {
+			if ( event.defaultPrevented ) return
 
-			if (event.code === "Space") {
-				this.game.stateManager.transition('play', { wave: 1, lives: 3, score: 0 })
+			if ( event.code === "Space" ) {
+				this.game.stateManager.transition( 'play', { wave: 1, lives: 3, score: 0 } )
 			}
 		}
 
-		this.addEventListener(window, 'keydown', spaceHandler, true)
+		this.addEventListener( window, 'keydown', spaceHandler, true )
 	}
 
-	update(dt) {
-		this.game.stars.update(dt)
-		this.logo.update(dt)
+	update ( dt ) {
+		this.game.stars.update( dt )
+		this.logo.update( dt )
 	}
 
-	draw() {
-		drawBackground(this.game.ctx, this.game.canvas)
+	draw () {
+		drawBackground( this.game.ctx, this.game.canvas )
 		this.game.stars.draw()
 		this.logo.draw()
 
@@ -46,14 +46,14 @@ export class TitleState extends BaseState {
 
 		ctx.save()
 		ctx.fillStyle = '#FFFF00'
-		ctx.font = '32px Robotron'
+		ctx.font = '24px Robotron'
 		ctx.textAlign = 'center'
 		ctx.textBaseline = 'bottom'
-		ctx.fillText(`HIGH SCORE: ${highScore}`, canvas.width / 2, canvas.height - 40)
+		ctx.fillText( `HIGH SCORE: ${highScore}`, canvas.width / 2, canvas.height - 30 )
 		ctx.restore()
 	}
 
-	exit() {
+	exit () {
 		super.exit()
 		// Cleanup happens in BaseState.exit()
 	}

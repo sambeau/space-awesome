@@ -3,9 +3,17 @@
 import { BaseState } from './BaseState.js'
 import { drawBackground } from '../rendering.js'
 
+// Load spaceman image for bonus animation
+const spacemanImage = new Image()
+spacemanImage.src = 'images/spaceman-1.png'
+
+// Sound for spaceman bonus reveal
+const bonusSound = new Howl( { src: [ '/sounds/save.mp3' ] } )
+bonusSound.volume( 0.25 )
+
 export class WaveTransitionState extends BaseState {
-	constructor(game) {
-		super(game)
+	constructor( game ) {
+		super( game )
 		this.wave = 1
 		this.lives = 3
 		this.score = 0
@@ -13,72 +21,120 @@ export class WaveTransitionState extends BaseState {
 		this.alpha = 0
 		this.fadeIn = true
 		this.displayTime = 0
-		this.totalDisplayTime = 3000 // 3 seconds
+		this.totalDisplayTime = 3000 // Will be extended based on spacemen count
+
+		// Spaceman bonus animation
+		this.survivingSpacemen = 0
+		this.spacemenRevealed = 0
+		this.revealTimer = 0
+		this.revealInterval = 400 // ms between each spaceman reveal
+		this.bonusPerSpaceman = 0
+		this.displayedBonus = 0
+		this.revealPhase = false
+		this.revealComplete = false
 	}
 
-	enter(data = {}) {
-		super.enter(data)
+	enter ( data = {} ) {
+		super.enter( data )
 
 		this.wave = data.wave || 1
 		this.lives = data.lives || 3
 		this.score = data.score || 0
+		this.survivingSpacemen = data.survivingSpacemen || 0
 
-		// Calculate wave bonus
-		this.bonus = this.wave * 1000
-		this.score += this.bonus
+		// Calculate bonus per spaceman using Defender-style scoring
+		// Waves 1-5: 500 points x wave number per surviving spaceman
+		// Wave 6+: 2500 points per surviving spaceman
+		if ( this.wave <= 5 ) {
+			this.bonusPerSpaceman = 500 * this.wave
+		} else {
+			this.bonusPerSpaceman = 2500
+		}
+
+		// Total bonus
+		this.bonus = this.survivingSpacemen * this.bonusPerSpaceman
+
+		// Reset animation state
+		this.spacemenRevealed = 0
+		this.revealTimer = 0
+		this.displayedBonus = 0
+		this.revealPhase = false
+		this.revealComplete = this.survivingSpacemen === 0
 
 		// Reset fade animation
 		this.alpha = 0
 		this.fadeIn = true
 		this.displayTime = 0
 
-		console.log(`Wave ${this.wave} complete! Bonus: ${this.bonus}`)
+		// Extend display time based on spacemen count (at least 3 seconds, plus time for reveals)
+		this.totalDisplayTime = Math.max( 3000, 1500 + this.survivingSpacemen * this.revealInterval + 1500 )
+
+		console.log( `Wave ${this.wave} complete! Surviving spacemen: ${this.survivingSpacemen}, Bonus: ${this.bonus}` )
 	}
 
-	update(dt) {
+	update ( dt ) {
 		this.displayTime += dt
 
 		// Update stars
-		if (this.game.stars) {
-			this.game.stars.update(dt)
+		if ( this.game.stars ) {
+			this.game.stars.update( dt )
 		}
 
 		// Fade in for first 500ms
-		if (this.fadeIn) {
+		if ( this.fadeIn ) {
 			this.alpha += dt / 500
-			if (this.alpha >= 1.0) {
+			if ( this.alpha >= 1.0 ) {
 				this.alpha = 1.0
 				this.fadeIn = false
+				// Start reveal phase after fade in
+				this.revealPhase = true
+			}
+		}
+
+		// Spaceman reveal animation
+		if ( this.revealPhase && !this.revealComplete ) {
+			this.revealTimer += dt
+			if ( this.revealTimer >= this.revealInterval ) {
+				this.revealTimer = 0
+				if ( this.spacemenRevealed < this.survivingSpacemen ) {
+					this.spacemenRevealed++
+					this.displayedBonus += this.bonusPerSpaceman
+					bonusSound.play()
+				} else {
+					this.revealComplete = true
+					// Add bonus to score
+					this.score += this.bonus
+				}
 			}
 		}
 
 		// Fade out for last 500ms
-		if (this.displayTime >= this.totalDisplayTime - 500 && !this.fadeIn) {
+		if ( this.displayTime >= this.totalDisplayTime - 500 && !this.fadeIn ) {
 			this.alpha -= dt / 500
-			if (this.alpha <= 0) {
+			if ( this.alpha <= 0 ) {
 				this.alpha = 0
 			}
 		}
 
 		// Transition to next wave after display time
-		if (this.displayTime >= this.totalDisplayTime) {
+		if ( this.displayTime >= this.totalDisplayTime ) {
 			// Increase difficulty
-			const newSpeed = Math.min(this.game.speed + 0.5, 10)
+			const newSpeed = Math.min( this.game.speed + 0.5, 10 )
 			this.game.speed = newSpeed
 
-			this.game.stateManager.transition('play', {
+			this.game.stateManager.transition( 'play', {
 				wave: this.wave + 1,
 				lives: this.lives,
 				score: this.score
-			})
+			} )
 		}
 	}
 
-	draw() {
-		drawBackground(this.game.ctx, this.game.canvas)
+	draw () {
+		drawBackground( this.game.ctx, this.game.canvas )
 
 		// Draw stars
-		if (this.game.stars) {
+		if ( this.game.stars ) {
 			this.game.stars.draw()
 		}
 
@@ -90,25 +146,67 @@ export class WaveTransitionState extends BaseState {
 
 		// Draw "Wave X Complete" message
 		ctx.fillStyle = '#00FFFF'
-		ctx.font = 'bold 72px "Press Start 2P", monospace'
+		ctx.font = '72px Robotron'
 		ctx.textAlign = 'center'
 		ctx.textBaseline = 'middle'
 
 		const waveText = `WAVE ${this.wave}`
 		const completeText = 'COMPLETE!'
 
-		ctx.fillText(waveText, canvas.width / 2, canvas.height / 2 - 60)
-		ctx.fillText(completeText, canvas.width / 2, canvas.height / 2 + 20)
+		ctx.fillText( waveText, canvas.width / 2, canvas.height / 2 - 180 )
+		ctx.fillText( completeText, canvas.width / 2, canvas.height / 2 - 40 )
 
-		// Draw bonus
-		ctx.font = 'bold 36px "Press Start 2P", monospace'
-		ctx.fillStyle = '#FFFF00'
-		ctx.fillText(`BONUS: ${this.bonus}`, canvas.width / 2, canvas.height / 2 + 100)
+		// Draw spaceman bonus section
+		if ( this.survivingSpacemen > 0 ) {
+			// Draw revealed spacemen in a row
+			const spacemanSize = 46
+			const spacing = 56
+			const totalWidth = this.survivingSpacemen * spacing
+			const startX = canvas.width / 2 - totalWidth / 2 + spacing / 2
+
+			for ( let i = 0; i < this.spacemenRevealed; i++ ) {
+				const x = startX + i * spacing - spacemanSize / 2
+				const y = canvas.height / 2 + 50
+
+				// Draw spaceman with a little bounce animation on reveal
+				const isNew = ( i === this.spacemenRevealed - 1 ) && this.revealTimer < 100
+				const scale = isNew ? 1.3 : 1.0
+				const size = spacemanSize * scale
+				const offset = ( size - spacemanSize ) / 2
+
+				ctx.drawImage( spacemanImage, x - offset, y - offset, size, size )
+			}
+
+			// Draw bonus text
+			ctx.font = '24px Robotron'
+			ctx.fillStyle = '#FFFF00'
+
+			// Show points per spaceman
+			const pointsText = this.wave <= 5
+				? `${500} x ${this.wave} = ${this.bonusPerSpaceman} PTS EACH`
+				: `${this.bonusPerSpaceman} PTS EACH`
+			ctx.fillText( pointsText, canvas.width / 2, canvas.height / 2 + 140 )
+
+			// Show running total
+			ctx.font = '36px Robotron'
+			ctx.fillStyle = '#00FF00'
+			ctx.fillText( `BONUS: ${this.displayedBonus}`, canvas.width / 2, canvas.height / 2 + 200 )
+		} else {
+			// No spacemen survived
+			ctx.font = '24px Robotron'
+
+			ctx.fillStyle = '#FF6666'
+			ctx.fillText( 'NO SPACEMEN SAVED', canvas.width / 2, canvas.height / 2 + 60 )
+
+			ctx.font = '36px Robotron'
+			ctx.fillStyle = '#FFFF00'
+			ctx.fillText( 'BONUS: 0', canvas.width / 2, canvas.height / 2 + 120 )
+		}
 
 		ctx.restore()
 	}
 
-	exit() {
+	exit () {
 		super.exit()
 	}
 }
