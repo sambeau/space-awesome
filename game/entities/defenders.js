@@ -1,8 +1,9 @@
-import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
 import { canvas, ctx, game } from "../game.js"
-import { explode } from "./explosions.js"
+import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
 import { makeN, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
+
 import { bomb } from "./bombs.js"
+import { explode } from "./explosions.js"
 
 const assets = loadImages( [ "images/defender1.png", "images/defender2.png", "images/defender3.png" ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )

@@ -1,5 +1,6 @@
-import { createEntity, loadImages, loadSound } from "./Entity.js"
 import { canvas, ctx, game } from "../game.js"
+import { createEntity, loadImages, loadSound } from "./Entity.js"
+
 import { explode } from "./explosions.js"
 import { stereoFromScreenX } from "/zap/zap.js"
 

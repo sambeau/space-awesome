@@ -1,7 +1,8 @@
-import { ctx, game } from "../game.js"
 import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
-import { explode } from "./explosions.js"
+import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
+
+import { explode } from "./explosions.js"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ASSET LOADING

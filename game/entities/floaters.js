@@ -1,6 +1,6 @@
+import { createEntity } from "./Entity.js"
 import { ctx } from "../game.js"
 import { picker } from "/zap/zap.js"
-import { createEntity } from "./Entity.js"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FLOATER ASSETS
