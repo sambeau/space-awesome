@@ -129,10 +129,12 @@ let once = false
 export const Score = () => {
 	return {
 		scoreString: "",
+		ticker: 0,
 		init () {
 		},
 		update ( dt ) {
 			this.scoreString = game.score.toString().padStart( 7, "0" )
+			this.ticker++
 		},
 		draw () {
 			ctx.font = "15px Robotron"
@@ -150,8 +152,18 @@ export const Score = () => {
 			ctx.fillText( this.scoreString, x, y + pixel * 2 )
 			ctx.fillStyle = "#961EFF"
 			ctx.fillText( this.scoreString, x, y + pixel )
+
+			const highScore = game.highScoreManager.getHighScore()
+
 			ctx.fillStyle = "#FF00FF"
 			ctx.fillText( this.scoreString, x, y )
+			if ( game.score > highScore ) {
+				ctx.save()
+				ctx.globalAlpha = Math.abs( Math.sin( this.ticker / 15 ) * 0.8 )
+				ctx.fillStyle = "#FFFFFF"
+				ctx.fillText( this.scoreString, x, y )
+				ctx.restore()
+			}
 		}
 	}
 }
@@ -161,6 +173,7 @@ export const Hud = () => {
 		score: null,
 		init ( ship, spacemen, ents ) {
 			this.score = Score()
+			this.score.init()
 
 			this.minimap = Minimap()
 			this.minimap.init( ship, ents )

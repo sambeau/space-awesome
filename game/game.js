@@ -52,12 +52,17 @@ export const GameStates = Object.freeze( {
 // Load fonts
 let font1 = new FontFace( "Robotron", "url(fonts/WilliamsRobotron.woff2)" )
 let font2 = new FontFace( "Defender", "url(fonts/Defender.woff2)" )
+let font3 = new FontFace( "StargateSmall", "url(fonts/stargate-small.otf.woff2)" )
 
+// there must be a better way to do this :-D
 font1.load().then( () => {
 	document.fonts.add( font1 )
 	font2.load().then( () => {
 		document.fonts.add( font2 )
-		game.fontLoaded = true
+		font3.load().then( () => {
+			document.fonts.add( font3 )
+			game.fontLoaded = true
+		} )
 	} )
 } )
 

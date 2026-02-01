@@ -46,6 +46,8 @@ export class PlayState extends BaseState {
 		// Death sequence tracking
 		this.deathSequenceActive = false
 		this.deathSequenceComplete = false
+
+		this.paused = false
 	}
 
 	enter ( data = {} ) {
@@ -185,6 +187,10 @@ export class PlayState extends BaseState {
 				case "KeyQ":
 					this.galaxians.spawnSingle( { ship: this.ship } )
 					break
+				case "KeyP":
+					// toggle pause state
+					this.paused = !this.paused
+					break
 				case "Slash":
 					this.ship.boostShields()
 					break
@@ -231,7 +237,11 @@ export class PlayState extends BaseState {
 					} )
 					break
 				case "Enter":
+				case "NumpadEnter":
 					this.ship.fireSmartBomb()
+					break
+				default:
+					console.log( "key pressed:", event.code )
 					break
 			}
 		}
@@ -262,6 +272,10 @@ export class PlayState extends BaseState {
 	}
 
 	update ( dt ) {
+
+		// paused?
+		if ( this.paused ) return
+
 		// Check for ship death and start death sequence
 		if ( this.ship.dead && !this.deathSequenceActive && !this.deathSequenceComplete ) {
 			this.deathSequenceActive = true

@@ -2,8 +2,21 @@
 
 ## Priority List
 
-- [ ] Saved spacemen bonus at end of wave
+- [ ] Williams’-style Baddy List Page
+- [ ] Williams’-style Help Page
+- [ ] Williams’-style Hi Score page
+- [ ] Game Over text animation
+- [ ] Enter for smart bombs
+- [ ] Ship states
+	- [ ] Toys remain until death
+	- [ ] Toys remain across waves
+- [ ] Waves
+	- [ ] Decide when wave ends
+	- [ ] Different flavoured waves
+	- [ ] Waves defined by maps
+- [ ] Walls
 - [ ] Limit FOV for all baddies
+- [x] Saved spacemen bonus at end of wave
 - [x] Moving eyes
 - [x] Mother Ship
 - [x] Floating scores
@@ -29,12 +42,12 @@
 	- [x] Munching mode
 	- [x] Angry mode
 	- [x] Mushrooms grow when hit
-- [x] Swarmers
-	- [x] Bombs 
 - [ ] Defenders 
 	- [ ] Grab people and run away with them
 	- [ ] Mutants
 	- [x] bombs
+- [x] Swarmers
+	- [x] Bombs 
 - [x] Name & Logo!
 	- [x] Space Awesome!
 - [x] Show score
@@ -71,19 +84,25 @@
 	- [x] Swarmers: 150
 
 ## Sounds
-- [x] Bombs
-- [x] Shots
 - [ ] Snake flee
 - [ ] Shield warnings
-- [x] Bullet noise
 - [ ] “Bonus”
+- [x] Bombs
+- [x] Shots
+- [x] Bullet noise
+
 
 ## Ideas to try
 - [ ] Lazers
+- [ ] Plasma Gates (two baddies with a deadly wall in between)
+- [ ] Side-shooters
+- [ ] Walls
+	- [ ] Wall Canons
 - [ ] Bombers
 	- [ ] Dropping stationary ‘x’ bombs
 - [ ] Teleporting baddies
 	- [ ] Teleporting in
+- [ ] Baddies that fight in formation
 - [ ] Swirling baddies
 	- [ ] sine wave
 	- [ ] following paths
