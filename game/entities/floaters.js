@@ -1,20 +1,24 @@
-import { ctx } from "../game.js";
-import { picker } from "/zap/zap.js";
+import { ctx } from "../game.js"
+import { picker } from "/zap/zap.js"
+import { createEntity } from "./Entity.js"
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FLOATER ASSETS
+// ═══════════════════════════════════════════════════════════════════════════
 
 let numImagesLoaded = 0
 const images = {}
-const floaters = ['250', '500', '1000', '1500', '2000', '1up', 'bomb']
-const floaterTypes = [1, 2, 3]
-// const allScoresLoadedCount = floaters.length * powerupsAnimations.length
+const floaterNames = [ '250', '500', '1000', '1500', '2000', '1up', 'bomb' ]
+const floaterTypes = [ 1, 2, 3 ]
 
-floaters.forEach((s) => {
-	images[s] = []
-	floaterTypes.forEach((i) => {
-		images[s][i - 1] = new Image()
-		images[s][i - 1].onload = () => { numImagesLoaded++ }
-		images[s][i - 1].src = `images/floater-${s}-${i}.png`
-	})
-})
+floaterNames.forEach( ( s ) => {
+	images[ s ] = []
+	floaterTypes.forEach( ( i ) => {
+		images[ s ][ i - 1 ] = new Image()
+		images[ s ][ i - 1 ].onload = () => { numImagesLoaded++ }
+		images[ s ][ i - 1 ].src = `images/floater-${s}-${i}.png`
+	} )
+} )
 
 const sizes = {
 	250: { width: 175 / 2, height: 80 / 2 },
@@ -25,86 +29,96 @@ const sizes = {
 	'1up': { width: 175 / 2, height: 80 / 2 },
 	'bomb': { width: 160 / 2, height: 80 / 2 },
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FLOATER ENTITY
+// Score popup text that floats up and fades out
+// ═══════════════════════════════════════════════════════════════════════════
+
 const floater = () => {
 	return {
-		name: "floater",
+		...createEntity( { name: "floater" } ),
+
+		// Floater-specific properties
 		cx: 0,
 		cy: 0,
+		hw: 0,
+		hh: 0,
 		images: null,
 		image: null,
-		ticks: 0,
-		dead: false,
-		tick() {
-			this.ticks++
-			if (this.ticks === 600)
-				this.ticks = 0
-			return this.tick
-		},
+		alpha: 1,
 
-		spawn({ cx, cy, type }) {
-			// console.log(cx, cy, type)
-			// console.log(sizes)
-			// console.log(images)
-			// console.log(kill)
+		spawn ( { cx, cy, type } ) {
 			this.cx = cx
 			this.cy = cy
-			this.width = sizes[type].width
-			this.height = sizes[type].height
-			this.hw = sizes[type].width / 2
-			this.hh = sizes[type].height / 2
-			this.images = picker(images[type])
+			this.width = sizes[ type ].width
+			this.height = sizes[ type ].height
+			this.hw = sizes[ type ].width / 2
+			this.hh = sizes[ type ].height / 2
+			this.images = picker( images[ type ] )
 			this.image = this.images.first()
 			this.alpha = 1
 		},
-		update() {
-			if (this.ticks > 90)
+
+		update () {
+			// Mark dead after 90 ticks
+			if ( this.ticks > 90 )
 				this.dead = true
 
-			if (this.ticks > 20)
+			// Start fading after 20 ticks
+			if ( this.ticks > 20 )
 				this.alpha *= 0.95
 
-
-			if (this.ticks % 10 == 0)
+			// Cycle through images every 10 ticks
+			if ( this.ticks % 10 === 0 )
 				this.image = this.images.next()
 
+			// Float upward
 			this.cy -= 5
 
 			this.tick()
 		},
-		draw() {
+
+		draw () {
 			const x = this.cx - this.hw
 			const y = this.cy - this.hh
 			ctx.save()
 			ctx.globalAlpha = this.alpha
-			ctx.drawImage(this.image, x, y, this.width, this.height)
+			ctx.drawImage( this.image, x, y, this.width, this.height )
 			ctx.restore()
-			// console.log(this)
-			// console.log(this.image, x, y, this.width, this.height)
-			// console.log(exit)
 		},
 	}
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// FLOATERS MANAGER
+// ═══════════════════════════════════════════════════════════════════════════
+
 export const Floaters = () => {
 	return {
 		floaters: [],
-		all() {
+
+		all () {
 			return this.floaters
 		},
-		count() {
+
+		count () {
 			return this.floaters.length
 		},
-		spawnSingle({ cx, cy, type }) {
+
+		spawnSingle ( { cx, cy, type } ) {
 			let a = floater()
-			this.floaters.push(a)
-			a.spawn({ cx: cx, cy: cy, type })
+			this.floaters.push( a )
+			a.spawn( { cx, cy, type } )
 		},
-		update(dt) {
-			this.floaters = this.floaters.filter((x) => { return x.dead !== true })
-			this.floaters.forEach((x) => x.update(dt))
+
+		update ( dt ) {
+			this.floaters = this.floaters.filter( ( x ) => x.dead !== true )
+			this.floaters.forEach( ( x ) => x.update( dt ) )
 		},
-		draw() {
-			this.floaters.forEach((x) => x.draw())
+
+		draw () {
+			this.floaters.forEach( ( x ) => x.draw() )
 		}
 	}
 }

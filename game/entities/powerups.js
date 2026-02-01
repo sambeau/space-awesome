@@ -1,141 +1,112 @@
 import { ctx, game } from "../game.js";
-import { picker, randInt, stereoFromScreenX } from "/zap/zap.js";
+import { randInt, stereoFromScreenX } from "/zap/zap.js";
+import { createEntity, getFrame, loadImages, loadSound, drawRotated } from "./Entity.js";
 
-let numImagesLoaded = 0
-const images = {}
-const powerupTypes = ['life', 'smart', 'bullet', 'shield']
-const powerupAnimations = [1, 2, 3]
-const allPowerupsLoadedCount = powerupTypes.length * powerupAnimations.length
+// Load images for each powerup type (3 frames each)
+const lifeImages = loadImages( [
+	"images/life-up-1.png",
+	"images/life-up-2.png",
+	"images/life-up-3.png"
+] )
 
+const smartImages = loadImages( [
+	"images/smart-up-1.png",
+	"images/smart-up-2.png",
+	"images/smart-up-3.png"
+] )
 
-var pickupSound = new Howl({ src: ['/sounds/pick-up.mp3'] });
-pickupSound.volume(0.33)
+const bulletImages = loadImages( [
+	"images/bullet-up-1.png",
+	"images/bullet-up-2.png",
+	"images/bullet-up-3.png"
+] )
 
-var levelUpSound = new Howl({ src: ['/sounds/level-up.mp3'] });
-levelUpSound.volume(0.33)
+const shieldImages = loadImages( [
+	"images/shield-up-1.png",
+	"images/shield-up-2.png",
+	"images/shield-up-3.png"
+] )
 
-powerupTypes.forEach((s) => {
-	images[s] = []
-	powerupAnimations.forEach((i) => {
-		images[s][i - 1] = new Image()
-		images[s][i - 1].onload = () => { numImagesLoaded++ }
-		images[s][i - 1].src = `images/${s}-up-${i}.png`
-	})
-})
+const imagesByType = {
+	life: lifeImages,
+	smart: smartImages,
+	bullet: bulletImages,
+	shield: shieldImages
+}
+
+// Load sounds at module level
+const pickupSound = loadSound( "/sounds/pick-up.mp3", 0.33 )
+const levelUpSound = loadSound( "/sounds/level-up.mp3", 0.33 )
 
 const powerup = () => {
 	return {
-		name: "powerup",
-		color: "random",
+		...createEntity( {
+			name: "powerup",
+			width: 50,
+			height: 50,
+			collider: { type: "circle", ox: 50 / 2, oy: 50 / 2, r: 50 / 2, colliding: false }
+		} ),
+
 		type: 'bullet',
-		images: null,
-		image: null,
-		x: 0,
-		y: 0,
+		imageSet: null,
 		vx: Math.random() - 0.5,
 		vy: Math.random() * 3,
-		width: 50,
-		height: 50,
-		collider: { type: "circle", ox: 50 / 2, oy: 50 / 2, r: 50 / 2, colliding: false },
 		animationSpeed: 3,
 		rotation: 10,
-		ticker: 0,
-		ticks: 0, // amalgamate ^V
-		tick() {
-			this.ticker++
-			if (this.ticker == this.animationSpeed) {
-				this.ticker = 0
-				this.animate()
-			}
-			this.ticks++
-			if (this.ticks === 1000)
-				this.ticks = 0
-			return this.tick
-		},
-		outOfBoundsV() {
-			if (this.y > canvas.height + this.height) return true
-			return false;
-		},
-		outOfBoundsL() {
-			if (this.x + this.width < 0) return true
-			return false;
-		},
-		outOfBoundsR() {
-			if (this.x > canvas.width) return true
-			return false;
-		},
-		spawn({ type, x, y, vx, vy }) {
+
+		spawn ( { type, x, y, vx, vy } ) {
 			this.type = type
-			this.images = picker(images[type])
-			this.image = this.images.first()
+			this.imageSet = imagesByType[ type ]
 
-			if (x) this.x = x
-			else
-				this.x = randInt(canvas.width)
+			if ( x ) this.x = x
+			else this.x = randInt( canvas.width )
 
-			if (y) this.y = y
-			else
-				this.y = 0 - randInt(2 * canvas.height) - canvas.height * 2
+			if ( y ) this.y = y
+			else this.y = 0 - randInt( 2 * canvas.height ) - canvas.height * 2
 
-			if (vx) this.vx = vx
-			if (vy) this.vy = vy
+			if ( vx ) this.vx = vx
+			if ( vy ) this.vy = vy
 
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
+			this.syncCollider()
 		},
-		update(/*dt*/) {
+
+		update ( /*dt*/ ) {
 			this.tick()
-			this.y += this.vy + game.speed;
-			this.x += this.vx;
+			this.y += this.vy + game.speed
+			this.x += this.vx
 
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
+			this.syncCollider()
 
-			if (this.outOfBoundsV()) {
-				// this.x = randInt(canvas.width)
-				// this.y = 0 - randInt(canvas.height / 2)
-				this.y = 0 - canvas.height * 3//randInt(canvas.height)
+			if ( this.outOfBoundsV() ) {
+				this.y = 0 - canvas.height * 3
 				this.collider.colliding = false
 			}
-			if (this.outOfBoundsL())
+			if ( this.outOfBoundsL() )
 				this.x = canvas.width
-			if (this.outOfBoundsR())
+			if ( this.outOfBoundsR() )
 				this.x = 0 - this.width
 		},
-		draw() {
-			if (numImagesLoaded >= allPowerupsLoadedCount) {
-				const canvas = document.createElement("canvas")
-				canvas.width = this.width;
-				canvas.height = this.height;
-				const icon = canvas.getContext("2d");
 
-				icon.translate((this.width / 2), (this.height / 2))
-				icon.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
-				icon.translate(0 - (this.width / 2), 0 - (this.height / 2))
-
-				icon.drawImage(this.image, 0, 0, this.width, this.height)
-
-				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
+		draw () {
+			if ( this.imageSet && this.imageSet.loaded() ) {
+				const image = getFrame( this.imageSet.images, this.ticks, this.animationSpeed )
+				drawRotated( ctx, this, image )
 			}
 		},
-		animate() {
-			if (this.animate.method == 'any')
-				this.image = this.images.any()
-			else
-				this.image = this.images.next()
+
+		onHit () {
+			this.dead = true
 		},
-		onHit() {
-			this.dead = true;
-		},
-		onCollect(ship) {
+
+		onCollect ( ship ) {
 			pickupSound.play()
-			pickupSound.stereo(stereoFromScreenX(screen, this.x))
+			pickupSound.stereo( stereoFromScreenX( screen, this.x ) )
 			levelUpSound.play()
-			levelUpSound.stereo(stereoFromScreenX(screen, this.x))
+			levelUpSound.stereo( stereoFromScreenX( screen, this.x ) )
 
 			this.dead = true
-			ship.onCollect(this.type)
-			game.particles.spawnCircle({
+			ship.onCollect( this.type )
+			game.particles.spawnCircle( {
 				points: 64,
 				cx: ship.x + ship.width / 2,
 				cy: ship.y + ship.width / 2,
@@ -144,8 +115,8 @@ const powerup = () => {
 				speed: 30,
 				lifespan: 50,
 				style: "random",
-			})
-			game.particles.spawnCircle({
+			} )
+			game.particles.spawnCircle( {
 				points: 32,
 				cx: ship.x + ship.width / 2,
 				cy: ship.y + ship.width / 2,
@@ -154,10 +125,10 @@ const powerup = () => {
 				speed: 20,
 				lifespan: 50,
 				style: "random",
-			})
+			} )
 		},
 	}
-};
+}
 
 
 export const Powerups = () => {

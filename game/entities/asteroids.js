@@ -1,31 +1,38 @@
-import { ctx, game } from "../game.js";
-import { explode } from "./explosions.js";
-import { distanceBetweenPoints, randInt, stereoFromScreenX } from "/zap/zap.js";
+import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
+import { ctx, game } from "../game.js"
+import { explode } from "./explosions.js"
+import { distanceBetweenPoints, randInt, stereoFromScreenX } from "/zap/zap.js"
 
-let numImagesLoaded = 0
-const image = {}
-const asteroidSizes = ['S', 'M', 'L']
-const asteroidColors = [0, 1, 2]
-const allAsteroidsLoadedCount = asteroidSizes.length * asteroidColors.length
+// ═══════════════════════════════════════════════════════════════════════════
+// ASSETS
+// ═══════════════════════════════════════════════════════════════════════════
 
-var killSound = new Howl({ src: ['/sounds/kill.mp3'] });
-killSound.volume(0.2)
+const assets = {
+	S: loadImages( [
+		"images/asteroid-S-1.png",
+		"images/asteroid-S-2.png",
+		"images/asteroid-S-3.png",
+	] ),
+	M: loadImages( [
+		"images/asteroid-M-1.png",
+		"images/asteroid-M-2.png",
+		"images/asteroid-M-3.png",
+	] ),
+	L: loadImages( [
+		"images/asteroid-L-1.png",
+		"images/asteroid-L-2.png",
+		"images/asteroid-L-3.png",
+	] ),
+}
 
-var asteroidLSound = new Howl({ src: ['/sounds/asteroidL.mp3'] });
-var asteroidMSound = new Howl({ src: ['/sounds/asteroidM.mp3'] });
-var asteroidSSound = new Howl({ src: ['/sounds/asteroidS.mp3'] });
-asteroidLSound.volume(0.25)
-asteroidMSound.volume(0.25)
-asteroidSSound.volume(0.25)
+const killSound = loadSound( "/sounds/kill.mp3", 0.2 )
+const asteroidLSound = loadSound( "/sounds/asteroidL.mp3", 0.25 )
+const asteroidMSound = loadSound( "/sounds/asteroidM.mp3", 0.25 )
+const asteroidSSound = loadSound( "/sounds/asteroidS.mp3", 0.25 )
 
-asteroidSizes.forEach((s) => {
-	image[s] = []
-	asteroidColors.forEach((i) => {
-		image[s][i] = new Image()
-		image[s][i].onload = () => { numImagesLoaded++ }
-		image[s][i].src = `images/asteroid-${s}-${i + 1}.png`
-	})
-})
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
 
 const colliders = {
 	S: { type: "circle", ox: 26 / 2 + 20, oy: 26 / 2 + 20.5, r: 26 / 2, colliding: false },
@@ -39,254 +46,218 @@ const scores = {
 	L: 20,
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ASTEROID ENTITY
+// ═══════════════════════════════════════════════════════════════════════════
+
 const asteroid = () => {
 	return {
-		name: "asteroid",
+		...createEntity( {
+			name: "asteroid",
+			width: 64,
+			height: 64,
+			score: 100,
+			collider: null, // Set dynamically in spawn() based on size
+		} ),
+
+		// Custom properties
 		color: "#00ffff",
 		asteroids: null,
-		score: 100,
-		x: 0,
-		y: 0,
 		vx: Math.random() - 0.25,
 		vy: Math.random() * 2,
 		rotation: Math.random() * 10,
-		width: 64,
-		height: 64,
-		size: 'L',
-		collider: null,
-		ticks: 0,
+		size: "L",
 		closestDistance: 0,
-		tick() {
-			this.ticks += 1
-			if (this.ticks === 1000)
-				this.ticks = 0
-			return this.tick
-		},
-		outOfBoundsB() {
-			if (this.y > canvas.height + this.height) return true
-			return false;
-		},
-		outOfBoundsL() {
-			if (this.x + this.width < 0) return true
-			return false;
-		},
-		outOfBoundsR() {
-			if (this.x > canvas.width) return true
-			return false;
-		},
-		spawn({ asteroids, size, x, y, vx, vy }) {
+
+		spawn ( { asteroids, size, x, y, vx, vy } ) {
 			this.asteroids = asteroids
 
-			if (size) this.size = size
-			this.collider = { ...colliders[this.size] }
-			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
+			if ( size ) this.size = size
+			this.score = scores[ this.size ]
+			this.collider = { ...colliders[ this.size ] }
+			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
 
-			if (x) this.x = x
-			else
-				this.x = randInt(canvas.width)
+			if ( x !== undefined ) this.x = x
+			else this.x = randInt( canvas.width )
 
-			if (y) this.y = y
-			else
-				this.y = 0 - randInt(canvas.height * 4)
+			if ( y !== undefined ) this.y = y
+			else this.y = 0 - randInt( canvas.height * 4 )
 
-			if (vx) this.vx = vx
-			if (vy) this.vy = vy
+			if ( vx !== undefined ) this.vx = vx
+			if ( vy !== undefined ) this.vy = vy
 
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
+			this.syncCollider()
 		},
-		update(/*dt*/) {
+
+		update ( /*dt*/ ) {
 			this.tick()
-			//flock
 			this.flock()
-			this.x += this.vx;
-			this.y += this.vy + game.speed;
 
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
-			if (this.outOfBoundsB()) {
-				this.y = 0 - canvas.height * 3
-				this.collider.colliding = false
-			}
-			if (this.outOfBoundsL())
-				this.x = canvas.width
-			if (this.outOfBoundsR())
-				this.x = 0 - this.width
+			this.x += this.vx
+			this.y += this.vy + game.speed
+
+			this.syncCollider()
+			this.wrapScreen()
 		},
-		draw() {
 
-			if (numImagesLoaded >= allAsteroidsLoadedCount) {
-				const canvas = document.createElement("canvas")
-				canvas.width = this.width;
-				canvas.height = this.height;
-				const context = canvas.getContext("2d");
+		draw () {
+			if ( !assets[ this.size ].loaded() ) return
 
-				context.translate((this.width / 2), (this.height / 2))
-				context.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
-				context.translate(0 - (this.width / 2), 0 - (this.height / 2))
-
-				let tick = Math.floor((this.ticks % 48) / 16)
-				context.drawImage(image[this.size][tick], 0, 0, this.width + 0, this.height + 0)
-
-				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
-
-				//debug
-				// ctx.save()
-				// ctx.font = "16px sans-serif";
-				// ctx.fillStyle = "#00ff00";
-				// ctx.fillText(`Nearest: ${Math.floor(this.closestDistance)}`, this.x, this.y - 10);
-				// ctx.restore()
-
-				if (this.outOfBoundsL())
-					ctx.fillRect(this.x, this.y, this.width, this.height)
-			}
+			const frame = getFrame( this.ticks, 3, 16 )
+			drawRotated( ctx, this, assets[ this.size ].images[ frame ] )
 		},
-		flock() {
-			let cohesion = 0.0015
-			// const visibleDistance = 100
 
-			// console.log(this)
+		flock () {
+			const cohesion = 0.0015
+
 			let closestAsteroid1 = null
 			let closestAsteroid2 = null
 			let closestDistance1 = Number.MAX_VALUE
 			let closestDistance2 = Number.MAX_VALUE
 
-			this.asteroids.asteroids.forEach((a) => {
-				if (a == this) // skip
-					return
-				const d = distanceBetweenPoints(this.x, this.y, a.x, a.y)
-				if (d == 0) return
-				// if (d < visibleDistance) {
-				if (closestDistance1 !== 0 && d < closestDistance1) {
+			this.asteroids.asteroids.forEach( ( a ) => {
+				if ( a === this ) return
+
+				const d = distanceBetweenPoints( this.x, this.y, a.x, a.y )
+				if ( d === 0 ) return
+
+				if ( closestDistance1 !== 0 && d < closestDistance1 ) {
 					closestDistance2 = closestDistance1
 					closestAsteroid2 = closestAsteroid1
 					closestDistance1 = d
 					closestAsteroid1 = a
-				}
-				else if (d < closestDistance2) {
+				} else if ( d < closestDistance2 ) {
 					closestDistance2 = d
 					closestAsteroid2 = a
 				}
-				// }
-				// move towards closest asteroid
-			})
-			if (closestAsteroid1 !== null && closestAsteroid2 !== null) {
-				this.vx += ((closestAsteroid1.x + closestAsteroid2.x) / 2 - this.x) * cohesion
-				this.vy += ((closestAsteroid1.y + closestAsteroid2.y) / 2 - this.y) * cohesion// * 0.5
+			} )
 
-				if (closestDistance1 < (this.width + closestAsteroid2.width) / 2) {
-					this.vx += (this.x - closestAsteroid1.x) * cohesion
-					this.vy += (this.y - closestAsteroid1.y) * cohesion// * 0.5
+			if ( closestAsteroid1 !== null && closestAsteroid2 !== null ) {
+				this.vx += ( ( closestAsteroid1.x + closestAsteroid2.x ) / 2 - this.x ) * cohesion
+				this.vy += ( ( closestAsteroid1.y + closestAsteroid2.y ) / 2 - this.y ) * cohesion
+
+				if ( closestDistance1 < ( this.width + closestAsteroid2.width ) / 2 ) {
+					this.vx += ( this.x - closestAsteroid1.x ) * cohesion
+					this.vy += ( this.y - closestAsteroid1.y ) * cohesion
 				}
 			}
-			// tamp them down
-			if (this.vx > 3) this.vx = 3
-			if (this.vx < -3) this.vx = -3
-			if (this.vy > 1) this.vy = 1
-			if (this.vy < -1) this.vy = -1
+
+			// Clamp velocities
+			if ( this.vx > 3 ) this.vx = 3
+			if ( this.vx < -3 ) this.vx = -3
+			if ( this.vy > 1 ) this.vy = 1
+			if ( this.vy < -1 ) this.vy = -1
 		},
-		onHit(smartbomb) {
-			if (!smartbomb) {
+
+		onHit ( smartbomb ) {
+			if ( !smartbomb ) {
 				killSound.play()
-				killSound.stereo(stereoFromScreenX(screen, this.x))
+				killSound.stereo( stereoFromScreenX( screen, this.x ) )
 			}
-			this.dead = true;
+
+			this.dead = true
 			game.score += this.score
+
 			let explosionSize = 0
-			switch (this.size) {
-				case 'L':
+
+			switch ( this.size ) {
+				case "L":
 					asteroidLSound.play()
-					asteroidLSound.stereo(stereoFromScreenX(screen, this.x))
-
+					asteroidLSound.stereo( stereoFromScreenX( screen, this.x ) )
 					explosionSize = 11
-					this.asteroids.spawnSingle({
-						size: 'M',
+
+					this.asteroids.spawnSingle( {
+						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
-					})
-					this.asteroids.spawnSingle({
-						size: 'M',
+					} )
+					this.asteroids.spawnSingle( {
+						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
-					})
-					this.asteroids.spawnSingle({
-						size: 'M',
+					} )
+					this.asteroids.spawnSingle( {
+						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
-					})
-					break;
-				case 'M':
-					explosionSize = 7
+					} )
+					break
+
+				case "M":
 					asteroidMSound.play()
-					asteroidMSound.stereo(stereoFromScreenX(screen, this.x))
+					asteroidMSound.stereo( stereoFromScreenX( screen, this.x ) )
+					explosionSize = 7
 
-					this.asteroids.spawnSingle({
-						size: 'S',
+					this.asteroids.spawnSingle( {
+						size: "S",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
-					})
-					this.asteroids.spawnSingle({
-						size: 'S',
+					} )
+					this.asteroids.spawnSingle( {
+						size: "S",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
-					})
-					// this.asteroids.spawnSingle({
-					// 	size: 'S',
-					// 	x: this.x,
-					// 	y: this.y,
-					// 	vx: Math.random(),
-					// 	vy: this.vy + 2,
-					// })
-					break;
-				case 'S':
-					asteroidSSound.play()
-					asteroidSSound.stereo(stereoFromScreenX(screen, this.x))
+					} )
+					break
 
+				case "S":
+					asteroidSSound.play()
+					asteroidSSound.stereo( stereoFromScreenX( screen, this.x ) )
 					explosionSize = 5
+					break
 			}
-			explode({
+
+			explode( {
 				x: this.x + this.width / 2,
 				y: this.y + this.height / 2,
-				styles: ["white", "white", "#FFFF00", "#00FFFF", "#FF00FF"],
+				styles: [ "white", "white", "#FFFF00", "#00FFFF", "#FF00FF" ],
 				size: explosionSize,
-			})
-		}
+			} )
+		},
 	}
-};
+}
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ASTEROIDS COLLECTION
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const asteroids = () => {
 	return {
 		asteroids: [],
-		all() {
+
+		all () {
 			return this.asteroids
 		},
-		spawnSingle({ size, x, y, vx, vy }) {
-			let a = asteroid()
-			this.asteroids.push(a)
-			a.spawn({ asteroids: this, size: size, x: x, y: y, vx: vx, vy: vy })
+
+		spawnSingle ( { size, x, y, vx, vy } ) {
+			const a = asteroid()
+			this.asteroids.push( a )
+			a.spawn( { asteroids: this, size, x, y, vx, vy } )
 		},
-		spawn() {
-			this.spawnSingle({ size: 'L' })
-			this.spawnSingle({ size: 'L' })
-			this.spawnSingle({ size: 'L' })
+
+		spawn () {
+			this.spawnSingle( { size: "L" } )
+			this.spawnSingle( { size: "L" } )
+			this.spawnSingle( { size: "L" } )
 		},
-		update(dt) {
-			this.asteroids = this.asteroids.filter((b) => { return b.dead !== true })
-			this.asteroids.forEach((x) => x.update(dt))
+
+		update ( dt ) {
+			this.asteroids = this.asteroids.filter( ( b ) => b.dead !== true )
+			this.asteroids.forEach( ( x ) => x.update( dt ) )
 		},
-		draw() {
-			this.asteroids.forEach((x) => x.draw())
-		}
+
+		draw () {
+			this.asteroids.forEach( ( x ) => x.draw() )
+		},
 	}
 }

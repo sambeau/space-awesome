@@ -1,11 +1,29 @@
-import { ctx, game } from "../game.js";
-import { explode } from "./explosions.js";
-import { picker, randInt, stereoFromScreenX } from "/zap/zap.js";
+import { ctx, game } from "../game.js"
+import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
+import { explode } from "./explosions.js"
+import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
 
-let numImagesLoaded = 0
-const mineStates = []
-const imageStates = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-const allMinesLoadedCount = imageStates.length
+// ═══════════════════════════════════════════════════════════════════════════
+// ASSET LOADING
+// ═══════════════════════════════════════════════════════════════════════════
+
+const mineAssets = loadImages( [
+	"images/mine-1.png",
+	"images/mine-2.png",
+	"images/mine-3.png",
+	"images/mine-4.png",
+	"images/mine-5.png",
+	"images/mine-6.png",
+	"images/mine-7.png",
+	"images/mine-8.png",
+	"images/mine-9.png",
+] )
+
+const bigBoomSound = loadSound( "/sounds/impact.mp3", 0.25 )
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLLIDERS - one per animation frame
+// ═══════════════════════════════════════════════════════════════════════════
 
 const colliders = [
 	{ type: "circle", ox: 87.0384944, oy: 88, r: 86.5384944, colliding: false },
@@ -19,209 +37,185 @@ const colliders = [
 	{ type: "circle", ox: 87.5, oy: 88, r: 42.3671638, colliding: false },
 ]
 
-imageStates.forEach((i) => {
-	mineStates[i - 1] = {}
-	mineStates[i - 1].image = new Image()
-	mineStates[i - 1].image.onload = () => { numImagesLoaded++ }
-	mineStates[i - 1].image.src = `images/mine-${i}.png`
-	mineStates[i - 1].collider = colliders[i - 1]
-})
-var bigBoomSound = new Howl({ src: ['/sounds/impact.mp3'] });
-bigBoomSound.volume(0.25)
+// Build mine states array combining images with colliders
+const mineStates = mineAssets.images.map( ( image, i ) => ( {
+	image,
+	collider: colliders[ i ]
+} ) )
 
-// const angryImage = new Image()
-// let angryImageLoaded = false
-// angryImage.src = "images/mine-angry.png"
-// angryImage.onload = () => { angryImageLoaded = true }
+// ═══════════════════════════════════════════════════════════════════════════
+// MINE ENTITY
+// ═══════════════════════════════════════════════════════════════════════════
 
 const mine = () => {
 	return {
+		...createEntity( {
+			name: "mine",
+			width: 175,
+			height: 176,
+			score: 1500,
+		} ),
+
+		// Mine-specific properties
 		ship: null,
-		images: null,
+		floaters: null,
 		image: null,
-		x: 0,
-		y: 0,
+		states: null,
 		vx: Math.random() - 0.5,
 		vy: Math.random() * 3,
-		width: 175,
-		height: 176,
-		collider: null,
 		animationSpeed: 3,
 		rotation: 10,
-		ticker: 0,
-		ticks: 0, // amalgamate ^V
-		hsec: 0,
 		sulking: false,
 		color: "black",
 		immuneToCrash: true,
-		score: 1500,
 
-		tick() {
-			this.ticker++
-			if (this.ticker == this.animationSpeed) {
-				this.ticker = 0
-				this.animate()
-			}
-			this.ticks++
-			if (this.ticks === 1000)
-				this.ticks = 0
-		},
-		outOfBoundsV() {
-			if (this.y > canvas.height + this.height) return true
-			return false;
-		},
-		outOfBoundsL() {
-			if (this.x + this.width < 0) return true
-			return false;
-		},
-		outOfBoundsR() {
-			if (this.x > canvas.width) return true
-			return false;
-		},
-		spawn({ floaters, ship, x, y, vx, vy }) {
+		spawn ( { floaters, ship, x, y, vx, vy } ) {
 			this.floaters = floaters
 			this.ship = ship
-			this.states = picker(mineStates, { start: 7, end: 7 })
-			this.image = (this.states.first()).image
-			this.collider = { ...(this.states.first()).collider }
-			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
+			this.states = picker( mineStates, { start: 7, end: 7 } )
+			this.image = ( this.states.first() ).image
+			this.collider = { ...( this.states.first() ).collider }
+			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
 
-			if (x) this.x = x
-			else
-				this.x = canvas.width - (randInt(canvas.width) * randInt(canvas.width) / 2)
+			if ( x ) this.x = x
+			else this.x = canvas.width - ( randInt( canvas.width ) * randInt( canvas.width ) / 2 )
 
-			if (y) this.y = y
-			else
-				this.y = 0 - randInt(canvas.height * 2) + canvas.height * 2
+			if ( y ) this.y = y
+			else this.y = 0 - randInt( canvas.height * 2 ) + canvas.height * 2
 
-			if (vx) this.vx = vx
-			if (vy) this.vy = vy
+			if ( vx ) this.vx = vx
+			if ( vy ) this.vy = vy
 
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
+			this.syncCollider()
 		},
-		update(/*dt*/) {
+
+		update ( /*dt*/ ) {
 			this.tick()
 
-			if (this.sulking) this.seekShip()
-			this.y += this.vy + game.speed;
-			this.x += this.vx;
-
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
-
-			this.collider.area = Math.round(Math.PI * this.collider.r * this.collider.r / game.massConstant)
-
-			if (this.outOfBoundsV()) {
-				// this.x = randInt(canvas.width)
-				this.y = 0 - canvas.height * 3//randInt(canvas.height * 2)
-				this.collider.colliding = false
+			// Animate on tick boundary
+			if ( getFrame( this.ticks, this.animationSpeed ) !== getFrame( this.ticks - 1, this.animationSpeed ) ) {
+				this.animate()
 			}
-			if (this.outOfBoundsL())
-				this.x = canvas.width
-			if (this.outOfBoundsR())
-				this.x = 0 - this.width
+
+			if ( this.sulking ) this.seekShip()
+
+			this.y += this.vy + game.speed
+			this.x += this.vx
+
+			this.syncCollider()
+			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
+
+			this.wrapScreen()
 		},
-		draw() {
-			if (numImagesLoaded >= allMinesLoadedCount) {
-				const canvas = document.createElement("canvas")
-				canvas.width = this.width;
-				canvas.height = this.height;
-				const icon = canvas.getContext("2d");
 
-				icon.translate((this.width / 2), (this.height / 2))
-				icon.rotate(((this.ticks / 1000) * this.rotation) * Math.PI * 2)
-				icon.translate(0 - (this.width / 2), 0 - (this.height / 2))
+		draw () {
+			if ( !mineAssets.loaded() ) return
 
-				icon.drawImage(this.image, 0, 0, this.width, this.height)
+			const offscreen = document.createElement( "canvas" )
+			offscreen.width = this.width
+			offscreen.height = this.height
+			const icon = offscreen.getContext( "2d" )
 
-				ctx.drawImage(canvas, this.x, this.y, this.width, this.height)
-			}
+			icon.translate( this.width / 2, this.height / 2 )
+			icon.rotate( ( ( this.ticks / 1000 ) * this.rotation ) * Math.PI * 2 )
+			icon.translate( -this.width / 2, -this.height / 2 )
+
+			icon.drawImage( this.image, 0, 0, this.width, this.height )
+
+			ctx.drawImage( offscreen, this.x, this.y, this.width, this.height )
 		},
-		animate() {
-			if (this.sulking) {
-				this.image = (this.states.bounceHold()).image
-				this.collider = { ...(this.states.bounceHold()).collider }
+
+		animate () {
+			if ( this.sulking ) {
+				this.image = ( this.states.bounceHold() ).image
+				this.collider = { ...( this.states.bounceHold() ).collider }
 			} else {
-				this.image = (this.states.first()).image
-				this.collider = { ...(this.states.first()).collider }
+				this.image = ( this.states.first() ).image
+				this.collider = { ...( this.states.first() ).collider }
 			}
 		},
-		seekShip() {
-			let cohesion = 0.0015
-			this.vx -= (this.x - this.ship.x) * cohesion
-			this.vy -= (this.y - this.ship.y) * cohesion// * 0.5
-			if (this.vx > 3) this.vx = 3
-			if (this.vx < -3) this.vx = -3
-			if (this.vy > 1) this.vy = 1
-			if (this.vy < -1) this.vy = -1
+
+		seekShip () {
+			const cohesion = 0.0015
+			this.vx -= ( this.x - this.ship.x ) * cohesion
+			this.vy -= ( this.y - this.ship.y ) * cohesion
+			if ( this.vx > 3 ) this.vx = 3
+			if ( this.vx < -3 ) this.vx = -3
+			if ( this.vy > 1 ) this.vy = 1
+			if ( this.vy < -1 ) this.vy = -1
 		},
-		onHit(smart) {
-			// this.hp--
-			this.sulking = true;
-			if (smart) {
+
+		onHit ( smart ) {
+			this.sulking = true
+			if ( smart ) {
 				bigBoomSound.play()
-				bigBoomSound.stereo(stereoFromScreenX(screen, this.x))
+				bigBoomSound.stereo( stereoFromScreenX( screen, this.x ) )
 
 				this.dead = true
 				game.score += this.score
-				this.floaters.spawnSingle({
+				this.floaters.spawnSingle( {
 					cx: this.x + this.width / 2,
 					cy: this.y + this.height / 2,
 					type: this.score
-				})
-				explode({
+				} )
+				explode( {
 					x: this.x + this.width / 2,
 					y: this.y + this.height / 2,
-					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					styles: [ "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF" ],
 					size: 25,
-				})
-				explode({
+				} )
+				explode( {
 					x: this.x + this.width / 2,
 					y: this.y + this.height / 2 - 40,
-					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					styles: [ "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF" ],
 					size: 10,
-				})
-				explode({
+				} )
+				explode( {
 					x: this.x + this.width / 2,
 					y: this.y + this.height / 2 + 40,
-					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					styles: [ "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF" ],
 					size: 10,
-				})
-				explode({
+				} )
+				explode( {
 					x: this.x + this.width / 2,
 					y: this.y + this.height / 2 - 40,
-					styles: ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF"],
+					styles: [ "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#FFFF00", "#FF00FF", "#00FFFF" ],
 					size: 10,
-				})
+				} )
 			}
 		}
 	}
-};
+}
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MINES MANAGER
+// ═══════════════════════════════════════════════════════════════════════════
 
 export const Mines = () => {
 	return {
 		mines: [],
-		all() {
+
+		all () {
 			return this.mines
 		},
-		spawnSingle({ floaters, ship, x, y, vx, vy }) {
-			let a = mine()
-			this.mines.push(a)
-			a.spawn({ floaters: floaters, ship: ship, x: x, y: y, vx: vx, vy: vy })
+
+		spawnSingle ( { floaters, ship, x, y, vx, vy } ) {
+			const a = mine()
+			this.mines.push( a )
+			a.spawn( { floaters, ship, x, y, vx, vy } )
 		},
-		spawn({ ship, floaters }) {
-			this.spawnSingle({ ship: ship, floaters: floaters })
-			// this.spawnSingle({ ship: ship })
-			// this.spawnSingle({ ship: ship })
+
+		spawn ( { ship, floaters } ) {
+			this.spawnSingle( { ship, floaters } )
 		},
-		update(dt) {
-			this.mines = this.mines.filter((x) => { return x.dead !== true })
-			this.mines.forEach((x) => x.update(dt))
+
+		update ( dt ) {
+			this.mines = this.mines.filter( x => x.dead !== true )
+			this.mines.forEach( x => x.update( dt ) )
 		},
-		draw() {
-			this.mines.forEach((x) => x.draw())
+
+		draw () {
+			this.mines.forEach( x => x.draw() )
 		}
 	}
 }
