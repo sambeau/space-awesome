@@ -1,6 +1,7 @@
+import { createEntity, drawRotated, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
-import { createEntity, loadImages, loadSound, drawRotated } from "./Entity.js"
+
 import { explode } from "./explosions.js"
 
 const assets = loadImages( [
@@ -18,7 +19,10 @@ const saveSound = loadSound( '/sounds/save.mp3', 0.25 )
 const crySound = loadSound( '/sounds/cry1.mp3', 0.05 )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
-const spaceman = () => {
+// Export for use in WaveTransitionState
+export { assets }
+
+export const spaceman = () => {
 	return {
 		...createEntity( {
 			name: "spaceman",

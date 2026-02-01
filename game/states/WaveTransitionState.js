@@ -2,10 +2,7 @@
 
 import { BaseState } from './BaseState.js'
 import { drawBackground } from '../rendering.js'
-
-// Load spaceman image for bonus animation
-const spacemanImage = new Image()
-spacemanImage.src = 'images/spaceman-1.png'
+import { spaceman } from '../entities/spacemen.js'
 
 // Sound for spaceman bonus reveal
 const bonusSound = new Howl( { src: [ '/sounds/save.mp3' ] } )
@@ -26,6 +23,7 @@ export class WaveTransitionState extends BaseState {
 		// Spaceman bonus animation
 		this.survivingSpacemen = 0
 		this.spacemenRevealed = 0
+		this.spacemenEntities = [] // Actual spaceman entities for animation
 		this.revealTimer = 0
 		this.revealInterval = 400 // ms between each spaceman reveal
 		this.bonusPerSpaceman = 0
@@ -56,6 +54,7 @@ export class WaveTransitionState extends BaseState {
 
 		// Reset animation state
 		this.spacemenRevealed = 0
+		this.spacemenEntities = []
 		this.revealTimer = 0
 		this.displayedBonus = 0
 		this.revealPhase = false
@@ -97,6 +96,21 @@ export class WaveTransitionState extends BaseState {
 			if ( this.revealTimer >= this.revealInterval ) {
 				this.revealTimer = 0
 				if ( this.spacemenRevealed < this.survivingSpacemen ) {
+					// Create a new spaceman entity at the reveal position
+					const canvas = this.game.canvas
+					const spacemanSize = 46
+					const spacing = 56
+					const totalWidth = this.survivingSpacemen * spacing
+					const startX = canvas.width / 2 - totalWidth / 2 + spacing / 2
+					const x = startX + this.spacemenRevealed * spacing - spacemanSize / 2
+					const y = canvas.height / 2 + 50
+
+					const s = spaceman()
+					s.spawn( { id: this.spacemenRevealed, x: x, y: y, vx: 0, vy: 0 } )
+					s.width = spacemanSize
+					s.height = spacemanSize
+					this.spacemenEntities.push( s )
+
 					this.spacemenRevealed++
 					this.displayedBonus += this.bonusPerSpaceman
 					bonusSound.play()
@@ -106,6 +120,11 @@ export class WaveTransitionState extends BaseState {
 					this.score += this.bonus
 				}
 			}
+		}
+
+		// Update all revealed spaceman entities (for animation)
+		for ( const s of this.spacemenEntities ) {
+			s.tick()
 		}
 
 		// Fade out for last 500ms
@@ -158,23 +177,9 @@ export class WaveTransitionState extends BaseState {
 
 		// Draw spaceman bonus section
 		if ( this.survivingSpacemen > 0 ) {
-			// Draw revealed spacemen in a row
-			const spacemanSize = 46
-			const spacing = 56
-			const totalWidth = this.survivingSpacemen * spacing
-			const startX = canvas.width / 2 - totalWidth / 2 + spacing / 2
-
-			for ( let i = 0; i < this.spacemenRevealed; i++ ) {
-				const x = startX + i * spacing - spacemanSize / 2
-				const y = canvas.height / 2 + 50
-
-				// Draw spaceman with a little bounce animation on reveal
-				const isNew = ( i === this.spacemenRevealed - 1 ) && this.revealTimer < 100
-				const scale = isNew ? 1.3 : 1.0
-				const size = spacemanSize * scale
-				const offset = ( size - spacemanSize ) / 2
-
-				ctx.drawImage( spacemanImage, x - offset, y - offset, size, size )
+			// Draw all revealed spaceman entities (they animate!)
+			for ( const s of this.spacemenEntities ) {
+				s.draw()
 			}
 
 			// Draw bonus text
