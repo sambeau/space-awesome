@@ -89,8 +89,8 @@ const powerup = () => {
 
 		draw () {
 			if ( this.imageSet && this.imageSet.loaded() ) {
-				const image = getFrame( this.imageSet.images, this.ticks, this.animationSpeed )
-				drawRotated( ctx, this, image )
+				const frame = getFrame( this.ticks, this.imageSet.images.length, this.animationSpeed )
+				drawRotated( ctx, this, this.imageSet.images[ frame ] )
 			}
 		},
 
