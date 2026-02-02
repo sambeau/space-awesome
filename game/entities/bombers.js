@@ -1,4 +1,4 @@
-import { COLLISION, LAYER } from "./Registry.js"
+import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { makeN, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"

@@ -1,7 +1,7 @@
 // Integration tests for entity registration
 // Verifies all entity factories are properly exported and have correct metadata
 
-import { COLLISION, LAYER, createRegistry } from '../game/entities/Registry.js'
+import { COLLISION, LAYER } from '../game/entities/constants.js'
 import { describe, expect, test } from './harness.js'
 
 // Import all entity factories
@@ -9,6 +9,7 @@ import { asteroid } from '../game/entities/asteroids.js'
 import { bomb } from '../game/entities/bombs.js'
 import { bomber } from '../game/entities/bombers.js'
 import { bullet } from '../game/entities/bullet.js'
+import { createRegistry } from '../game/entities/Registry.js'
 import { defender } from '../game/entities/defenders.js'
 import { fireBomber } from '../game/entities/fireBombers.js'
 import { galaxian } from '../game/entities/galaxians.js'

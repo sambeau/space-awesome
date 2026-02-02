@@ -1,6 +1,8 @@
-import { COLLISION, LAYER, UPDATE, createRegistry } from '../game/entities/Registry.js'
+import { COLLISION, LAYER, UPDATE } from '../game/entities/constants.js'
 // Tests for Registry.js - Entity registry system
 import { describe, expect, test } from './harness.js'
+
+import { createRegistry } from '../game/entities/Registry.js'
 
 describe( 'Registry constants', () => {
 	test( 'LAYER has expected values', () => {
@@ -93,7 +95,8 @@ describe( 'Registry.register', () => {
 	test( 'uses defaults for missing metadata', () => {
 		const reg = createRegistry()
 		reg.register( () => ( { name: 'basic' } ) )
-		expect( reg.meta.basic.drawLayer ).toBe( LAYER.BADDIES )
+		// Registry uses 0 as default for drawLayer/updateGroup (generic, not game-specific)
+		expect( reg.meta.basic.drawLayer ).toBe( 0 )
 		expect( reg.meta.basic.collisionGroups ).toEqual( [] )
 	} )
 } )

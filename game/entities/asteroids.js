@@ -1,4 +1,4 @@
-import { COLLISION, LAYER } from "./Registry.js"
+import { COLLISION, LAYER } from "./constants.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { distanceBetweenPoints, randInt, stereoFromScreenX } from "/zap/zap.js"

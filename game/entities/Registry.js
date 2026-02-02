@@ -1,48 +1,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // ENTITY REGISTRY
-// Centralized entity management with layer ordering and collision groups
+// A generic, reusable entity management system with layer ordering and
+// collision groups. Game-specific constants (LAYER, UPDATE, COLLISION) are
+// defined separately in constants.js
 // ═══════════════════════════════════════════════════════════════════════════
-
-// ───────────────────────────────────────────────────────────────────────────
-// LAYER CONSTANTS - Draw order (lower = drawn first = behind)
-// ───────────────────────────────────────────────────────────────────────────
-export const LAYER = {
-	BACKGROUND: 0,    // stars
-	DETRITUS: 1,      // mushrooms
-	BADDIES: 2,       // enemies, spacemen
-	POWERUPS: 3,
-	SHIP: 4,
-	PROJECTILES: 5,   // bullets, shots
-	PARTICLES: 6,     // explosions
-	FLOATERS: 7,      // floating score/text
-	UI: 8             // hud, minimap
-}
-
-// ───────────────────────────────────────────────────────────────────────────
-// UPDATE GROUP CONSTANTS - Update order (if distinct order needed)
-// ───────────────────────────────────────────────────────────────────────────
-export const UPDATE = {
-	POWERUPS: 0,
-	STARS: 1,
-	BADDIES: 2,
-	SHIP: 3,
-	PROJECTILES: 4,
-	PARTICLES: 5,
-	UI: 6
-}
-
-// ───────────────────────────────────────────────────────────────────────────
-// COLLISION GROUP CONSTANTS - What things can collide with
-// ───────────────────────────────────────────────────────────────────────────
-export const COLLISION = {
-	SHOOTABLE: 'shootable',     // ship weapons can hit
-	DEADLY: 'deadly',           // kills ship on contact
-	COLLECTABLE: 'collectable'  // ship can collect (powerups, spacemen)
-}
-
-// ───────────────────────────────────────────────────────────────────────────
-// REGISTRY FACTORY
-// ───────────────────────────────────────────────────────────────────────────
 
 /**
  * Create a new entity registry
@@ -80,8 +41,8 @@ export function createRegistry () {
 				this.factories[ name ] = factory
 				this.entities[ name ] = []
 				this.meta[ name ] = {
-					drawLayer: drawLayer ?? LAYER.BADDIES,
-					updateGroup: updateGroup ?? UPDATE.BADDIES,
+					drawLayer: drawLayer ?? 0,
+					updateGroup: updateGroup ?? 0,
 					collisionGroups: collisionGroups ?? [],
 					isPrimaryEnemy: isPrimaryEnemy ?? false
 				}

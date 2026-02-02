@@ -1,7 +1,6 @@
 // Main gameplay state - handles collision, updates, rendering, and transitions
 
 import { Bombers, bomber } from '../entities/bombers.js'
-import { COLLISION, createRegistry } from '../entities/Registry.js'
 import { defenders as Defenders, defender } from '../entities/defenders.js'
 import { FireBombers, fireBomber } from '../entities/fireBombers.js'
 import { galaxians as Galaxians, galaxian } from '../entities/galaxians.js'
@@ -14,6 +13,7 @@ import { Spacemen, spaceman } from '../entities/spacemen.js'
 import { Swarmers, swarmer } from '../entities/swarmers.js'
 
 import { BaseState } from './BaseState.js'
+import { COLLISION } from '../entities/constants.js'
 import { Floaters } from '../entities/floaters.js'
 import { Hud } from '../entities/hud.js'
 import { Particles } from '../entities/particles.js'
@@ -22,6 +22,7 @@ import { asteroid } from '../entities/asteroids.js'
 import { bomb } from '../entities/bombs.js'
 import { bombJack } from '../entities/bombJacks.js'
 import { bullet } from '../entities/bullet.js'
+import { createRegistry } from '../entities/Registry.js'
 import { drawBackground } from '../rendering.js'
 import { mushroom } from '../entities/mushrooms.js'
 import { shot } from '../entities/shot.js'

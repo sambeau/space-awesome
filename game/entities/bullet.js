@@ -1,6 +1,6 @@
 import { createEntity, loadImages } from "./Entity.js"
 
-import { LAYER } from "./Registry.js"
+import { LAYER } from "./constants.js"
 import { ctx } from "../game.js"
 
 // ─────────────────────────────────────────────────────────────────────────────
