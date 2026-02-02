@@ -315,6 +315,13 @@ const scores = new HighScoreManager()
 - **StateManager.js** — None
 - **HighScoreManager.js** — Requires `localStorage`
 
+## Want to Understand More?
+
+Check out the SpaceAwesome docs:
+
+- [Entity System](../../docs/entity-system.md) — How entities work
+- [Director](../../docs/director.md) — How the director manages entities
+- [State Machine](../../docs/state-machine.md) — How game states work  
 ---
 
 ## License

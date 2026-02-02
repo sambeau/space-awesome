@@ -196,6 +196,18 @@ Almost none:
 
 ---
 
+## Zap — A Minimal Game Library
+
+[**v1.0.0-beta**](game/zap/README.md)
+
+I've extracted the reusble parts of Space Awesome (Entities, collisions etc) and made a tiny, dependency-free, JavaScript library of helpers for making 2D canvas games.
+
+No build step. No framework. No NPM. Just functions you can copy into any Javascript project.
+
+I've called it [Zap.js](game/zap/README.md)
+
+---
+
 ## Want to Understand More?
 
 Check out the docs:
@@ -207,4 +219,20 @@ Check out the docs:
 
 Or just read the code. I've tried to keep it simple enough that you can follow along.
 
+---
 
+## License
+
+**MIT License**
+
+Copyright (c) 2026
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+**Help yourself and fill your boots!** 🎮
