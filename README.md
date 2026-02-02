@@ -82,7 +82,27 @@ Enemies, bullets, powerups—they're all just plain JavaScript objects with the 
 }
 ```
 
-No classes, no inheritance hierarchies. Just objects with properties and methods. There's a tiny helper system in `Entity.js` for the boilerplate (loading images, checking bounds), but entities are basically just bags of data with functions attached.
+No classes, no inheritance hierarchies. Just objects with properties and methods. 
+
+#### Entity.js
+I got tired of copy-pasting the same boilerplate—loading images, checking bounds, incrementing frame counters—so I created `Entity.js`. It gives you a `createEntity()` function that provides all the common stuff (position, velocity, tick counter, screen wrapping) while you just add the interesting bits. Loading images and sounds became one-liners. It's not a framework, just a way to reduce repetition.
+
+### The Director
+
+With dozens of entity types flying around, I needed something to keep track of them all. The Director (`Director.js`) manages spawning, updating, drawing, and collision detection in one place. You register entity types, spawn them when needed, and the director handles the rest—drawing in the right layer order, grouping entities for collision checks, and cleaning up dead ones.
+
+```javascript
+director.register([asteroid, galaxian, bomb])
+director.spawn('asteroid', { x: 100, y: 50 })
+director.updateAll(dt)
+director.drawAll()
+```
+
+It replaced a lot of repetitive manager code and made adding new enemy types trivial.
+
+### The State Machine
+
+Games have screens: title, play, game over, high score entry. Each screen has different logic and different things to draw. The state machine (`StateManager.js`) keeps this tidy—each state is an object with `enter()`, `update()`, `draw()`, and `exit()` methods. Transitioning between states is just `stateManager.transition('gameOver', { score })`. Event listeners get cleaned up automatically when you leave a state, which eliminated a whole class of bugs I was hitting.
 
 ### The Utility Library (zap.js)
 
@@ -181,6 +201,7 @@ Almost none:
 Check out the docs:
 
 - [Entity System](docs/entity-system.md) — How entities work
+- [Director](docs/director.md) — How the director manages entities
 - [State Machine](docs/state-machine.md) — How game states work  
 - [zap.js Reference](docs/zap.md) — All the utility functions
 
