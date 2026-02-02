@@ -186,7 +186,7 @@ export const snake = () => {
 
 				head.vx -= ( head.x - this.ship.x ) * cohesion
 				head.vy -= ( head.y - this.ship.y ) * cohesion
-				this.snakes.snakes.forEach( ( s ) => {
+				this.registry.get( 'snakeController' ).forEach( ( s ) => {
 					head.vx += ( head.x - s.x ) * cohesion / 100
 					head.vy += ( head.y - s.y ) * cohesion / 100
 				} )
@@ -276,7 +276,7 @@ export const snake = () => {
 
 				head.vx -= ( head.x - closestSpaceman.x ) * cohesion
 				head.vy -= ( head.y - closestSpaceman.y ) * cohesion
-				this.snakes.snakes.forEach( ( s ) => {
+				this.registry.get( 'snakeController' ).forEach( ( s ) => {
 					head.vx += ( head.x - s.x ) * cohesion / 100
 					head.vy += ( head.y - s.y ) * cohesion / 100
 				} )
@@ -322,7 +322,7 @@ export const snake = () => {
 				}
 				let cohesion = 0.05
 
-				this.snakes.snakes.forEach( ( s ) => {
+				this.registry.get( 'snakeController' ).forEach( ( s ) => {
 					head.vx += ( head.x - s.x ) * cohesion / 100
 					head.vy += ( head.y - s.y ) * cohesion / 100
 				} )
@@ -334,9 +334,8 @@ export const snake = () => {
 		all () {
 			return this.snake
 		},
-		spawn ( { snakes, ship, x, y, length, state, floaters, registry } ) {
+		spawn ( { ship, x, y, length = 8, state, floaters, registry } ) {
 			this.ship = ship
-			this.snakes = snakes
 			this.floaters = floaters
 			this.registry = registry
 
@@ -375,21 +374,16 @@ export const snake = () => {
 				&& this.state !== this.states.fleeRight
 			) {
 				this.dead = true
-				this.snakes.spawnSingle( {
-					ship: this.ship,
-					floaters: this.floaters,
-					registry: this.registry,
+				this.registry.spawn( 'snakeController', {
 					x: x,
 					y: y,
 					length: this.snake.length / 2 - 1,
 					state: "fleeLeft"
 				} )
-				this.snakes.spawnSingle( {
-					ship: this.ship,
-					floaters: this.floaters,
-					registry: this.registry,
+				this.registry.spawn( 'snakeController', {
 					x: x,
-					y: y, length: this.snake.length / 2 - 1,
+					y: y,
+					length: this.snake.length / 2 - 1,
 					state: "fleeRight"
 				} )
 			}

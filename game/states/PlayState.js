@@ -1,7 +1,6 @@
 // Main gameplay state - handles collision, updates, rendering, and transitions
 
-import { Snakes, snake } from '../entities/snakes.js'
-import { spaceman } from '../entities/spacemen.js'
+import { snake } from '../entities/snakes.js'
 
 import { BaseState } from './BaseState.js'
 import { COLLISION } from '../entities/constants.js'
@@ -26,6 +25,7 @@ import { pod } from '../entities/pods.js'
 import { powerup } from '../entities/powerups.js'
 import { randInt } from '../zap/zap.js'
 import { shot } from '../entities/shot.js'
+import { spaceman } from '../entities/spacemen.js'
 import { swarmer } from '../entities/swarmers.js'
 
 export class PlayState extends BaseState {
@@ -38,7 +38,6 @@ export class PlayState extends BaseState {
 		// Entities (stars are shared via game.stars)
 		this.ship = null
 		this.floaters = null
-		this.snakes = null
 		this.hud = null
 
 		// State data
@@ -162,11 +161,14 @@ export class PlayState extends BaseState {
 		// Spawn galaxians via registry (4 galaxians)
 		for ( let i = 0; i < 4; i++ ) this.registry.spawn( 'galaxian' )
 
-		this.snakes = Snakes()
-		this.snakes.spawn( { ship: this.ship, floaters: this.floaters, registry: this.registry } )
+		// Spawn snake via registry (1 snake controller with 8 segments)
+		this.registry.spawn( 'snakeController', {
+			x: this.game.canvas.width * Math.random(),
+			y: 200,
+			length: 8
+		} )
 
 		// Spawn powerups via registry (7 powerups with various types/positions)
-		const ch = this.game.canvas.height
 		this.registry.spawn( 'powerup', { type: 'bullet', y: randInt( ch * 4 ) + ch * 3 } )
 		this.registry.spawn( 'powerup', { type: 'bullet', y: randInt( ch * 3 ) + ch * 2 } )
 		this.registry.spawn( 'powerup', { type: 'life', y: randInt( ch * 3 ) + ch * 1 } )
@@ -176,22 +178,14 @@ export class PlayState extends BaseState {
 		this.registry.spawn( 'powerup', { type: 'shield', y: randInt( ch * 2 ) + ch * 4 } )
 
 		this.ship.spawn( {
-			entities: [
-				// Is order important?
-				this.snakes,
-			],
+			entities: [],
 			floaters: this.floaters
 		} )
 
-		// Sync manager entity arrays with registry for unified tracking
-		// This allows using registry.allPrimaryEnemiesDead() etc.
-		this.registry.sync( 'snakeController', this.snakes.snakes )
+		// Registry now owns all entity arrays - no sync needed for snakes
 
 		this.hud = Hud()
-		this.hud.init( this.ship, () => this.savedSpacemen, [
-			// Is order important?
-			this.snakes,
-		], this.registry )
+		this.hud.init( this.ship, () => this.savedSpacemen, [], this.registry )
 	}
 
 	setupInputHandlers () {
@@ -375,9 +369,11 @@ export class PlayState extends BaseState {
 		] )
 
 		// Ship can crash into DEADLY entities (includes enemy projectiles now in registry)
+		// Snake segments are not in registry, so we get them from snake controllers
+		const snakeSegments = this.registry.get( 'snakeController' ).flatMap( s => s.all() )
 		this.ship.crashIntoAll( [
 			this.registry.byGroup( COLLISION.DEADLY ),
-			this.snakes.all()
+			snakeSegments
 		] )
 
 		// Ship can collect COLLECTABLE entities (powerups, spacemen)
@@ -410,7 +406,7 @@ export class PlayState extends BaseState {
 		this.registry.updateType( 'shot', dt )  // Galaxian shots
 		this.registry.updateType( 'bomb', dt )  // Defender/Mother/Swarmer bombs
 		this.registry.updateType( 'bombJack', dt )  // Bomber bombs
-		this.snakes.update( dt )
+		this.registry.updateType( 'snakeController', dt )
 		// UPDATE_SHIP
 		this.ship.update( dt )
 		// UPDATE_PARTICLES
@@ -438,7 +434,7 @@ export class PlayState extends BaseState {
 		// DRAW_LAYER_DETRITUS
 		this.registry.drawType( 'mushroom' )
 		// DRAW_LAYER_BADDIES
-		this.snakes.draw()
+		this.registry.drawType( 'snakeController' )
 		this.registry.drawType( 'asteroid' )
 		this.registry.drawType( 'mine' )
 		this.registry.drawType( 'spaceman' )
