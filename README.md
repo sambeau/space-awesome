@@ -34,6 +34,8 @@ Browse to ``localhost:8100``.
 
 ---
 
+![SPACE AWESOME!](art/boom-screenshot.png)
+
 ## How It Works
 
 I wanted to see how far I could get with the simplest possible approach. No game engine, no build tools, no TypeScript—just vanilla JavaScript and a `<canvas>`. Turns out you can get pretty far!
