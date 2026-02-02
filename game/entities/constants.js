@@ -1,12 +1,8 @@
-// ═══════════════════════════════════════════════════════════════════════════
 // GAME CONSTANTS
 // Game-specific layer, update, and collision group definitions
-// These are separate from Registry.js to keep the registry reusable
-// ═══════════════════════════════════════════════════════════════════════════
+// These are separate from Director.js to keep the director reusable
 
-// ───────────────────────────────────────────────────────────────────────────
 // LAYER CONSTANTS - Draw order (lower = drawn first = behind)
-// ───────────────────────────────────────────────────────────────────────────
 export const LAYER = {
 	BACKGROUND: 0,    // stars
 	DETRITUS: 1,      // mushrooms
@@ -19,9 +15,7 @@ export const LAYER = {
 	UI: 8             // hud, minimap
 }
 
-// ───────────────────────────────────────────────────────────────────────────
 // UPDATE GROUP CONSTANTS - Update order (if distinct order needed)
-// ───────────────────────────────────────────────────────────────────────────
 export const UPDATE = {
 	POWERUPS: 0,
 	STARS: 1,
@@ -32,9 +26,7 @@ export const UPDATE = {
 	UI: 6
 }
 
-// ───────────────────────────────────────────────────────────────────────────
 // COLLISION GROUP CONSTANTS - What things can collide with
-// ───────────────────────────────────────────────────────────────────────────
 export const COLLISION = {
 	SHOOTABLE: 'shootable',     // ship weapons can hit
 	DEADLY: 'deadly',           // kills ship on contact

@@ -1,13 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { makeN, randInt, stereoFromScreenX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Assets (loaded once, cached)
-// ─────────────────────────────────────────────────────────────────────────────
 const assets = loadImages( [
 	"images/fireBomber-1.png",
 	"images/fireBomber-2.png",
@@ -18,9 +16,7 @@ const assets = loadImages( [
 ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
-// ─────────────────────────────────────────────────────────────────────────────
 // FireBomber Entity
-// ─────────────────────────────────────────────────────────────────────────────
 export const fireBomber = () => {
 	return {
 		...createEntity( {

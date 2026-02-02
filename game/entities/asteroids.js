@@ -1,14 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
-import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { ctx, game } from "../game.js"
 import { distanceBetweenPoints, randInt, stereoFromScreenX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ═══════════════════════════════════════════════════════════════════════════
 // ASSETS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const assets = {
 	S: loadImages( [
 		"images/asteroid-S-1.png",
@@ -32,10 +29,7 @@ const asteroidLSound = loadSound( "/sounds/asteroidL.mp3", 0.25 )
 const asteroidMSound = loadSound( "/sounds/asteroidM.mp3", 0.25 )
 const asteroidSSound = loadSound( "/sounds/asteroidS.mp3", 0.25 )
 
-// ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const colliders = {
 	S: { type: "circle", ox: 26 / 2 + 20, oy: 26 / 2 + 20.5, r: 26 / 2, colliding: false },
 	M: { type: "circle", ox: 40.43 / 2 + 11.5, oy: 40.43 / 2 + 12, r: 43 / 2, colliding: false },
@@ -48,10 +42,7 @@ const scores = {
 	L: 20,
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // ASTEROID ENTITY
-// ═══════════════════════════════════════════════════════════════════════════
-
 export const asteroid = () => {
 	return {
 		...createEntity( {
@@ -73,8 +64,8 @@ export const asteroid = () => {
 		size: "L",
 		closestDistance: 0,
 
-		spawn ( { registry, size, x, y, vx, vy } ) {
-			this.registry = registry
+		spawn ( { director, size, x, y, vx, vy } ) {
+			this.director = director
 
 			if ( size ) this.size = size
 			this.score = scores[ this.size ]
@@ -119,7 +110,7 @@ export const asteroid = () => {
 			let closestDistance1 = Number.MAX_VALUE
 			let closestDistance2 = Number.MAX_VALUE
 
-			const asteroids = this.registry ? this.registry.get( 'asteroid' ) : []
+			const asteroids = this.director ? this.director.get( 'asteroid' ) : []
 			asteroids.forEach( ( a ) => {
 				if ( a === this ) return
 
@@ -171,28 +162,28 @@ export const asteroid = () => {
 					asteroidLSound.stereo( stereoFromScreenX( screen, this.x ) )
 					explosionSize = 11
 
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
 					} )
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
@@ -206,21 +197,21 @@ export const asteroid = () => {
 					asteroidMSound.stereo( stereoFromScreenX( screen, this.x ) )
 					explosionSize = 7
 
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "S",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "S",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
 					} )
-					this.registry.spawn( 'asteroid', {
+					this.director.spawn( 'asteroid', {
 						size: "S",
 						x: this.x,
 						y: this.y,
@@ -247,10 +238,7 @@ export const asteroid = () => {
 	}
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // ASTEROIDS COLLECTION
-// ═══════════════════════════════════════════════════════════════════════════
-
 export const asteroids = () => {
 	return {
 		asteroids: [],

@@ -1,6 +1,6 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, loadImages } from "./Entity.js"
+import { createEntity, loadImages } from "../zap/Entity.js"
 
 import { explode } from "./explosions.js"
 

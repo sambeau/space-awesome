@@ -1,13 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { makeN, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Assets (loaded once, cached)
-// ─────────────────────────────────────────────────────────────────────────────
 const assets = loadImages( [
 	"images/bomber-1.png",
 	"images/bomber-2.png",
@@ -15,9 +13,7 @@ const assets = loadImages( [
 ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Bomber Entity
-// ─────────────────────────────────────────────────────────────────────────────
 export const bomber = () => {
 	return {
 		...createEntity( {
@@ -39,14 +35,14 @@ export const bomber = () => {
 
 		// Bomber-specific properties
 		ship: null,
-		registry: null,
+		director: null,
 		vx: ( Math.random() * 3 - 1.5 ) * 2,
 		vy: Math.random() * 2 + 6,
 		rotation: 8,
 
-		spawn ( { registry, ship, floaters, x, y, vx, vy } ) {
+		spawn ( { director, ship, floaters, x, y, vx, vy } ) {
 
-			this.registry = registry
+			this.director = director
 			this.ship = ship
 
 			if ( x ) this.x = x
@@ -77,7 +73,7 @@ export const bomber = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.15 ) return
-			this.registry.spawn( 'bombJack', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.director.spawn( 'bombJack', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		},
 
 		onHit ( smartbomb ) {
@@ -101,22 +97,22 @@ export const bomber = () => {
 export const Bombers = () => {
 	return {
 		bombers: [],
-		registry: null,
+		director: null,
 		all () {
 			return this.bombers
 		},
-		spawn ( { registry, ship, floaters } ) {
-			this.registry = registry
+		spawn ( { director, ship, floaters } ) {
+			this.director = director
 			this.bombers = makeN( bomber, 10 )
-			this.bombers.forEach( ( x ) => x.spawn( { registry: registry, ship: ship, floaters: floaters } ) )
+			this.bombers.forEach( ( x ) => x.spawn( { director: director, ship: ship, floaters: floaters } ) )
 		},
 		update ( dt ) {
 			this.bombers = this.bombers.filter( ( b ) => { return b.dead !== true } )
 			this.bombers.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via registry.updateType('bombJack', dt)
+			// Bombs are now updated via director.updateType('bombJack', dt)
 		},
 		draw () {
-			// Bombs are now drawn via registry.drawType('bombJack')
+			// Bombs are now drawn via director.drawType('bombJack')
 			this.bombers.forEach( ( x ) => x.draw() )
 		}
 	}

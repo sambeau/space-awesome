@@ -9,7 +9,7 @@ import { asteroid } from '../game/entities/asteroids.js'
 import { bomb } from '../game/entities/bombs.js'
 import { bomber } from '../game/entities/bombers.js'
 import { bullet } from '../game/entities/bullet.js'
-import { createRegistry } from '../game/entities/Registry.js'
+import { createDirector } from '../game/zap/Director.js'
 import { defender } from '../game/entities/defenders.js'
 import { fireBomber } from '../game/entities/fireBombers.js'
 import { galaxian } from '../game/entities/galaxians.js'
@@ -48,7 +48,7 @@ describe( 'Entity factory exports', () => {
 
 describe( 'Entity registration', () => {
 	test( 'all factories register without error', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		expect( () => reg.register( [
 			asteroid, bomb, bomber, bullet, defender, fireBomber, galaxian, mine,
 			mother, mushroom, pod, powerup, shot, snake, spaceman, swarmer
@@ -56,7 +56,7 @@ describe( 'Entity registration', () => {
 	} )
 
 	test( 'all registered entities have drawLayer', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [
 			asteroid, bomb, bomber, bullet, defender, fireBomber, galaxian, mine,
 			mother, mushroom, pod, powerup, shot, snake, spaceman, swarmer
@@ -67,7 +67,7 @@ describe( 'Entity registration', () => {
 	} )
 
 	test( 'all registered entities have collisionGroups array', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [
 			asteroid, bomb, bomber, bullet, defender, fireBomber, galaxian, mine,
 			mother, mushroom, pod, powerup, shot, snake, spaceman, swarmer
@@ -80,55 +80,55 @@ describe( 'Entity registration', () => {
 
 describe( 'Primary enemy metadata', () => {
 	test( 'galaxian is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( galaxian )
 		expect( reg.meta.galaxian.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'defender is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( defender )
 		expect( reg.meta.defender.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'pod is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( pod )
 		expect( reg.meta.pod.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'mother is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( mother )
 		expect( reg.meta.mother.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'bomber is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bomber )
 		expect( reg.meta.bomber.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'fireBomber is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( fireBomber )
 		expect( reg.meta.fireBomber.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'snake (controller) is primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( snake )
 		expect( reg.meta.snakeController.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'swarmer IS primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( swarmer )
 		expect( reg.meta.swarmer.isPrimaryEnemy ).toBe( true )
 	} )
 
 	test( 'asteroid is NOT primary enemy', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( asteroid )
 		expect( reg.meta.asteroid.isPrimaryEnemy ).toBe( false )
 	} )
@@ -136,7 +136,7 @@ describe( 'Primary enemy metadata', () => {
 
 describe( 'Collision group metadata', () => {
 	test( 'shootable enemies have SHOOTABLE collision group', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, defender, asteroid, pod, swarmer, mine, mother, bomber, fireBomber, mushroom, spaceman ] )
 		for ( const name of [ 'galaxian', 'defender', 'asteroid', 'pod', 'swarmer', 'mine', 'mother', 'bomber', 'fireBomber', 'mushroom', 'spaceman' ] ) {
 			expect( reg.meta[ name ].collisionGroups ).toContain( COLLISION.SHOOTABLE )
@@ -144,7 +144,7 @@ describe( 'Collision group metadata', () => {
 	} )
 
 	test( 'deadly enemies have DEADLY collision group', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, defender, asteroid, pod, swarmer, mine, mother, bomber, fireBomber, bomb, shot, mushroom ] )
 		for ( const name of [ 'galaxian', 'defender', 'asteroid', 'pod', 'swarmer', 'mine', 'mother', 'bomber', 'fireBomber', 'bomb', 'shot', 'mushroom' ] ) {
 			expect( reg.meta[ name ].collisionGroups ).toContain( COLLISION.DEADLY )
@@ -152,14 +152,14 @@ describe( 'Collision group metadata', () => {
 	} )
 
 	test( 'collectables have COLLECTABLE collision group', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ spaceman, powerup ] )
 		expect( reg.meta.spaceman.collisionGroups ).toContain( COLLISION.COLLECTABLE )
 		expect( reg.meta.powerup.collisionGroups ).toContain( COLLISION.COLLECTABLE )
 	} )
 
 	test( 'bullet has no collision groups', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bullet )
 		expect( reg.meta.bullet.collisionGroups ).toEqual( [] )
 	} )
@@ -167,7 +167,7 @@ describe( 'Collision group metadata', () => {
 
 describe( 'Layer metadata', () => {
 	test( 'enemies are in BADDIES layer', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, defender, asteroid, pod, swarmer, mine, mother, spaceman ] )
 		for ( const name of [ 'galaxian', 'defender', 'asteroid', 'pod', 'swarmer', 'mine', 'mother', 'spaceman' ] ) {
 			expect( reg.meta[ name ].drawLayer ).toBe( LAYER.BADDIES )
@@ -175,7 +175,7 @@ describe( 'Layer metadata', () => {
 	} )
 
 	test( 'projectiles are in PROJECTILES layer', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ bullet, shot, bomb ] )
 		expect( reg.meta.bullet.drawLayer ).toBe( LAYER.PROJECTILES )
 		expect( reg.meta.shot.drawLayer ).toBe( LAYER.PROJECTILES )
@@ -183,34 +183,34 @@ describe( 'Layer metadata', () => {
 	} )
 
 	test( 'powerup is in POWERUPS layer', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( powerup )
 		expect( reg.meta.powerup.drawLayer ).toBe( LAYER.POWERUPS )
 	} )
 
 	test( 'mushroom is in DETRITUS layer', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( mushroom )
 		expect( reg.meta.mushroom.drawLayer ).toBe( LAYER.DETRITUS )
 	} )
 } )
 describe( 'Registry spawn', () => {
 	test( 'spawn creates entity of correct type', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bullet )
 		const b = reg.spawn( 'bullet' )
 		expect( b.name ).toBe( 'bullet' )
 	} )
 
 	test( 'spawn adds entity to entities array', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bullet )
 		const b = reg.spawn( 'bullet' )
 		expect( reg.get( 'bullet' ) ).toContain( b )
 	} )
 
 	test( 'spawn calls entity spawn method with props', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bullet )
 		const b = reg.spawn( 'bullet', { atx: 100, aty: 200, ship: { removeBullet: () => { } } } )
 		// Bullet spawn sets x based on atx
@@ -218,7 +218,7 @@ describe( 'Registry spawn', () => {
 	} )
 
 	test( 'spawn merges refs into props', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		const mockShip = { x: 50, y: 50, removeBullet: () => { } }
 		reg.setRefs( { ship: mockShip } )
 		reg.register( bullet )
@@ -228,7 +228,7 @@ describe( 'Registry spawn', () => {
 	} )
 
 	test( 'spawn multiple entities of same type', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bullet )
 		const mockShip = { removeBullet: () => { } }
 		reg.spawn( 'bullet', { atx: 10, aty: 10, ship: mockShip } )
@@ -238,7 +238,7 @@ describe( 'Registry spawn', () => {
 	} )
 
 	test( 'spawn different entity types', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ bullet, galaxian ] )
 		reg.spawn( 'bullet', { atx: 10, aty: 10, ship: { removeBullet: () => { } } } )
 		reg.spawn( 'galaxian', { ship: { x: 0, y: 0 } } )
@@ -247,14 +247,14 @@ describe( 'Registry spawn', () => {
 	} )
 
 	test( 'spawn throws for unregistered type', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		expect( () => reg.spawn( 'unknown' ) ).toThrow()
 	} )
 } )
 
 describe( 'Registry byGroup with spawned entities', () => {
 	test( 'byGroup returns spawned shootable entities', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, bullet ] )
 		const g = reg.spawn( 'galaxian', { ship: { x: 0, y: 0 } } )
 		reg.spawn( 'bullet', { atx: 10, aty: 10, ship: { removeBullet: () => { } } } )
@@ -264,7 +264,7 @@ describe( 'Registry byGroup with spawned entities', () => {
 	} )
 
 	test( 'byGroup returns spawned deadly entities', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, shot ] )
 		const g = reg.spawn( 'galaxian', { ship: { x: 0, y: 0 } } )
 		const s = reg.spawn( 'shot', { atx: 100, aty: 100, shooter: { shots: 0 } } )
@@ -276,7 +276,7 @@ describe( 'Registry byGroup with spawned entities', () => {
 
 describe( 'Registry byGroup with synced entities', () => {
 	test( 'byGroup returns synced shootable entities', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ mushroom, asteroid ] )
 		const m = mushroom()
 		const a = asteroid()
@@ -290,7 +290,7 @@ describe( 'Registry byGroup with synced entities', () => {
 	} )
 
 	test( 'byGroup returns synced deadly entities', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ mushroom, asteroid ] )
 		const m = mushroom()
 		const a = asteroid()
@@ -302,7 +302,7 @@ describe( 'Registry byGroup with synced entities', () => {
 	} )
 
 	test( 'byGroup excludes dead synced entities', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( mushroom )
 		const m1 = mushroom()
 		const m2 = mushroom()
@@ -317,7 +317,7 @@ describe( 'Registry byGroup with synced entities', () => {
 
 describe( 'Registry prune with spawned entities', () => {
 	test( 'prune removes dead spawned entities', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( bullet )
 		const mockShip = { removeBullet: () => { } }
 		const b1 = reg.spawn( 'bullet', { atx: 10, aty: 10, ship: mockShip } )
@@ -332,7 +332,7 @@ describe( 'Registry prune with spawned entities', () => {
 
 describe( 'Registry allByLayer with spawned entities', () => {
 	test( 'allByLayer sorts spawned entities by draw layer', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ mushroom, galaxian, bullet, powerup ] )
 		// Spawn in random order
 		const g = reg.spawn( 'galaxian', { ship: { x: 0, y: 0 } } )       // BADDIES (2)
@@ -357,7 +357,7 @@ describe( 'Registry allByLayer with spawned entities', () => {
 
 describe( 'Registry primary enemy tracking', () => {
 	test( 'allPrimaryEnemiesDead returns false with living primary enemies', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, swarmer ] )
 		reg.spawn( 'galaxian', { ship: { x: 0, y: 0 } } )
 		reg.spawn( 'swarmer', { ship: { x: 0, y: 0 } } )
@@ -365,7 +365,7 @@ describe( 'Registry primary enemy tracking', () => {
 	} )
 
 	test( 'allPrimaryEnemiesDead returns true when primary enemies dead', () => {
-		const reg = createRegistry()
+		const reg = createDirector()
 		reg.register( [ galaxian, swarmer ] )
 		const g = reg.spawn( 'galaxian', { ship: { x: 0, y: 0 } } )
 		const s = reg.spawn( 'swarmer', { ship: { x: 0, y: 0 } } )

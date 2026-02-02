@@ -10,8 +10,8 @@ import './setup.js'
 import './entities/bullet.test.js'
 import './entities/shot.test.js'
 import './entities/snakes.test.js'
-// Phase 1: Registry tests
-import './registry.test.js'
+// Phase 1: Director tests
+import './director.test.js'
 // Phase 3: Integration tests
 import './integration.test.js'
 

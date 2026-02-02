@@ -1,16 +1,12 @@
-import { createEntity, loadImages } from "./Entity.js"
+import { createEntity, loadImages } from "../zap/Entity.js"
 
 import { LAYER } from "./constants.js"
 import { ctx } from "../game.js"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Assets (loaded once, cached)
-// ─────────────────────────────────────────────────────────────────────────────
 const assets = loadImages( [ "images/bullet-long.png" ] )
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Bullet Entity - Player projectile
-// ─────────────────────────────────────────────────────────────────────────────
 export const bullet = () => {
 	return {
 		...createEntity( {

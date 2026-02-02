@@ -1,7 +1,7 @@
 import { canvas, ctx } from "../game/game.js"
 import { pick, randInt } from "/zap/zap.js"
 
-import { createEntity } from "../game/entities/Entity.js"
+import { createEntity } from "../game/zap/Entity.js"
 
 const ball = () => {
 	return {

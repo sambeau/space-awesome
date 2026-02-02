@@ -1,6 +1,6 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { makeN, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
@@ -8,6 +8,7 @@ import { explode } from "./explosions.js"
 const assets = loadImages( [ "images/defender1.png", "images/defender2.png", "images/defender3.png" ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
+// these should really be called 'landers'
 export const defender = () => {
 	return {
 		...createEntity( {
@@ -30,13 +31,13 @@ export const defender = () => {
 		// Custom properties
 		color: "#06BA01",
 		ship: null,
-		registry: null,
+		director: null,
 		vx: ( Math.random() - 0.5 ) * 3,
 		vy: Math.random() * 3 + 1,
 
-		spawn ( { ship, registry } ) {
+		spawn ( { ship, director } ) {
 			this.ship = ship
-			this.registry = registry
+			this.director = director
 			this.x = randInt( canvas.width )
 			this.y = -randInt( canvas.height * 2 )
 			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
@@ -82,7 +83,7 @@ export const defender = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.125 ) return
-			this.registry.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.director.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		}
 	}
 }
@@ -90,26 +91,26 @@ export const defender = () => {
 export const defenders = () => {
 	return {
 		defenders: [],
-		registry: null,
+		director: null,
 
 		all () {
 			return this.defenders
 		},
 
-		spawn ( { ship, registry } ) {
-			this.registry = registry
+		spawn ( { ship, director } ) {
+			this.director = director
 			this.defenders = makeN( defender, 4 )
-			this.defenders.forEach( ( x ) => x.spawn( { ship: ship, registry: registry } ) )
+			this.defenders.forEach( ( x ) => x.spawn( { ship: ship, director: director } ) )
 		},
 
 		update ( dt ) {
 			this.defenders = this.defenders.filter( ( b ) => b.dead !== true )
 			this.defenders.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via registry.updateType('bomb', dt)
+			// Bombs are now updated via director.updateType('bomb', dt)
 		},
 
 		draw () {
-			// Bombs are now drawn via registry.drawType('bomb')
+			// Bombs are now drawn via director.drawType('bomb')
 			this.defenders.forEach( ( x ) => x.draw() )
 		}
 	}

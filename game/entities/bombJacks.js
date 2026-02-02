@@ -1,13 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, drawRotated, loadImages, loadSound } from "./Entity.js"
+import { createEntity, drawRotated, loadImages, loadSound } from "../zap/Entity.js"
 import { picker, stereoFromScreenX } from "../zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ═══════════════════════════════════════════════════════════════════════════
 // ASSET LOADING
-// ═══════════════════════════════════════════════════════════════════════════
 
 const bombAssets = loadImages( [
 	"images/bomb-jack-1.png",
@@ -17,10 +15,8 @@ const bombAssets = loadImages( [
 
 const bombSound = loadSound( "/sounds/bomb.mp3", 0.05 )
 
-// ═══════════════════════════════════════════════════════════════════════════
 // BOMB ENTITY
 // Projectiles fired by defenders that track toward the player
-// ═══════════════════════════════════════════════════════════════════════════
 
 const bombWidth = 26
 const bombSpeed = 0

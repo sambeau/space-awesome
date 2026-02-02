@@ -8,7 +8,7 @@ import {
 	stereoFromScreenX,
 	thingsAreColliding
 } from "/zap/zap.js"
-import { createEntity, loadImages, loadSound } from "./Entity.js"
+import { createEntity, loadImages, loadSound } from "../zap/Entity.js"
 
 import { bullet } from "./bullet.js"
 

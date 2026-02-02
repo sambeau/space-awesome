@@ -1,7 +1,7 @@
 // Tests for shot.js entity conversion
 // Tests Entity system features used by shot entity
 
-import { createEntity, loadImages } from '../../game/entities/Entity.js'
+import { createEntity, loadImages } from '../../game/zap/Entity.js'
 import { describe, expect, test } from '../harness.js'
 
 describe( 'shot entity (via Entity.js)', () => {

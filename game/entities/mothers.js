@@ -1,6 +1,6 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, loadImages, loadSound } from "./Entity.js"
+import { createEntity, loadImages, loadSound } from "../zap/Entity.js"
 import { picker, randInt, stereoFromScreenX, thingIsOnScreen, volumeFromX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
@@ -54,10 +54,10 @@ export const mother = () => {
 			this.ticks = ( this.ticks + 1 ) % 1000
 		},
 
-		spawn ( { registry, floaters, ship } ) {
+		spawn ( { director, floaters, ship } ) {
 			this.floaters = floaters
 			this.ship = ship
-			this.registry = registry
+			this.director = director
 
 			this.states = picker( assets.images )
 			this.image = this.states.first()
@@ -106,7 +106,7 @@ export const mother = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.33 ) return
-			this.registry.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.director.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		},
 
 		onHit ( smartbomb ) {
@@ -143,27 +143,27 @@ export const mother = () => {
 export const Mothers = () => {
 	return {
 		mothers: [],
-		registry: null,
+		director: null,
 
 		all () {
 			return this.mothers
 		},
-		spawnSingle ( { registry, floaters, ship, x, y, vx, vy } ) {
+		spawnSingle ( { director, floaters, ship, x, y, vx, vy } ) {
 			let a = mother()
 			this.mothers.push( a )
-			a.spawn( { registry: registry || this.registry, floaters: floaters, ship: ship, x: x, y: y, vx: vx, vy: vy } )
+			a.spawn( { director: director || this.director, floaters: floaters, ship: ship, x: x, y: y, vx: vx, vy: vy } )
 		},
-		spawn ( { registry, ship, floaters } ) {
-			this.registry = registry
-			this.spawnSingle( { registry: registry, ship: ship, floaters: floaters } )
+		spawn ( { director, ship, floaters } ) {
+			this.director = director
+			this.spawnSingle( { director: director, ship: ship, floaters: floaters } )
 		},
 		update ( dt ) {
 			this.mothers = this.mothers.filter( ( x ) => { return x.dead !== true } )
 			this.mothers.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via registry.updateType('bomb', dt)
+			// Bombs are now updated via director.updateType('bomb', dt)
 		},
 		draw () {
-			// Bombs are now drawn via registry.drawType('bomb')
+			// Bombs are now drawn via director.drawType('bomb')
 			this.mothers.forEach( ( x ) => x.draw() )
 		}
 	}

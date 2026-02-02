@@ -1,13 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
-import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ═══════════════════════════════════════════════════════════════════════════
 // ASSET LOADING
-// ═══════════════════════════════════════════════════════════════════════════
 
 const mineAssets = loadImages( [
 	"images/mine-1.png",
@@ -23,9 +21,7 @@ const mineAssets = loadImages( [
 
 const bigBoomSound = loadSound( "/sounds/impact.mp3", 0.25 )
 
-// ═══════════════════════════════════════════════════════════════════════════
 // COLLIDERS - one per animation frame
-// ═══════════════════════════════════════════════════════════════════════════
 
 const colliders = [
 	{ type: "circle", ox: 87.0384944, oy: 88, r: 86.5384944, colliding: false },
@@ -45,9 +41,7 @@ const mineStates = mineAssets.images.map( ( image, i ) => ( {
 	collider: colliders[ i ]
 } ) )
 
-// ═══════════════════════════════════════════════════════════════════════════
 // MINE ENTITY
-// ═══════════════════════════════════════════════════════════════════════════
 
 export const mine = () => {
 	return {
@@ -192,9 +186,7 @@ export const mine = () => {
 	}
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // MINES MANAGER
-// ═══════════════════════════════════════════════════════════════════════════
 
 export const Mines = () => {
 	return {

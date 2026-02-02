@@ -3,7 +3,7 @@
 // We can't import bullet.js directly due to browser-style imports
 // So we test the Entity system pieces separately, and verify bullet manually
 
-import { createEntity, loadImages } from '../../game/entities/Entity.js'
+import { createEntity, loadImages } from '../../game/zap/Entity.js'
 import { describe, expect, test } from '../harness.js'
 
 describe( 'bullet entity (via Entity.js)', () => {

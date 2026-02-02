@@ -1,13 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, loadImages, loadSound } from "./Entity.js"
+import { createEntity, loadImages, loadSound } from "../zap/Entity.js"
 
 import { explode } from "./explosions.js"
 import { stereoFromScreenX } from "/zap/zap.js"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Assets (loaded once, cached)
-// ─────────────────────────────────────────────────────────────────────────────
 const mushroomAssets = {
 	white: loadImages( [
 		"images/mushroom-white-1.png",
@@ -30,9 +28,7 @@ const mushroomAssets = {
 }
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Mushroom configuration
-// ─────────────────────────────────────────────────────────────────────────────
 const explodeColors = {
 	'white': [ "#ffffff", "#ffffff", "#00ffff", "#00ffff", "#ffffff" ],
 	'black': [ "#ffffff", "#310933", "#FFFF00", "#FFFF00", "#ffffff" ],
@@ -58,9 +54,7 @@ const halfCollider = [
 	{ type: "circle", ox: 30, oy: 10, r: 10 },
 ]
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Mushroom Entity
-// ─────────────────────────────────────────────────────────────────────────────
 export const mushroom = () => {
 	// Create fresh colliders for each mushroom instance
 	const myCollider = [
@@ -153,9 +147,7 @@ export const mushroom = () => {
 	}
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Mushroom Manager
-// ─────────────────────────────────────────────────────────────────────────────
 export const Mushrooms = () => {
 	return {
 		mushrooms: [],

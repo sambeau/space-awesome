@@ -1,10 +1,8 @@
-import { createEntity } from "./Entity.js"
+import { createEntity } from "../zap/Entity.js"
 import { ctx } from "../game.js"
 import { picker } from "/zap/zap.js"
 
-// ═══════════════════════════════════════════════════════════════════════════
-// FLOATER ASSETS
-// ═══════════════════════════════════════════════════════════════════════════
+// FLOATER ASSETS: 1-UP, 1000 etc
 
 let numImagesLoaded = 0
 const images = {}
@@ -30,10 +28,8 @@ const sizes = {
 	'bomb': { width: 160 / 2, height: 80 / 2 },
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // FLOATER ENTITY
 // Score popup text that floats up and fades out
-// ═══════════════════════════════════════════════════════════════════════════
 
 const floater = () => {
 	return {
@@ -90,9 +86,7 @@ const floater = () => {
 	}
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // FLOATERS MANAGER
-// ═══════════════════════════════════════════════════════════════════════════
 
 export const Floaters = () => {
 	return {

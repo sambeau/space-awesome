@@ -1,8 +1,6 @@
 // zap.js — minimal game library
 
-// ═══════════════════════════════════════════════════════════════════════════
 // MATH BASICS
-// ═══════════════════════════════════════════════════════════════════════════
 
 // Linear interpolation: lerp(0, 100, 0.5) → 50
 export const lerp = ( a, b, t ) => a + ( b - a ) * t
@@ -10,9 +8,7 @@ export const lerp = ( a, b, t ) => a + ( b - a ) * t
 // Keep value in range: clamp(150, 0, 100) → 100
 export const clamp = ( value, min, max ) => Math.min( Math.max( value, min ), max )
 
-// ═══════════════════════════════════════════════════════════════════════════
 // GEOMETRY & VECTORS
-// ═══════════════════════════════════════════════════════════════════════════
 
 export const angleOfLineInRads = ( x1, y1, x2, y2 ) => Math.atan2( y2 - y1, x2 - x1 )
 
@@ -46,9 +42,7 @@ export function rotationDirection ( current, target ) {
 	return 0
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // COLLISIONS
-// ═══════════════════════════════════════════════════════════════════════════
 
 export function collisionBetweenCircles ( x1, y1, r1, x2, y2, r2 ) {
 	return ( distanceBetweenPoints( x1, y1, x2, y2 ) < r1 + r2 )
@@ -88,9 +82,7 @@ export function moveDistanceAlongLine ( dx, x1, y1, x2, y2 ) {
 	return { vx: a.x, vy: a.y }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // THINGS (entities/game objects)
-// ═══════════════════════════════════════════════════════════════════════════
 
 export function makeN ( thing, n ) {
 	let things = []
@@ -195,9 +187,7 @@ export function thingIsOnScreen ( thing, screen ) {
 		( thing.y < screen.height )
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // RANDOM
-// ═══════════════════════════════════════════════════════════════════════════
 
 // Random int: 0 to n-1
 export function randInt ( n ) {
@@ -229,9 +219,7 @@ export function shuffle ( array ) {
 	return a
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // ANIMATION & EASING
-// ═══════════════════════════════════════════════════════════════════════════
 
 // Easing functions: t goes 0→1, output goes 0→1 but curved
 export const easeInQuad = ( t ) => t * t
@@ -301,9 +289,7 @@ export function picker ( xs, props ) {
 	}
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // AUDIO HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
 
 export function stereoFromScreenX ( screen, x ) {
 	return ( x - screen.width / 2 ) / screen.width

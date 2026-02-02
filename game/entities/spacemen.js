@@ -1,5 +1,5 @@
 import { COLLISION, LAYER } from "./constants.js"
-import { createEntity, drawRotated, loadImages, loadSound } from "./Entity.js"
+import { createEntity, drawRotated, loadImages, loadSound } from "../zap/Entity.js"
 import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
 

@@ -1,7 +1,7 @@
 // Tests for snakes.js entity conversion
 // Tests Entity system features used by snake segment entity
 
-import { createEntity, loadSound } from '../../game/entities/Entity.js'
+import { createEntity, loadSound } from '../../game/zap/Entity.js'
 import { describe, expect, test } from '../harness.js'
 
 describe( 'snake segment (via Entity.js)', () => {

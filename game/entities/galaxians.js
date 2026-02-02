@@ -1,15 +1,13 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { randInt, stereoFromScreenX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 import { shot } from "./shot.js"
 
-// ═══════════════════════════════════════════════════════════════════════════
 // GALAXIAN ENTITY
 // Seeking enemies that track and fire at the player
-// ═══════════════════════════════════════════════════════════════════════════
 
 const maxShots = 5
 
@@ -58,15 +56,15 @@ export const galaxian = () => {
 
 		color: "#FF0000",
 		ship: null,
-		registry: null,
+		director: null,
 		vx: 0,
 		vy: Math.random() * 3 + 3,
 		shots: 0,
 		maxShots: 4,
 
-		spawn ( { ship, registry } ) {
+		spawn ( { ship, director } ) {
 			this.ship = ship
-			this.registry = registry
+			this.director = director
 			this.x = randInt( canvas.width )
 			this.y = -randInt( canvas.height * 4 )
 			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
@@ -101,18 +99,21 @@ export const galaxian = () => {
 			if ( !assets.loaded() ) return
 
 			const frame = getFrame( this.ticks, 4, 8 )
+			ctx.save()
+			// ctx.filter = "hue-rotate(30deg)" // rotate hue for different levels?
 			ctx.drawImage( assets.images[ frame ], this.x, this.y, this.width, this.height )
+			ctx.restore()
 		},
 
 		fire () {
 			if (
-				this.registry.count( 'shot' ) < maxShots &&
+				this.director.count( 'shot' ) < maxShots &&
 				this.shots < this.maxShots &&
 				this.ship.y - this.y < canvas.height * 0.9
 			) {
 				fireSound.play()
 				fireSound.stereo( ( this.x - screen.width / 2 ) / screen.width )
-				this.registry.spawn( 'shot', { atx: this.x + this.width / 2, aty: this.y, shooter: this } )
+				this.director.spawn( 'shot', { atx: this.x + this.width / 2, aty: this.y, shooter: this } )
 			}
 		},
 
@@ -133,42 +134,40 @@ export const galaxian = () => {
 	}
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // GALAXIANS MANAGER
 // Manages collection of galaxian entities and their shots
-// ═══════════════════════════════════════════════════════════════════════════
 
 export const galaxians = () => {
 	return {
 		galaxians: [],
-		registry: null,
+		director: null,
 
 		all () {
 			return this.galaxians
 		},
 
-		spawnSingle ( { ship, registry } ) {
+		spawnSingle ( { ship, director } ) {
 			const x = galaxian()
 			this.galaxians.push( x )
-			x.spawn( { ship: ship, registry: registry } )
+			x.spawn( { ship: ship, director: director } )
 		},
 
-		spawn ( { ship, registry } ) {
-			this.registry = registry
-			this.spawnSingle( { ship: ship, registry: registry } )
-			this.spawnSingle( { ship: ship, registry: registry } )
-			this.spawnSingle( { ship: ship, registry: registry } )
-			this.spawnSingle( { ship: ship, registry: registry } )
+		spawn ( { ship, director } ) {
+			this.director = director
+			this.spawnSingle( { ship: ship, director: director } )
+			this.spawnSingle( { ship: ship, director: director } )
+			this.spawnSingle( { ship: ship, director: director } )
+			this.spawnSingle( { ship: ship, director: director } )
 		},
 
 		update ( dt ) {
 			this.galaxians = this.galaxians.filter( b => b.dead !== true )
 			this.galaxians.forEach( x => x.update( dt ) )
-			// Shots are now updated via registry.updateType('shot', dt)
+			// Shots are now updated via director.updateType('shot', dt)
 		},
 
 		draw () {
-			// Shots are now drawn via registry.drawType('shot')
+			// Shots are now drawn via director.drawType('shot')
 			this.galaxians.forEach( x => x.draw() )
 		}
 	}

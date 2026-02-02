@@ -1,6 +1,6 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, loadSound } from "./Entity.js"
+import { createEntity, loadSound } from "../zap/Entity.js"
 import {
 	distanceBetweenPoints,
 	findClosestThing,
@@ -133,7 +133,7 @@ const Segment = () => {
 				type = 'white'
 
 			if ( Math.random() > 0.333 )
-				this.snake.registry.spawn( 'mushroom', { cx: this.cx, cy: this.cy, type: type } )
+				this.snake.director.spawn( 'mushroom', { cx: this.cx, cy: this.cy, type: type } )
 
 			if ( !smartbomb && !crash && !this.isCrashProof() )
 				this.snake.split( this.x, this.y )
@@ -152,7 +152,7 @@ const Segment = () => {
 
 export const snake = () => {
 	return {
-		// Registry metadata
+		// Director metadata
 		name: "snakeController",
 		drawLayer: LAYER.BADDIES,
 		collisionGroups: [],  // Snake uses segment colliders, not itself
@@ -186,7 +186,7 @@ export const snake = () => {
 
 				head.vx -= ( head.x - this.ship.x ) * cohesion
 				head.vy -= ( head.y - this.ship.y ) * cohesion
-				this.registry.get( 'snakeController' ).forEach( ( s ) => {
+				this.director.get( 'snakeController' ).forEach( ( s ) => {
 					head.vx += ( head.x - s.x ) * cohesion / 100
 					head.vy += ( head.y - s.y ) * cohesion / 100
 				} )
@@ -244,7 +244,7 @@ export const snake = () => {
 			this.states.hungry.update = () => {
 				const head = this.snake[ 0 ]
 
-				const closestSpaceman = findClosestThing( head, this.registry.get( 'spaceman' ) )
+				const closestSpaceman = findClosestThing( head, this.director.get( 'spaceman' ) )
 
 				if ( !closestSpaceman ) {
 					this.state = this.states.angry
@@ -276,7 +276,7 @@ export const snake = () => {
 
 				head.vx -= ( head.x - closestSpaceman.x ) * cohesion
 				head.vy -= ( head.y - closestSpaceman.y ) * cohesion
-				this.registry.get( 'snakeController' ).forEach( ( s ) => {
+				this.director.get( 'snakeController' ).forEach( ( s ) => {
 					head.vx += ( head.x - s.x ) * cohesion / 100
 					head.vy += ( head.y - s.y ) * cohesion / 100
 				} )
@@ -298,7 +298,7 @@ export const snake = () => {
 			this.states.walking.update = () => {
 				const head = this.snake[ 0 ]
 
-				const closestSpaceman = findClosestThing( head, this.registry.get( 'spaceman' ) )
+				const closestSpaceman = findClosestThing( head, this.director.get( 'spaceman' ) )
 
 				if ( !closestSpaceman ) {
 					this.state = this.states.angry
@@ -322,7 +322,7 @@ export const snake = () => {
 				}
 				let cohesion = 0.05
 
-				this.registry.get( 'snakeController' ).forEach( ( s ) => {
+				this.director.get( 'snakeController' ).forEach( ( s ) => {
 					head.vx += ( head.x - s.x ) * cohesion / 100
 					head.vy += ( head.y - s.y ) * cohesion / 100
 				} )
@@ -334,10 +334,10 @@ export const snake = () => {
 		all () {
 			return this.snake
 		},
-		spawn ( { ship, x, y, length = 8, state, floaters, registry } ) {
+		spawn ( { ship, x, y, length = 8, state, floaters, director } ) {
 			this.ship = ship
 			this.floaters = floaters
-			this.registry = registry
+			this.director = director
 
 			this.x = x
 			this.y = y
@@ -374,13 +374,13 @@ export const snake = () => {
 				&& this.state !== this.states.fleeRight
 			) {
 				this.dead = true
-				this.registry.spawn( 'snakeController', {
+				this.director.spawn( 'snakeController', {
 					x: x,
 					y: y,
 					length: this.snake.length / 2 - 1,
 					state: "fleeLeft"
 				} )
-				this.registry.spawn( 'snakeController', {
+				this.director.spawn( 'snakeController', {
 					x: x,
 					y: y,
 					length: this.snake.length / 2 - 1,
@@ -491,21 +491,21 @@ export const Snakes = () => {
 			} )
 			return allSnakes
 		},
-		spawn ( { ship, floaters, registry } ) {
+		spawn ( { ship, floaters, director } ) {
 			this.spawnSingle( {
 				ship: ship,
 				snakes: this,
 				floaters: floaters,
-				registry: registry,
+				director: director,
 				x: canvas.width * Math.random(),
 				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
 				length: 8
 			} )
 		},
-		spawnSingle ( { ship, x, y, length, state, floaters, registry } ) {
+		spawnSingle ( { ship, x, y, length, state, floaters, director } ) {
 			const newSnake = snake()
 			this.snakes.push( newSnake )
-			newSnake.spawn( { snakes: this, ship: ship, x: x, y: y, length: length, state: state, floaters: floaters, registry: registry } )
+			newSnake.spawn( { snakes: this, ship: ship, x: x, y: y, length: length, state: state, floaters: floaters, director: director } )
 		},
 		update () {
 			this.snakes = this.snakes.filter( ( x ) => { return x.dead !== true } )

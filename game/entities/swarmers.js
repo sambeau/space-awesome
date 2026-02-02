@@ -1,21 +1,17 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, loadImages, loadSound } from "./Entity.js"
+import { createEntity, loadImages, loadSound } from "../zap/Entity.js"
 import { distanceBetweenPoints, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Assets (loaded once, cached)
-// ─────────────────────────────────────────────────────────────────────────────
 const assets = loadImages( [ "images/swarmer-1.png", "images/swarmer-2.png" ] )
 const swarmerSound = loadSound( '/sounds/swarmer.mp3', 0.10 )
 const swarmerClassicSound = loadSound( '/sounds/swarmer2.mp3', 0.05 )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.10 )
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Swarmer Entity
-// ─────────────────────────────────────────────────────────────────────────────
 export const swarmer = () => {
 	return {
 		...createEntity( {
@@ -43,13 +39,13 @@ export const swarmer = () => {
 		images: null,
 		closestDistance: 0,
 
-		spawn ( { registry, ship, x, y, vx, vy } ) {
+		spawn ( { director, ship, x, y, vx, vy } ) {
 			swarmerSound.play()
 			swarmerSound.stereo( stereoFromScreenX( screen, this.x ) )
 			swarmerClassicSound.play()
 			swarmerClassicSound.stereo( stereoFromScreenX( screen, this.x ) )
 
-			this.registry = registry
+			this.director = director
 			this.ship = ship
 
 			this.x = x ?? randInt( canvas.width )
@@ -91,7 +87,7 @@ export const swarmer = () => {
 			let dist2 = dist1
 
 			// Find the two closest swarmers (or ship)
-			for ( const other of this.registry.get( 'swarmer' ) ) {
+			for ( const other of this.director.get( 'swarmer' ) ) {
 				if ( other === this ) continue
 				const d = distanceBetweenPoints( this.x, this.y, other.x, other.y )
 				if ( d === 0 ) continue
@@ -146,7 +142,7 @@ export const swarmer = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.15 ) return
-			this.registry.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.director.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		}
 	}
 }
@@ -155,26 +151,26 @@ export const swarmer = () => {
 export const Swarmers = () => {
 	return {
 		swarmers: [],
-		registry: null,
+		director: null,
 		all () {
 			return this.swarmers
 		},
-		spawnSingle ( { ship, x, y, vx, vy, registry } ) {
+		spawnSingle ( { ship, x, y, vx, vy, director } ) {
 			let a = swarmer()
 			this.swarmers.push( a )
-			a.spawn( { registry: registry || this.registry, ship: ship, x: x, y: y, vx: vx, vy: vy } )
+			a.spawn( { director: director || this.director, ship: ship, x: x, y: y, vx: vx, vy: vy } )
 		},
-		spawn ( { registry } ) {
-			this.registry = registry
+		spawn ( { director } ) {
+			this.director = director
 			// this.spawnSingle({})
 		},
 		update ( dt ) {
 			this.swarmers = this.swarmers.filter( ( b ) => { return b.dead !== true } )
 			this.swarmers.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via registry.updateType('bomb', dt)
+			// Bombs are now updated via director.updateType('bomb', dt)
 		},
 		draw () {
-			// Bombs are now drawn via registry.drawType('bomb')
+			// Bombs are now drawn via director.drawType('bomb')
 			this.swarmers.forEach( ( x ) => x.draw() )
 		}
 	}

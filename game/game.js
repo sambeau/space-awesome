@@ -2,13 +2,13 @@ import { build, version } from "./version.js"
 
 import { AudioManager } from "./audioManager.js"
 import { GameOverState } from "./states/GameOverState.js"
-import { HighScoreManager } from "./systems/HighScoreManager.js"
+import { HighScoreManager } from "./zap/HighScoreManager.js"
 import { NewHighScoreState } from "./states/NewHighScoreState.js"
 import { PlayState } from "./states/PlayState.js"
 import { PlayerDeathState } from "./states/PlayerDeathState.js"
 import { starfield as Starfield } from "./entities/stars.js"
 // Import state system
-import { StateManager } from "./states/StateManager.js"
+import { StateManager } from "./zap/StateManager.js"
 import { TitleState } from "./states/TitleState.js"
 import { WaveTransitionState } from "./states/WaveTransitionState.js"
 

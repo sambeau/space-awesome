@@ -6,7 +6,7 @@
 - [ ] Williams’-style Help Page
 - [ ] Williams’-style Hi Score page
 - [ ] Game Over text animation
-- [ ] Enter for smart bombs
+- [x] Enter for smart bombs
 - [ ] Ship states
 	- [ ] Toys remain until death
 	- [ ] Toys remain across waves
@@ -98,8 +98,8 @@
 - [ ] Side-shooters
 - [ ] Walls
 	- [ ] Wall Canons
-- [ ] Bombers
-	- [ ] Dropping stationary ‘x’ bombs
+- [x] Bombers
+	- [x] Dropping stationary ‘x’ bombs
 - [ ] Teleporting baddies
 	- [ ] Teleporting in
 - [ ] Baddies that fight in formation

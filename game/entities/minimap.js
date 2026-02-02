@@ -12,7 +12,7 @@ const pixel = 4
 
 let ship
 let entities
-let registry
+let director
 
 let width
 let height
@@ -32,7 +32,7 @@ export let Minimap = () => {
 		init ( ship, ents, reg = null ) {
 			this.ship = ship
 			entities = ents
-			registry = reg
+			director = reg
 
 			width = canvas.width / scale
 			height = canvas.height * 4 / scale
@@ -89,9 +89,9 @@ export let Minimap = () => {
 			ctx.fillText( humansLabel, x + width / 2, y + height + ( gap * 3 / 2 ) + 50 )
 			ctx.fillText( this.ship.shield.strength, x + width / 2, y + height + ( gap * 3 / 2 ) + 70 )
 
-			// Get all minimap-visible entities - prefer registry if available
-			const allEnts = registry
-				? registry.allForMinimap()
+			// Get all minimap-visible entities - prefer director if available
+			const allEnts = director
+				? director.allForMinimap()
 				: entities.flatMap( type => type.all() )
 
 			allEnts.forEach( ( ent ) => {

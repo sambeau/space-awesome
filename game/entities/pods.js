@@ -1,13 +1,11 @@
 import { COLLISION, LAYER } from "./constants.js"
-import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
+import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { ctx, game } from "../game.js"
 import { makeN, randInt, stereoFromScreenX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Assets (loaded once, cached)
-// ─────────────────────────────────────────────────────────────────────────────
 const assets = loadImages( [
 	"images/pod-1.png",
 	"images/pod-2.png",
@@ -16,9 +14,7 @@ const assets = loadImages( [
 ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Pod Entity
-// ─────────────────────────────────────────────────────────────────────────────
 export const pod = () => {
 	return {
 		...createEntity( {
@@ -45,8 +41,8 @@ export const pod = () => {
 		vy: Math.random() * 3,
 		rotation: Math.random() * 10,
 
-		spawn ( { registry, ship, floaters } ) {
-			this.registry = registry
+		spawn ( { director, ship, floaters } ) {
+			this.director = director
 			this.ship = ship
 			this.floaters = floaters
 			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant * 2 )
@@ -90,7 +86,7 @@ export const pod = () => {
 
 			// Spawn swarmers
 			for ( const offset of [ 5, 0, -5, 10, 0, -10 ] ) {
-				this.registry.spawn( 'swarmer', {
+				this.director.spawn( 'swarmer', {
 					ship: this.ship,
 					x: this.x + offset,
 					y: this.y + offset,
@@ -109,9 +105,9 @@ export const Pods = () => {
 		all () {
 			return this.pods
 		},
-		spawn ( { registry, ship, floaters } ) {
+		spawn ( { director, ship, floaters } ) {
 			this.pods = makeN( pod, 2 )
-			this.pods.forEach( ( x ) => x.spawn( { registry: registry, ship: ship, floaters: floaters } ) )
+			this.pods.forEach( ( x ) => x.spawn( { director: director, ship: ship, floaters: floaters } ) )
 		},
 		update ( dt ) {
 			this.pods = this.pods.filter( ( b ) => { return b.dead !== true } )
