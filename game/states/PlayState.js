@@ -1,16 +1,11 @@
 // Main gameplay state - handles collision, updates, rendering, and transitions
 
-import { Bombers, bomber } from '../entities/bombers.js'
-import { defenders as Defenders, defender } from '../entities/defenders.js'
-import { FireBombers, fireBomber } from '../entities/fireBombers.js'
-import { galaxians as Galaxians, galaxian } from '../entities/galaxians.js'
-import { Mines, mine } from '../entities/mines.js'
-import { Mothers, mother } from '../entities/mothers.js'
-import { Pods, pod } from '../entities/pods.js'
-import { Powerups, powerup } from '../entities/powerups.js'
+import { defender } from '../entities/defenders.js'
+import { galaxian } from '../entities/galaxians.js'
+import { powerup } from '../entities/powerups.js'
 import { Snakes, snake } from '../entities/snakes.js'
 import { Spacemen, spaceman } from '../entities/spacemen.js'
-import { Swarmers, swarmer } from '../entities/swarmers.js'
+import { swarmer } from '../entities/swarmers.js'
 
 import { BaseState } from './BaseState.js'
 import { COLLISION } from '../entities/constants.js'
@@ -21,11 +16,15 @@ import { spaceship as Spaceship } from '../entities/ship.js'
 import { asteroid } from '../entities/asteroids.js'
 import { bomb } from '../entities/bombs.js'
 import { bombJack } from '../entities/bombJacks.js'
+import { bomber } from '../entities/bombers.js'
 import { bullet } from '../entities/bullet.js'
 import { createRegistry } from '../entities/Registry.js'
 import { drawBackground } from '../rendering.js'
+import { fireBomber } from '../entities/fireBombers.js'
+import { mine } from '../entities/mines.js'
+import { mother } from '../entities/mothers.js'
 import { mushroom } from '../entities/mushrooms.js'
-import { shot } from '../entities/shot.js'
+import { pod } from '../entities/pods.js'import { randInt } from '../zap/zap.js'import { shot } from '../entities/shot.js'
 
 export class PlayState extends BaseState {
 	constructor( game ) {
@@ -37,17 +36,8 @@ export class PlayState extends BaseState {
 		// Entities (stars are shared via game.stars)
 		this.ship = null
 		this.floaters = null
-		this.mines = null
-		this.mothers = null
 		this.spacemen = null
-		this.swarmers = null
-		this.pods = null
-		this.bombers = null
-		this.fireBombers = null
-		this.defenders = null
-		this.galaxians = null
 		this.snakes = null
-		this.powerups = null
 		this.hud = null
 
 		// State data
@@ -132,84 +122,65 @@ export class PlayState extends BaseState {
 		this.registry.spawn( 'asteroid', { size: 'L' } )
 		this.registry.spawn( 'asteroid', { size: 'L' } )
 
-		this.mines = Mines()
-		this.mines.spawn( { ship: this.ship, floaters: this.floaters } )
+		// Spawn mine via registry
+		this.registry.spawn( 'mine' )
 
-		this.mothers = Mothers()
-		this.mothers.spawn( { registry: this.registry, ship: this.ship, floaters: this.floaters } )
+		// Spawn mother via registry (1 mother)
+		this.registry.spawn( 'mother' )
 
 		this.spacemen = Spacemen()
 		this.spacemen.spawn( { ship: this.ship, floaters: this.floaters } )
 
-		this.swarmers = Swarmers()
-		this.swarmers.spawn( { registry: this.registry } )
-		this.pods = Pods()
-		this.pods.spawn( { registry: this.registry, ship: this.ship, floaters: this.floaters } )
+		// Swarmers are spawned by pods via registry - no initial spawns needed
 
-		this.bombers = Bombers()
-		this.bombers.spawn( { registry: this.registry, ship: this.ship, floaters: this.floaters } )
+		// Spawn pods via registry (2 pods)
+		this.registry.spawn( 'pod' )
+		this.registry.spawn( 'pod' )
 
-		this.fireBombers = FireBombers()
-		this.fireBombers.spawn( { ship: this.ship, floaters: this.floaters } )
+		// Spawn bombers via registry (10 bombers)
+		for ( let i = 0; i < 10; i++ ) this.registry.spawn( 'bomber' )
 
-		this.defenders = Defenders()
-		this.defenders.spawn( { ship: this.ship, registry: this.registry } )
+		// Spawn fireBombers via registry (10 fireBombers)
+		for ( let i = 0; i < 10; i++ ) this.registry.spawn( 'fireBomber' )
 
-		this.galaxians = Galaxians()
-		this.galaxians.spawn( { ship: this.ship, registry: this.registry } )
+		// Spawn defenders via registry (4 defenders)
+		for ( let i = 0; i < 4; i++ ) this.registry.spawn( 'defender' )
+
+		// Spawn galaxians via registry (4 galaxians)
+		for ( let i = 0; i < 4; i++ ) this.registry.spawn( 'galaxian' )
 
 		this.snakes = Snakes()
 		this.snakes.spawn( { ship: this.ship, spacemen: this.spacemen, floaters: this.floaters, registry: this.registry } )
 
-		this.powerups = Powerups()
-		this.powerups.spawn( { ship: this.ship } )
+		// Spawn powerups via registry (7 powerups with various types/positions)
+		const ch = this.game.canvas.height
+		this.registry.spawn( 'powerup', { type: 'bullet', y: randInt( ch * 4 ) + ch * 3 } )
+		this.registry.spawn( 'powerup', { type: 'bullet', y: randInt( ch * 3 ) + ch * 2 } )
+		this.registry.spawn( 'powerup', { type: 'life', y: randInt( ch * 3 ) + ch * 1 } )
+		this.registry.spawn( 'powerup', { type: 'smart', y: randInt( ch * 2 ) + ch * 1 } )
+		this.registry.spawn( 'powerup', { type: 'shield', y: randInt( ch * 2 ) } )
+		this.registry.spawn( 'powerup', { type: 'shield', y: randInt( ch * 2 ) + ch * 4 } )
+		this.registry.spawn( 'powerup', { type: 'shield', y: randInt( ch * 2 ) + ch * 4 } )
 
 		this.ship.spawn( {
 			entities: [
 				// Is order important?
-				this.mothers,
-				this.bombers,
-				this.fireBombers,
-				this.pods,
-				this.swarmers,
-				this.defenders,
-				this.galaxians,
-				this.powerups,
 				this.spacemen,
 				this.snakes,
-				this.mines,
 			],
 			floaters: this.floaters
 		} )
 
 		// Sync manager entity arrays with registry for unified tracking
 		// This allows using registry.allPrimaryEnemiesDead() etc.
-		this.registry.sync( 'galaxian', this.galaxians.galaxians )
-		this.registry.sync( 'defender', this.defenders.defenders )
-		this.registry.sync( 'pod', this.pods.pods )
-		this.registry.sync( 'mother', this.mothers.mothers )
-		this.registry.sync( 'bomber', this.bombers.bombers )
-		this.registry.sync( 'fireBomber', this.fireBombers.fireBombers )
 		this.registry.sync( 'snakeController', this.snakes.snakes )
-		this.registry.sync( 'swarmer', this.swarmers.swarmers )
 		this.registry.sync( 'spaceman', this.spacemen.spacemen )
-		this.registry.sync( 'mine', this.mines.mines )
-		this.registry.sync( 'powerup', this.powerups.powerups )
 
 		this.hud = Hud()
 		this.hud.init( this.ship, this.spacemen, [
 			// Is order important?
-			this.mothers,
-			this.bombers,
-			this.fireBombers,
-			this.pods,
-			this.swarmers,
-			this.defenders,
-			this.galaxians,
-			this.powerups,
 			this.spacemen,
 			this.snakes,
-			this.mines
 		], this.registry )
 	}
 
@@ -256,7 +227,7 @@ export class PlayState extends BaseState {
 					this.registry.spawn( 'asteroid', {} )
 					break
 				case "KeyQ":
-					this.galaxians.spawnSingle( { ship: this.ship, registry: this.registry } )
+					this.registry.spawn( 'galaxian' )
 					break
 				case "KeyP":
 					// toggle pause state
@@ -274,12 +245,12 @@ export class PlayState extends BaseState {
 				case "KeyN":
 					// Skip to next wave (kill all enemies)
 					this.registry.clearType( 'asteroid' )
-					this.galaxians.galaxians = []
-					this.defenders.defenders = []
-					this.mothers.mothers = []
-					this.pods.pods = []
-					this.swarmers.swarmers = []
-					this.mines.mines = []
+					this.registry.clearType( 'galaxian' )
+					this.registry.clearType( 'defender' )
+					this.registry.clearType( 'mother' )
+					this.registry.clearType( 'pod' )
+					this.registry.clearType( 'swarmer' )
+					this.registry.clearType( 'mine' )
 					console.log( "Skipping to next wave" )
 					break
 				case "KeyL":
@@ -406,7 +377,7 @@ export class PlayState extends BaseState {
 		// Order is important, by groups
 		// e.g. you can't update the hud until all the baddies have been moved
 		// UPDATE_GROUP_POWERUPS
-		this.powerups.update( dt )
+		this.registry.updateType( 'powerup', dt )
 		// UPDATE_GROUP_STARS
 		// stars can be moved any time, surey
 		this.game.stars.update( dt )
@@ -414,17 +385,16 @@ export class PlayState extends BaseState {
 		// Is order important here?
 		// i.e. do spacemen have to move before snakes?
 		this.registry.updateType( 'asteroid', dt )
-		this.mines.update( dt )
+		this.registry.updateType( 'mine', dt )
 		this.spacemen.update( dt )
-		this.mothers.update( dt )
-		this.bombers.update( dt )
-		this.fireBombers.update( dt )
-		this.pods.update( dt )
-		this.swarmers.update( dt )
+		this.registry.updateType( 'mother', dt )
+		this.registry.updateType( 'bomber', dt )
+		this.registry.updateType( 'fireBomber', dt )
+		this.registry.updateType( 'pod', dt )
 		this.registry.updateType( 'swarmer', dt )  // Swarmers spawned from pods
 		this.registry.updateType( 'mushroom', dt )
-		this.defenders.update( dt )
-		this.galaxians.update( dt )
+		this.registry.updateType( 'defender', dt )
+		this.registry.updateType( 'galaxian', dt )
 		this.registry.updateType( 'shot', dt )  // Galaxian shots
 		this.registry.updateType( 'bomb', dt )  // Defender/Mother/Swarmer bombs
 		this.registry.updateType( 'bombJack', dt )  // Bomber bombs
@@ -458,21 +428,20 @@ export class PlayState extends BaseState {
 		// DRAW_LAYER_BADDIES
 		this.snakes.draw()
 		this.registry.drawType( 'asteroid' )
-		this.mines.draw()
+		this.registry.drawType( 'mine' )
 		this.spacemen.draw()
-		this.mothers.draw()
-		this.bombers.draw()
-		this.fireBombers.draw()
-		this.pods.draw()
-		this.swarmers.draw()
+		this.registry.drawType( 'mother' )
+		this.registry.drawType( 'bomber' )
+		this.registry.drawType( 'fireBomber' )
+		this.registry.drawType( 'pod' )
 		this.registry.drawType( 'swarmer' )  // Swarmers spawned from pods
-		this.defenders.draw()
-		this.galaxians.draw()
+		this.registry.drawType( 'defender' )
+		this.registry.drawType( 'galaxian' )
 		this.registry.drawType( 'shot' )  // Galaxian shots
 		this.registry.drawType( 'bomb' )  // Defender/Mother/Swarmer bombs
 		this.registry.drawType( 'bombJack' )  // Bomber bombs
 		// DRAW_LAYER_POWERUPS
-		this.powerups.draw()
+		this.registry.drawType( 'powerup' )
 		// DRAW_LAYER_SHIP
 		this.ship.draw()
 		// DRAW_LAYER_PARTICLES

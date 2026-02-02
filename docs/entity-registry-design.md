@@ -867,3 +867,275 @@ Visual and gameplay behavior requires human verification:
 - Spawn via `registry.spawn('type', props)` not `manager.spawnSingle(props)`
 - Access siblings via `registry.get('type')` not `this.manager.entities`
 - PlayState update/draw becomes ~10 lines instead of ~50
+
+---
+
+## Phase 6.2C: Full Manager Elimination Plan
+
+### Current State (After Phase 6.2 A+B)
+
+**Already migrated to registry-only:**
+- ✅ Asteroids - spawn/flock/split via registry
+- ✅ Mushrooms - spawned via registry from snakes
+- ✅ Shots - galaxian projectiles via registry
+- ✅ Bombs - defender/mother/swarmer projectiles via registry  
+- ✅ BombJacks - bomber projectiles via registry
+- ✅ Swarmers (from pods) - spawned via registry
+
+**Still using managers with sync():**
+| Manager | Extra State | Custom Logic | Difficulty |
+|---------|-------------|--------------|------------|
+| Galaxians | ❌ | ❌ | ⭐ Easy |
+| Defenders | ❌ | ❌ | ⭐ Easy |
+| Pods | ❌ | ❌ | ⭐ Easy |
+| Mothers | ❌ | ❌ | ⭐ Easy |
+| Bombers | ❌ | ❌ | ⭐ Easy |
+| FireBombers | ❌ | ❌ | ⭐ Easy |
+| Swarmers | ❌ | ❌ | ⭐ Easy |
+| Mines | ❌ | ❌ | ⭐ Easy |
+| Powerups | ❌ | ❌ | ⭐ Easy |
+| **Spacemen** | ✅ `saved`, `ids` | ✅ count saved in update | ⭐⭐ Medium |
+| **Snakes** | ✅ controller pattern | ✅ `all()` flattens segments | ⭐⭐⭐ Hard |
+
+### Migration Strategy
+
+#### Tier 1: Simple Managers (9 managers)
+
+These managers only:
+1. Hold an array
+2. Filter dead in update()
+3. Iterate for update/draw
+
+**Pattern for each:**
+```javascript
+// Before (manager)
+this.galaxians = Galaxians()
+this.galaxians.spawn({ ship, registry })
+// ... later
+this.registry.sync('galaxian', this.galaxians.galaxians)
+
+// After (registry-only)
+for (let i = 0; i < 4; i++) {
+  this.registry.spawn('galaxian', { ship })
+}
+```
+
+**Order of migration (lowest risk first):**
+1. Mines (1 entity, simple)
+2. Pods (2 entities, simple)
+3. Mothers (1 entity, simple)
+4. FireBombers (10 entities, no projectiles)
+5. Bombers (10 entities, projectiles already migrated)
+6. Defenders (4 entities, projectiles already migrated)
+7. Galaxians (4 entities, projectiles already migrated)
+8. Swarmers (0 initial, spawned from pods)
+9. Powerups (7 entities, different types)
+
+**For each manager:**
+1. Move spawn count/positions to PlayState.initializeEntities()
+2. Replace `manager.spawn()` with `registry.spawn()` loop
+3. Remove `manager.update()` call, use `registry.updateType()`
+4. Remove `manager.draw()` call, use `registry.drawType()`
+5. Remove `registry.sync()` call (registry now owns array)
+6. Remove manager import and instantiation
+7. Update ship.spawn() entities list (if referenced)
+8. Run tests
+
+#### Tier 2: Spacemen (Medium)
+
+**Extra state to handle:**
+- `ids` - auto-increment counter for spaceman IDs
+- `saved` - count of rescued spacemen
+
+**Solution:** Move state to registry.state
+```javascript
+// In PlayState.initializeEntities()
+this.registry.state.spacemenIds = 0
+this.registry.state.spacemenSaved = 0
+
+// In spaceman.spawn()
+this.registry.state.spacemenIds++
+this.id = this.registry.state.spacemenIds
+
+// In spaceman entity (when saved)
+this.registry.state.spacemenSaved++
+```
+
+**Migration steps:**
+1. Add `registry.state = {}` to createRegistry() if not present
+2. Add state initialization in PlayState
+3. Update spaceman factory to use registry.state for ID
+4. Move "saved" counting from manager.update() to entity behavior
+5. Update WaveTransitionState to read `registry.state.spacemenSaved`
+6. Remove Spacemen manager
+
+#### Tier 3: Snakes (Hard)
+
+**Complexity:**
+- Snake is a **controller** managing an array of **segments**
+- `Snakes.all()` flattens all segments for collision detection
+- `snake.split()` spawns new snakes via `this.snakes.spawnSingle()`
+- Segment collision groups differ from snake controller
+
+**Options:**
+
+**Option A: Keep snake controller pattern (Recommended)**
+- Register `snakeController` type (already done)
+- Snake manages its own segments internally (no change)
+- Add `allSegments()` helper to registry or keep `snakes.all()` approach
+
+```javascript
+// Registry helper for snakes
+registry.allSnakeSegments = () => {
+  return registry.get('snakeController').flatMap(s => s.all())
+}
+
+// Or simpler: snake.all() already works, just collect from registry
+const allSegments = registry.get('snakeController').flatMap(s => s.all())
+```
+
+**Option B: Register segments separately**
+- Register both `snakeController` and `snakeSegment` types
+- Snake.spawn creates segments via registry
+- More complex, requires segment-to-controller references
+
+**Recommended approach (Option A):**
+1. Keep snake internal segment management
+2. Update `snake.split()` to use `registry.spawn('snakeController', ...)`
+3. Add registry helper or inline `flatMap` for segment collision
+4. Remove Snakes manager
+
+**Migration steps:**
+1. Change snake.split() from `this.snakes.spawnSingle()` to `this.registry.spawn('snakeController', ...)`
+2. Update PlayState collision to use flatMap on registry snake controllers
+3. Remove Snakes manager
+4. Test snake spawning, splitting, segment collision
+
+### PlayState After Full Migration
+
+```javascript
+initializeEntities() {
+  // Create registry and set refs
+  this.registry = createRegistry()
+  this.registry.setRefs({ ship: this.ship, floaters: this.floaters })
+  this.registry.state = { spacemenIds: 0, spacemenSaved: 0 }
+  
+  // Register all entity types
+  this.registry.register([
+    galaxian, defender, pod, mother, bomber, fireBomber,
+    swarmer, mine, spaceman, powerup, asteroid, mushroom,
+    snakeController, bomb, bombJack, shot, bullet
+  ])
+  
+  // Spawn initial entities
+  this.registry.spawn('asteroid', { size: 'L' })
+  this.registry.spawn('asteroid', { size: 'L' })
+  this.registry.spawn('asteroid', { size: 'L' })
+  
+  for (let i = 0; i < 4; i++) this.registry.spawn('galaxian')
+  for (let i = 0; i < 4; i++) this.registry.spawn('defender')
+  for (let i = 0; i < 2; i++) this.registry.spawn('pod')
+  this.registry.spawn('mother')
+  for (let i = 0; i < 10; i++) this.registry.spawn('bomber')
+  for (let i = 0; i < 10; i++) this.registry.spawn('fireBomber')
+  this.registry.spawn('mine')
+  this.registry.spawn('snakeController', { length: 8 })
+  
+  // Spacemen with varied positions
+  const spacemanYs = [/* array of Y positions */]
+  spacemanYs.forEach(y => this.registry.spawn('spaceman', { y }))
+  
+  // Powerups
+  this.registry.spawn('powerup', { type: 'bullet' })
+  // ... etc
+  
+  // HUD, ship setup (unchanged)
+  this.hud = Hud()
+  this.hud.init(this.ship, this.registry)
+}
+
+update(dt) {
+  if (this.paused) return
+  
+  // Death/respawn logic (unchanged)
+  // Wave completion check (unchanged)
+  
+  // Collision detection
+  this.ship.collideWeaponsWithAll([
+    this.registry.byGroup(COLLISION.SHOOTABLE)
+  ])
+  
+  this.ship.crashIntoAll([
+    this.registry.byGroup(COLLISION.DEADLY),
+    this.registry.get('snakeController').flatMap(s => s.all())
+  ])
+  
+  this.ship.collect(this.registry.byGroup(COLLISION.COLLECTABLE))
+  
+  // Update everything
+  this.game.stars.update(dt)
+  this.registry.updateAll(dt)  // ← One line for all entities!
+  this.game.particles.update(dt)
+  this.floaters.update(dt)
+  this.hud.update(dt)
+}
+
+draw() {
+  drawBackground(this.game.ctx, this.game.canvas)
+  
+  this.game.stars.draw()
+  this.registry.drawAll()  // ← One line for all entities!
+  this.game.particles.draw()
+  this.floaters.draw()
+  this.hud.draw()
+}
+```
+
+### Remaining Outside Registry
+
+These stay outside by design:
+- `game.stars` - Shared across states
+- `game.particles` - High-volume, different lifecycle
+- `floaters` - Text overlay system
+- `hud` - UI component
+- `ship.shield`, `ship.smartBomb`, `ship.flames` - Ship sub-entities
+
+### Migration Checklist
+
+#### Phase C.1: Simple Managers
+- [ ] Mines
+- [ ] Pods
+- [ ] Mothers
+- [ ] FireBombers
+- [ ] Bombers
+- [ ] Defenders
+- [ ] Galaxians
+- [ ] Swarmers (manager only - entity spawning already done)
+- [ ] Powerups
+
+#### Phase C.2: Spacemen
+- [ ] Add registry.state initialization
+- [ ] Move ID counter to registry.state
+- [ ] Move saved counting to entity
+- [ ] Update WaveTransitionState
+- [ ] Remove Spacemen manager
+
+#### Phase C.3: Snakes
+- [ ] Update snake.split() to use registry
+- [ ] Add segment flattening for collision
+- [ ] Remove Snakes manager
+
+#### Phase C.4: Cleanup
+- [ ] Remove unused manager imports from PlayState
+- [ ] Remove sync() calls
+- [ ] Update HUD to use registry only
+- [ ] Update ship.spawn() entity references
+- [ ] Full playthrough test
+
+### Benefits After Migration
+
+1. **Adding new entity type:** Just create factory with metadata, register, spawn
+2. **update() complexity:** ~25 lines → 5 lines  
+3. **draw() complexity:** ~20 lines → 6 lines
+4. **No more forgetting** to add entity to collision/update/draw lists
+5. **Wave data could drive spawning:** `waveData.enemies.forEach(e => reg.spawn(e.type, e.pos))`
