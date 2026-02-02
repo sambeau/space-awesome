@@ -26,11 +26,11 @@ No build step. No framework. Just functions you can copy into any project.
 ┌─────────────────────────────────────────────────────────────┐
 │                         Your Game                           │
 ├─────────────────────────────────────────────────────────────┤
-│  StateManager        │  Director           │  HighScores   │
-│  ─────────────       │  ────────           │  ──────────   │
-│  Manages screens:    │  Manages entities:  │  Saves/loads  │
-│  title → play →      │  spawn, update,     │  high scores  │
-│  gameOver            │  draw, collisions   │               │
+│  StateManager        │  Director           │  HighScores    │
+│  ─────────────       │  ────────           │  ──────────    │
+│  Manages screens:    │  Manages entities:  │  Saves/loads   │
+│  title → play →      │  spawn, update,     │  high scores   │
+│  gameOver            │  draw, collisions   │                │
 ├─────────────────────────────────────────────────────────────┤
 │                        Entity.js                            │
 │  Creates game objects with common behaviours                │
