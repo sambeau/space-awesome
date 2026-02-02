@@ -322,6 +322,8 @@ Check out the SpaceAwesome docs:
 - [Entity System](../../docs/entity-system.md) — How entities work
 - [Director](../../docs/director.md) — How the director manages entities
 - [State Machine](../../docs/state-machine.md) — How game states work  
+- [zap.js Reference](../../docs/zap.md) — All the utility functions
+
 ---
 
 ## License
