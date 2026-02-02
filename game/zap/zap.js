@@ -183,7 +183,7 @@ export function getColliderArea ( thing ) {
 			thing.collider
 	let area = 0
 	colliders.forEach( ( c ) => {
-		area += c.area
+		area += c.area || 0
 	} )
 	return area
 }

@@ -188,6 +188,13 @@ const asteroid = () => {
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
+					this.asteroids.spawnSingle( {
+						size: "M",
+						x: this.x,
+						y: this.y,
+						vx: Math.random() - 2,
+						vy: this.vy + 3,
+					} )
 					break
 
 				case "M":
@@ -209,7 +216,15 @@ const asteroid = () => {
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
 					} )
+					this.asteroids.spawnSingle( {
+						size: "S",
+						x: this.x,
+						y: this.y,
+						vx: Math.random() - 2,
+						vy: this.vy + 3,
+					} )
 					break
+
 
 				case "S":
 					asteroidSSound.play()

@@ -1,62 +1,55 @@
-import { canvas, ctx, game } from "../game.js";
-import { moveDistanceAlongLine, picker, stereoFromScreenX } from "../zap/zap.js";
-import { explode } from "./explosions.js";
+import { canvas, ctx, game } from "../game.js"
+import { createEntity, loadImages, loadSound } from "./Entity.js"
+import { moveDistanceAlongLine, picker, stereoFromScreenX } from "../zap/zap.js"
 
-const debug = false
-let imagesLoaded = 0
+import { explode } from "./explosions.js"
 
-const image1 = new Image()
-const image2 = new Image()
-const image3 = new Image()
-const image4 = new Image()
+// ═══════════════════════════════════════════════════════════════════════════
+// ASSET LOADING
+// ═══════════════════════════════════════════════════════════════════════════
 
-image1.src = "images/bomb-1.png"
-image2.src = "images/bomb-2.png"
-image3.src = "images/bomb-3.png"
-image4.src = "images/bomb-4.png"
+const bombAssets = loadImages( [
+	"images/bomb-1.png",
+	"images/bomb-2.png",
+	"images/bomb-3.png",
+	"images/bomb-4.png",
+] )
 
-image1.onload = () => { imagesLoaded++ }
-image2.onload = () => { imagesLoaded++ }
-image3.onload = () => { imagesLoaded++ }
-image4.onload = () => { imagesLoaded++ }
+const bombSound = loadSound( "/sounds/bomb.mp3", 0.05 )
 
-const allImagesLoaded = 4
-const bombImages = [
-	image1,
-	image2,
-	image3,
-	image4,
-]
-let bombWidth = 10
-let bombSpeed = 10
+// ═══════════════════════════════════════════════════════════════════════════
+// BOMB ENTITY
+// Projectiles fired by defenders that track toward the player
+// ═══════════════════════════════════════════════════════════════════════════
 
-var bombSound = new Howl({ src: ['/sounds/bomb.mp3'] });
-bombSound.volume(0.05)
+const bombWidth = 10
+const bombSpeed = 10
 
 export const bomb = () => {
 	return {
-		name: "bomb",
-		x: 0,
-		y: 0,
-		vx: 0,
-		vy: 0,
-		width: bombWidth,
-		height: bombWidth,
+		...createEntity( {
+			name: "bomb",
+			width: bombWidth,
+			height: bombWidth,
+			collider: {
+				type: "circle",
+				ox: bombWidth / 2,
+				oy: bombWidth / 2,
+				r: bombWidth / 2,
+				area: 5,
+				colliding: false
+			}
+		} ),
+
 		speed: bombSpeed,
 		bomber: null,
-		dead: false,
-		collider: {
-			type: "circle",
-			ox: bombWidth / 2,
-			oy: bombWidth / 2,
-			r: bombWidth / 2,
-			area: 5,
-			colliding: false
-		},
-		images: picker(bombImages),
-		spawn({ ship, atx, aty, bomber }) {
+		ship: null,
+		images: null,
+
+		spawn ( { ship, atx, aty, bomber } ) {
 			this.ship = ship
 			this.bomber = bomber
+			this.images = picker( bombAssets.images )
 
 			this.x = atx - this.width / 2
 			this.y = aty + this.height / 2
@@ -70,31 +63,31 @@ export const bomb = () => {
 			this.vy = vy
 			this.bomber.bombs++
 			bombSound.play()
-			bombSound.stereo(stereoFromScreenX(screen, this.x))
+			bombSound.stereo( stereoFromScreenX( screen, this.x ) )
 		},
-		outOfBoundsBottom() {
-			if (this.y >= canvas.height) return true
-			return false;
-		},
-		update(/*dt*/) {
-			if (this.outOfBoundsBottom()) {
+
+		update () {
+			this.tick()
+
+			if ( this.y >= canvas.height ) {
 				this.y = 0
 				this.vy = 0
 				this.dead = true
 				this.bomber.bombs--
 			} else {
 				this.x += this.vx
-				this.y += this.vy + game.speed;
+				this.y += this.vy + game.speed
 			}
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
-			bombSound.stereo(stereoFromScreenX(screen, this.x))
+
+			this.syncCollider()
+			bombSound.stereo( stereoFromScreenX( screen, this.x ) )
 		},
-		onHit() {
+
+		onHit () {
 			this.dead = true
 			this.bomber.bombs--
 			bombSound.stop()
-			explode({
+			explode( {
 				x: this.x + this.collider.ox,
 				y: this.y + this.collider.oy,
 				styles: [
@@ -106,12 +99,13 @@ export const bomb = () => {
 					"#FFFFFF",
 				],
 				size: 4,
-			})
+			} )
 		},
-		draw() {
-			if (this.dead) return
-			if (imagesLoaded == allImagesLoaded) {
-				ctx.drawImage(this.images.any(), this.x, this.y, this.width, this.height);
+
+		draw () {
+			if ( this.dead ) return
+			if ( bombAssets.loaded() ) {
+				ctx.drawImage( this.images.any(), this.x, this.y, this.width, this.height )
 			}
 		},
 	}

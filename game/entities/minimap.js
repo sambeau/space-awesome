@@ -28,8 +28,8 @@ export let Minimap = () => {
 		ticker: 0,
 		animationSpeed: 3,
 		image: 0,
-		init ( _ship, ents ) {
-			ship = _ship
+		init ( ship, ents ) {
+			this.ship = ship
 			entities = ents
 
 			width = canvas.width / scale
@@ -85,6 +85,7 @@ export let Minimap = () => {
 			ctx.fillStyle = "#ffffff"
 			ctx.fillText( scannerLabel, x + width / 2, y + height + ( gap * 3 / 2 ) )
 			ctx.fillText( humansLabel, x + width / 2, y + height + ( gap * 3 / 2 ) + 50 )
+			ctx.fillText( this.ship.shield.strength, x + width / 2, y + height + ( gap * 3 / 2 ) + 70 )
 
 			entities.forEach( ( type ) => {
 				( type.all() ).forEach( ( ent ) => {
@@ -101,7 +102,7 @@ export let Minimap = () => {
 				} )
 			} )
 			ctx.fillStyle = "white"
-			if ( ship && ship.x && !ship.dead && !game.over ) { // why doesn't this work?
+			if ( ship && ship.x && !ship.dead && !game.over ) { // why doesn't this work? // because it should be this.ship!! TODO
 				const shipx = ship.x / scale + x
 				const shipy = ( ship.y + 3 * canvas.height + 2 ) / scale + y
 				ctx.fillRect( shipx, shipy, 2, 4 )

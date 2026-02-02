@@ -172,6 +172,7 @@ export const Hud = () => {
 	return {
 		score: null,
 		init ( ship, spacemen, ents ) {
+
 			this.score = Score()
 			this.score.init()
 

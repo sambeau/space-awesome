@@ -2,7 +2,9 @@
 
 import { asteroids as Asteroids } from '../entities/asteroids.js'
 import { BaseState } from './BaseState.js'
+import { Bombers } from '../entities/bombers.js'
 import { defenders as Defenders } from '../entities/defenders.js'
+import { FireBombers } from '../entities/fireBombers.js'
 import { Floaters } from '../entities/floaters.js'
 import { galaxians as Galaxians } from '../entities/galaxians.js'
 import { Hud } from '../entities/hud.js'
@@ -31,6 +33,8 @@ export class PlayState extends BaseState {
 		this.spacemen = null
 		this.swarmers = null
 		this.pods = null
+		this.bombers = null
+		this.fireBombers = null
 		this.defenders = null
 		this.galaxians = null
 		this.mushrooms = null
@@ -95,6 +99,12 @@ export class PlayState extends BaseState {
 		this.pods = Pods()
 		this.pods.spawn( { swarmers: this.swarmers, ship: this.ship, floaters: this.floaters } )
 
+		this.bombers = Bombers()
+		this.bombers.spawn( { swarmers: null, ship: this.ship, floaters: this.floaters } )
+
+		this.fireBombers = FireBombers()
+		this.fireBombers.spawn( { swarmers: null, ship: this.ship, floaters: this.floaters } )
+
 		this.defenders = Defenders()
 		this.defenders.spawn( { ship: this.ship } )
 
@@ -113,6 +123,8 @@ export class PlayState extends BaseState {
 			entities: [
 				this.asteroids,
 				this.mothers,
+				this.bombers,
+				this.fireBombers,
 				this.pods,
 				this.swarmers,
 				this.mushrooms,
@@ -131,6 +143,8 @@ export class PlayState extends BaseState {
 			this.mushrooms,
 			this.asteroids,
 			this.mothers,
+			this.bombers,
+			this.fireBombers,
 			this.pods,
 			this.swarmers,
 			this.defenders,
@@ -322,6 +336,8 @@ export class PlayState extends BaseState {
 			this.galaxians.galaxians,
 			this.defenders.defenders,
 			this.mothers.mothers,
+			this.bombers.bombers,
+			this.fireBombers.fireBombers,
 			this.pods.pods,
 			this.swarmers.swarmers,
 			this.mushrooms.mushrooms,
@@ -334,6 +350,8 @@ export class PlayState extends BaseState {
 			this.galaxians.galaxians,
 			this.defenders.defenders,
 			this.mothers.mothers,
+			this.bombers.bombers,
+			this.fireBombers.fireBombers,
 			this.pods.pods,
 			this.swarmers.swarmers,
 			this.mushrooms.mushrooms,
@@ -341,6 +359,7 @@ export class PlayState extends BaseState {
 			this.galaxians.shots,
 			this.defenders.bombs,
 			this.swarmers.bombs,
+			this.bombers.bombs,
 			this.mothers.bombs,
 			this.snakes.all()
 		] )
@@ -355,6 +374,8 @@ export class PlayState extends BaseState {
 		this.mines.update( dt )
 		this.spacemen.update( dt )
 		this.mothers.update( dt )
+		this.bombers.update( dt )
+		this.fireBombers.update( dt )
 		this.pods.update( dt )
 		this.swarmers.update( dt )
 		this.mushrooms.update( dt )
@@ -379,6 +400,8 @@ export class PlayState extends BaseState {
 		this.mines.draw()
 		this.spacemen.draw()
 		this.mothers.draw()
+		this.bombers.draw()
+		this.fireBombers.draw()
 		this.pods.draw()
 		this.swarmers.draw()
 		this.defenders.draw()
@@ -521,13 +544,17 @@ export class PlayState extends BaseState {
 		// Wave is complete when all primary enemies are defeated
 		// Primary enemies: asteroids, galaxians, defenders, mothers, pods, swarmers, mines
 		return (
-			this.asteroids.asteroids.length === 0 &&
+			// this.asteroids.asteroids.length === 0 &&
+			this.spacemen.spacemen.length === 0 && // saved are still counted as dead
 			this.galaxians.galaxians.length === 0 &&
 			this.defenders.defenders.length === 0 &&
 			this.mothers.mothers.length === 0 &&
+			this.bombers.bombers.length === 0 &&
+			this.fireBombers.fireBombers.length === 0 &&
 			this.pods.pods.length === 0 &&
-			this.swarmers.swarmers.length === 0 &&
-			this.mines.mines.length === 0
+			this.snakes.snakes.length === 0 &&
+			this.swarmers.swarmers.length === 0
+			// this.mines.mines.length === 0
 		)
 	}
 
