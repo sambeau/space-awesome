@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { randInt, stereoFromScreenX } from "/zap/zap.js"
@@ -38,10 +39,13 @@ const imagesByType = {
 const pickupSound = loadSound( "/sounds/pick-up.mp3", 0.33 )
 const levelUpSound = loadSound( "/sounds/level-up.mp3", 0.33 )
 
-const powerup = () => {
+export const powerup = () => {
 	return {
 		...createEntity( {
 			name: "powerup",
+			drawLayer: LAYER.POWERUPS,
+			collisionGroups: [ COLLISION.COLLECTABLE ],
+			isPrimaryEnemy: false,
 			width: 50,
 			height: 50,
 			collider: { type: "circle", ox: 50 / 2, oy: 50 / 2, r: 50 / 2, colliding: false }

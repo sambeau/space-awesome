@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, loadImages, loadSound } from "./Entity.js"
 import { distanceBetweenPoints, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
@@ -16,10 +17,13 @@ const bangSound = loadSound( '/sounds/bang.mp3', 0.10 )
 // ─────────────────────────────────────────────────────────────────────────────
 // Swarmer Entity
 // ─────────────────────────────────────────────────────────────────────────────
-const swarmer = () => {
+export const swarmer = () => {
 	return {
 		...createEntity( {
 			name: "swarmer",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: true,  // Swarmers must be killed for wave completion
 			width: 41 / 2,
 			height: 33 / 2,
 			score: 150,

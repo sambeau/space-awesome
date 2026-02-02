@@ -8,68 +8,71 @@ import {
 	stereoFromScreenX,
 	thingsAreColliding
 } from "/zap/zap.js"
+import { createEntity, loadImages, loadSound } from "./Entity.js"
 
 import { bullet } from "./bullet.js"
 
 const smartBombRadius = 500
 const flashes = 12
 
-const smartBombImage1 = new Image()
-const smartBombImage2 = new Image()
-const smartBombImage3 = new Image()
-const smartBombImage4 = new Image()
+// Smart bomb images
+const smartBombAssets = loadImages( [
+	"/images/smart-1.png",
+	"/images/smart-2.png",
+	"/images/smart-3.png",
+	"/images/smart-4.png",
+] )
 
-smartBombImage1.src = "/images/smart-1.png"
-smartBombImage2.src = "/images/smart-2.png"
-smartBombImage3.src = "/images/smart-3.png"
-smartBombImage4.src = "/images/smart-4.png"
+// Shield fizzle images
+const shieldFizzleAssets = loadImages( [
+	"/images/shield-fizzle-1.png",
+	"/images/shield-fizzle-2.png",
+	"/images/shield-fizzle-3.png",
+	"/images/shield-fizzle-4.png",
+] )
 
-const shieldFizzleImage1 = new Image()
-const shieldFizzleImage2 = new Image()
-const shieldFizzleImage3 = new Image()
-const shieldFizzleImage4 = new Image()
+// Shield critical images
+const shieldCriticalAssets = loadImages( [
+	"/images/shield-critical-1.png",
+	"/images/shield-critical-2.png",
+	"/images/shield-critical-3.png",
+	"/images/shield-critical-4.png",
+] )
 
-shieldFizzleImage1.src = "/images/shield-fizzle-1.png"
-shieldFizzleImage2.src = "/images/shield-fizzle-2.png"
-shieldFizzleImage3.src = "/images/shield-fizzle-3.png"
-shieldFizzleImage4.src = "/images/shield-fizzle-4.png"
+// Shield images
+const shieldAssets = loadImages( [
+	"/images/shield.png",
+	"/images/shield-hit.png",
+] )
 
-const shieldCriticalImage1 = new Image()
-const shieldCriticalImage2 = new Image()
-const shieldCriticalImage3 = new Image()
-const shieldCriticalImage4 = new Image()
+// Ship images
+const shipAssets = loadImages( [
+	"/images/ship-l-1.png",
+	"/images/ship-l-2.png",
+	"/images/ship-l-3.png",
+] )
 
-shieldCriticalImage1.src = "/images/shield-critical-1.png"
-shieldCriticalImage2.src = "/images/shield-critical-2.png"
-shieldCriticalImage3.src = "/images/shield-critical-3.png"
-shieldCriticalImage4.src = "/images/shield-critical-4.png"
+// Flame images
+const flameAssets = loadImages( [
+	"/images/flame-1.png",
+	"/images/flame-2.png",
+] )
 
+// Sounds using loadSound
+const gameOverSound = loadSound( '/sounds/game-over.mp3', 1.0 )
+const epicSound = loadSound( '/sounds/epic.mp3', 0.33 )
+const impactSound = loadSound( '/sounds/impact.mp3', 0.33 )
+const hugeExplosionSound = loadSound( '/sounds/huge-explosion.mp3', 0.33 )
+const shieldSound = loadSound( '/sounds/one-shot.mp3', 0.25 )
+const smartBombSound = loadSound( '/sounds/smart-bomb.mp3', 0.6 )
 
-// var deadSound = new Howl({ src: ['/sounds/ship-dead.mp3'] });
-var gameOverSound = new Howl( { src: [ '/sounds/game-over.mp3' ] } )
-var epicSound = new Howl( { src: [ '/sounds/epic.mp3' ] } )
-var impactSound = new Howl( { src: [ '/sounds/impact.mp3' ] } )
-var hugeExplosionSound = new Howl( { src: [ '/sounds/huge-explosion.mp3' ] } )
-var shieldSound = new Howl( { src: [ '/sounds/one-shot.mp3' ] } )
-var smartBombSound = new Howl( { src: [ '/sounds/smart-bomb.mp3' ] } )
-
-var laserSound = new Howl( { src: [ '/sounds/laser.mp3' ] } )
-var laser2Sound = new Howl( { src: [ '/sounds/laser2.mp3' ] } )
-var laser3Sound = new Howl( { src: [ '/sounds/laser3.mp3' ] } )
-
-impactSound.volume( 0.33 )
-gameOverSound.volume( 1.0 )
-epicSound.volume( 0.33 )
-hugeExplosionSound.volume( 0.33 )
-shieldSound.volume( 0.25 )
-smartBombSound.volume( 0.6 )
-
-laserSound.volume( 0.05 )
-laser2Sound.volume( 0.05 )
-laser3Sound.volume( 0.05 )
+const laserSound = loadSound( '/sounds/laser.mp3', 0.05 )
+const laser2Sound = loadSound( '/sounds/laser2.mp3', 0.05 )
+const laser3Sound = loadSound( '/sounds/laser3.mp3', 0.05 )
 
 const fizzleSize = 243 / 230
 
+// Keep flameSound as Howl since it needs loop:true
 var flameSound = new Howl( {
 	src: [ '/sounds/ship-thrust.mp3' ],
 	volume: 0,
@@ -134,8 +137,8 @@ const smartBomb = () => {
 			// 	ctx.restore()
 			// }
 			if ( this.dead ) return
-			let image
-			image = pick( [ smartBombImage1, smartBombImage2, smartBombImage3, smartBombImage4 ] )
+			if ( !smartBombAssets.loaded() ) return
+			let image = pick( smartBombAssets.images )
 
 			ctx.drawImage( image, this.cx - this.width / 2, this.cy - this.height / 2, this.width, this.height )
 
@@ -150,10 +153,6 @@ const shield = () => {
 		strength: 50, //50
 		width: 0,
 		height: 0,
-		image: null,
-		normalImage: new Image(),
-		hitImage: new Image(),
-		imageLoaded: false,
 		ticker: 0,
 		hitTimer: 0,
 		hit: false,
@@ -183,24 +182,8 @@ const shield = () => {
 			this.width = height
 			this.height = height
 
-			this.normalImage.src = "images/shield.png"
-			this.hitImage.onload = () => {
-				this.imageLoaded = true
-			}
-			this.hitImage.src = "images/shield-hit.png"
-			this.image = this.normalImage
-			this.fizzleImages = picker( [
-				shieldFizzleImage1,
-				shieldFizzleImage2,
-				shieldFizzleImage3,
-				shieldFizzleImage4,
-			] )
-			this.criticalImages = picker( [
-				shieldCriticalImage1,
-				shieldCriticalImage2,
-				shieldCriticalImage3,
-				shieldCriticalImage4,
-			] )
+			this.fizzleImages = picker( shieldFizzleAssets.images )
+			this.criticalImages = picker( shieldCriticalAssets.images )
 
 			this.fizzleImage = this.fizzleImages.first()
 			this.criticalImage = this.criticalImages.first()
@@ -238,13 +221,14 @@ const shield = () => {
 			this.collider.y = this.y + this.collider.oy
 		},
 		draw () {
+			if ( !shieldAssets.loaded() ) return
 			ctx.save()
 			ctx.globalAlpha = ( Math.random() + Math.sin( this.ticker / 30 ) ) * this.strength / 50
 
 			if ( this.hit )
-				ctx.drawImage( this.hitImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2 )
+				ctx.drawImage( shieldAssets.images[ 1 ], this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2 )
 			else
-				ctx.drawImage( this.normalImage, this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2 )
+				ctx.drawImage( shieldAssets.images[ 0 ], this.x, this.y, this.width + this.strength * 2, this.height + this.strength * 2 )
 
 			ctx.restore()
 
@@ -294,10 +278,6 @@ const flames = () => {
 		offsetx: 0,
 		offsety: 0,
 		flameOn: false,
-		flame1: new Image(),
-		flame1Loaded: false,
-		flame2: new Image(),
-		flame2Loaded: false,
 		flamecounter: 0,
 		brightflame: false,
 		flamelength: 10,
@@ -305,14 +285,6 @@ const flames = () => {
 		spawn ( { offsetx, offsety } ) {
 			this.offsetx = offsetx
 			this.offsety = offsety
-			this.flame1.onload = () => {
-				this.flame1Loaded = true
-			}
-			this.flame2.onload = () => {
-				this.flame2Loaded = true
-			}
-			this.flame1.src = "images/flame-1.png"
-			this.flame2.src = "images/flame-2.png"
 		},
 		update ( { parentx, parenty, flameOn } ) {
 			this.flameOn = flameOn
@@ -329,12 +301,12 @@ const flames = () => {
 			this.y = parenty + this.offsety
 		},
 		draw () {
-			if ( this.flame1Loaded && this.flame2Loaded && this.flameOn ) {
+			if ( flameAssets.loaded() && this.flameOn ) {
 				if ( !randInt( 5 ) == 0 )
 					if ( this.brightflame )
-						ctx.drawImage( this.flame2, this.x, this.y, this.width, this.height )
+						ctx.drawImage( flameAssets.images[ 1 ], this.x, this.y, this.width, this.height )
 					else
-						ctx.drawImage( this.flame1, this.x, this.y, this.width, this.height )
+						ctx.drawImage( flameAssets.images[ 0 ], this.x, this.y, this.width, this.height )
 			}
 
 		},
@@ -342,23 +314,17 @@ const flames = () => {
 }
 export const spaceship = () => {
 	return {
-		x: 0,
-		y: 0,
-		vx: 0,
-		vy: 0,
-		dead: false,
+		...createEntity( {
+			name: "spaceship",
+			width: 50,
+			height: 64,
+			collider: [
+				{ type: "circle", ox: 0 + 49.5 / 2, oy: 16 + 49.5 / 2, r: 49.5 / 2, colliding: false },
+				{ type: "circle", ox: 16.5 + 16.5 / 2, oy: 5 + 16.5 / 2, r: 16.5 / 2, colliding: false },
+			]
+		} ),
 		invincible: false,
-		collider: [
-			{ type: "circle", ox: 0 + 49.5 / 2, oy: 16 + 49.5 / 2, r: 49.5 / 2, colliding: false },
-			{ type: "circle", ox: 16.5 + 16.5 / 2, oy: 5 + 16.5 / 2, r: 16.5 / 2, colliding: false },
-		],
 		heightWithFlame: 0,
-		image1: new Image(),
-		image2: new Image(),
-		image3: new Image(),
-		image1Loaded: false,
-		image2Loaded: false,
-		image3Loaded: false,
 		flames: flames(),
 		flameOn: false,
 		break: false,
@@ -374,21 +340,6 @@ export const spaceship = () => {
 		smartBomb: smartBomb(),
 		fading: false,
 		spawn ( { entities: entities, floaters: floaters } ) {
-			this.width = 50
-			this.height = 64
-			this.image1.onload = () => {
-				this.image1Loaded = true
-			}
-			this.image2.onload = () => {
-				this.image2Loaded = true
-			}
-			this.image3.onload = () => {
-				this.image3Loaded = true
-			}
-			this.image1.src = "images/ship-l-1.png"
-			this.image2.src = "images/ship-l-2.png"
-			this.image3.src = "images/ship-l-3.png"
-
 			this.entities = entities
 			this.floaters = floaters
 
@@ -518,6 +469,8 @@ export const spaceship = () => {
 			if ( game.over || this.dead )
 				return
 
+			this.tick()
+
 			if ( this.outOfBoundsTop() ) {
 				this.y = 0
 				this.vy = 0
@@ -553,10 +506,7 @@ export const spaceship = () => {
 			this.cx = this.x + this.width / 2
 			this.cy = this.y + this.height / 2
 
-			this.collider[ 0 ].x = this.x + this.collider[ 0 ].ox
-			this.collider[ 0 ].y = this.y + this.collider[ 0 ].oy
-			this.collider[ 1 ].x = this.x + this.collider[ 1 ].ox
-			this.collider[ 1 ].y = this.y + this.collider[ 1 ].oy
+			this.syncCollider()
 
 			this.flames.update( { parentx: this.x, parenty: this.y, flameOn: this.flameOn } )
 
@@ -584,15 +534,15 @@ export const spaceship = () => {
 			// draw ship
 			if ( game.over || this.dead ) return
 
-			if ( this.image1Loaded && this.image2Loaded && this.image3Loaded ) {
+			if ( shipAssets.loaded() ) {
 				this.bullets.forEach( ( b ) => b.draw() )
 				if ( this.flameOn )
-					ctx.drawImage( this.image3, this.x, this.y, this.width, this.height )
+					ctx.drawImage( shipAssets.images[ 2 ], this.x, this.y, this.width, this.height )
 				else
 					if ( this.flicker() )
-						ctx.drawImage( this.image1, this.x, this.y, this.width, this.height )
+						ctx.drawImage( shipAssets.images[ 0 ], this.x, this.y, this.width, this.height )
 					else
-						ctx.drawImage( this.image2, this.x, this.y, this.width, this.height )
+						ctx.drawImage( shipAssets.images[ 1 ], this.x, this.y, this.width, this.height )
 
 				this.flames.draw()
 			}
@@ -644,12 +594,12 @@ export const spaceship = () => {
 					if ( this.shield.strength > 0 ) {
 						this.shield.strength -= getColliderArea( e )
 						this.shield.onHit()
+						e.onHit( false, true )
 					} else {
 						this.shield.strength = 0
 						e.onHit( false, true )
 						this.dead = true  // Just set flag, state machine handles rest
 					}
-					e.onHit( false, true )
 				}
 			} )
 		},

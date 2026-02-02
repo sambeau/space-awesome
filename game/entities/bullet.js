@@ -1,58 +1,60 @@
-import { ctx } from "../game.js";
+import { createEntity, loadImages } from "./Entity.js"
 
-const debug = false
+import { LAYER } from "./Registry.js"
+import { ctx } from "../game.js"
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Assets (loaded once, cached)
+// ─────────────────────────────────────────────────────────────────────────────
+const assets = loadImages( [ "images/bullet-long.png" ] )
 
-const bulletImage = new Image()
-let bulletImageLoaded = false
-bulletImage.src = "images/bullet-long.png"
-bulletImage.onload = () => {
-	bulletImageLoaded = true
-}
-
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Bullet Entity - Player projectile
+// ─────────────────────────────────────────────────────────────────────────────
 export const bullet = () => {
 	return {
-		x: 0,
-		y: 0,
-		vx: 0,
-		vy: 0,
-		width: 6,
-		height: 70,
-		collider: { type: "circle", ox: 3, oy: 5, r: 3, colliding: false },
+		...createEntity( {
+			name: "bullet",
+			drawLayer: LAYER.PROJECTILES,
+			collisionGroups: [],  // bullets hit things, they're not in collision groups themselves
+			width: 6,
+			height: 70,
+			collider: { type: "circle", ox: 3, oy: 5, r: 3, colliding: false }
+		} ),
+
+		// Bullet-specific properties
 		speed: 20,
-		image: bulletImage,
-		imageLoaded: false,
 		ship: null,
-		dead: false,
-		spawn({ atx, aty, ship }) {
+
+		spawn ( { atx, aty, ship } ) {
 			this.x = atx - this.width / 2
 			this.y = aty + this.height / 3
 			this.vy = -this.speed
 			this.ship = ship
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
+			this.syncCollider()
 		},
-		outOfBoundsTop() {
-			if (this.y <= 0 - this.height) return true
-			return false;
+
+		outOfBoundsTop () {
+			return this.y <= 0 - this.height
 		},
-		update(/*dt*/) {
-			this.collider.x = this.x + this.collider.ox
-			this.collider.y = this.y + this.collider.oy
-			if (this.outOfBoundsTop()) {
+
+		update ( /*dt*/ ) {
+			this.tick()
+			this.syncCollider()
+			if ( this.outOfBoundsTop() ) {
 				this.y = 0
 				this.vy = 0
 				this.dead = true
 				this.ship.removeBullet()
-			} else
-				this.y += this.vy;
-		},
-		draw() {
-			if (this.dead) return
-			if (bulletImageLoaded) {
-				ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+			} else {
+				this.y += this.vy
 			}
 		},
+
+		draw () {
+			if ( this.dead ) return
+			if ( !assets.loaded() ) return
+			ctx.drawImage( assets.images[ 0 ], this.x, this.y, this.width, this.height )
+		}
 	}
 }

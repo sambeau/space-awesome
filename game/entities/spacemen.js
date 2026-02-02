@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { createEntity, drawRotated, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
@@ -26,6 +27,9 @@ export const spaceman = () => {
 	return {
 		...createEntity( {
 			name: "spaceman",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.COLLECTABLE ],
+			isPrimaryEnemy: false,
 			width: 69 * 2 / 3,
 			height: 69 * 2 / 3,
 			score: 0,

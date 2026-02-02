@@ -12,6 +12,7 @@ const pixel = 4
 
 let ship
 let entities
+let registry
 
 let width
 let height
@@ -28,9 +29,10 @@ export let Minimap = () => {
 		ticker: 0,
 		animationSpeed: 3,
 		image: 0,
-		init ( ship, ents ) {
+		init ( ship, ents, reg = null ) {
 			this.ship = ship
 			entities = ents
+			registry = reg
 
 			width = canvas.width / scale
 			height = canvas.height * 4 / scale
@@ -87,19 +89,22 @@ export let Minimap = () => {
 			ctx.fillText( humansLabel, x + width / 2, y + height + ( gap * 3 / 2 ) + 50 )
 			ctx.fillText( this.ship.shield.strength, x + width / 2, y + height + ( gap * 3 / 2 ) + 70 )
 
-			entities.forEach( ( type ) => {
-				( type.all() ).forEach( ( ent ) => {
-					if ( ent.y > canvas.height * -3 && ent.y < canvas.height && !ent.dead ) {
-						if ( ent.color )
-							ctx.fillStyle = ent.color
-						else
-							ctx.fillStyle = "white"
-						if ( ent.color == "random" ) {
-							ctx.fillStyle = this.randomColor
-						}
-						ctx.fillRect( ent.x / scale + x, ( ent.y + 3 * canvas.height ) / scale + y, 4, 4 )
+			// Get all minimap-visible entities - prefer registry if available
+			const allEnts = registry
+				? registry.allForMinimap()
+				: entities.flatMap( type => type.all() )
+
+			allEnts.forEach( ( ent ) => {
+				if ( ent.y > canvas.height * -3 && ent.y < canvas.height && !ent.dead ) {
+					if ( ent.color )
+						ctx.fillStyle = ent.color
+					else
+						ctx.fillStyle = "white"
+					if ( ent.color == "random" ) {
+						ctx.fillStyle = this.randomColor
 					}
-				} )
+					ctx.fillRect( ent.x / scale + x, ( ent.y + 3 * canvas.height ) / scale + y, 4, 4 )
+				}
 			} )
 			ctx.fillStyle = "white"
 			if ( ship && ship.x && !ship.dead && !game.over ) { // why doesn't this work? // because it should be this.ship!! TODO

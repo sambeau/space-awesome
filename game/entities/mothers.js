@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, loadImages, loadSound } from "./Entity.js"
 import { picker, randInt, stereoFromScreenX, thingIsOnScreen, volumeFromX } from "/zap/zap.js"
@@ -18,10 +19,13 @@ const motherSound = new Howl( {
 } )
 
 const msize = 2.5
-const mother = () => {
+export const mother = () => {
 	return {
 		...createEntity( {
 			name: "mother",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: true,
 			width: 170 / msize,
 			height: 59 / msize,
 			score: 1000,

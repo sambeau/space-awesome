@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { distanceBetweenPoints, randInt, stereoFromScreenX } from "/zap/zap.js"
@@ -51,10 +52,12 @@ const scores = {
 // ASTEROID ENTITY
 // ═══════════════════════════════════════════════════════════════════════════
 
-const asteroid = () => {
+export const asteroid = () => {
 	return {
 		...createEntity( {
 			name: "asteroid",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
 			width: 64,
 			height: 64,
 			score: 100,

@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, loadImages, loadSound } from "./Entity.js"
 
@@ -60,21 +61,35 @@ const halfCollider = [
 // ─────────────────────────────────────────────────────────────────────────────
 // Mushroom Entity
 // ─────────────────────────────────────────────────────────────────────────────
-const mushroom = () => {
+export const mushroom = () => {
+	// Create fresh colliders for each mushroom instance
+	const myCollider = [
+		{ type: "circle", ox: 10, oy: 10, r: 10 },
+		{ type: "circle", ox: 30, oy: 10, r: 10 },
+		{ type: "circle", ox: 20, oy: 30, r: 10 },
+	]
+	const myHalfCollider = [
+		{ type: "circle", ox: 10, oy: 10, r: 10 },
+		{ type: "circle", ox: 30, oy: 10, r: 10 },
+	]
+
 	return {
 		...createEntity( {
 			name: "mushroom",
+			drawLayer: LAYER.DETRITUS,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: false,
 			width: 40,
 			height: 40,
 			score: 50,
-			collider: fullCollider,
+			collider: myCollider,
 		} ),
 
 		// Mushroom-specific properties
 		color: "#ffffff",
 		type: 'yellow',
 		HP: 4,
-		halfCollider: JSON.parse( JSON.stringify( halfCollider ) ),
+		halfCollider: myHalfCollider,
 
 		spawn ( { cx, cy, type } ) {
 			this.x = cx - this.width / 2

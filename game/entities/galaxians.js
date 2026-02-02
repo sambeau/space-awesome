@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
 import { randInt, stereoFromScreenX } from "/zap/zap.js"
@@ -36,10 +37,13 @@ const assetsR = loadImages( [
 const bangSound = loadSound( "/sounds/bang.mp3", 0.25 )
 const fireSound = loadSound( "/sounds/pyeeow.wav", 0.1 )
 
-const galaxian = () => {
+export const galaxian = () => {
 	return {
 		...createEntity( {
 			name: "galaxian",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: true,
 			width: 56,
 			height: 56,
 			score: 100,

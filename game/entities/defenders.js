@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
 import { makeN, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
@@ -8,10 +9,13 @@ import { explode } from "./explosions.js"
 const assets = loadImages( [ "images/defender1.png", "images/defender2.png", "images/defender3.png" ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
-const defender = () => {
+export const defender = () => {
 	return {
 		...createEntity( {
 			name: "defender",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: true,
 			width: 48,
 			height: 48,
 			score: 150,

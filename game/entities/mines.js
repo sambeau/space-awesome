@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
@@ -48,10 +49,13 @@ const mineStates = mineAssets.images.map( ( image, i ) => ( {
 // MINE ENTITY
 // ═══════════════════════════════════════════════════════════════════════════
 
-const mine = () => {
+export const mine = () => {
 	return {
 		...createEntity( {
 			name: "mine",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: false,  // Obstacle, not required for wave completion
 			width: 175,
 			height: 176,
 			score: 1500,

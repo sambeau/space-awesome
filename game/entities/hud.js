@@ -171,13 +171,16 @@ export const Score = () => {
 export const Hud = () => {
 	return {
 		score: null,
-		init ( ship, spacemen, ents ) {
+		registry: null,
+		init ( ship, spacemen, ents, registry = null ) {
+
+			this.registry = registry
 
 			this.score = Score()
 			this.score.init()
 
 			this.minimap = Minimap()
-			this.minimap.init( ship, ents )
+			this.minimap.init( ship, ents, registry )
 
 			this.lives = Lives()
 			this.lives.init()

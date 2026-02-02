@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { makeN, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
@@ -16,12 +17,15 @@ const assets = loadImages( [
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Bombere Entity
+// Bomber Entity
 // ─────────────────────────────────────────────────────────────────────────────
-const bomber = () => {
+export const bomber = () => {
 	return {
 		...createEntity( {
 			name: "bomber",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: true,
 			width: 66,
 			height: 67,
 			score: 1000,

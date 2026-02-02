@@ -171,6 +171,11 @@ export function createEntity ( config = {} ) {
 		// Collider (deep copy to avoid shared state)
 		collider: config.collider ? JSON.parse( JSON.stringify( config.collider ) ) : null,
 
+		// Registry metadata
+		drawLayer: config.drawLayer ?? 2,                  // Default to BADDIES
+		collisionGroups: config.collisionGroups || [],     // e.g., ['shootable', 'deadly']
+		isPrimaryEnemy: config.isPrimaryEnemy ?? false,    // For wave completion tracking
+
 		// Mix in shared behaviors
 		...tickMixin,
 		...boundsMixin,

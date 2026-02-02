@@ -1,28 +1,36 @@
 // Main gameplay state - handles collision, updates, rendering, and transitions
 
-import { asteroids as Asteroids } from '../entities/asteroids.js'
+import { asteroids as Asteroids, asteroid } from '../entities/asteroids.js'
+import { Bombers, bomber } from '../entities/bombers.js'
+import { COLLISION, createRegistry } from '../entities/Registry.js'
+import { defenders as Defenders, defender } from '../entities/defenders.js'
+import { FireBombers, fireBomber } from '../entities/fireBombers.js'
+import { galaxians as Galaxians, galaxian } from '../entities/galaxians.js'
+import { Mines, mine } from '../entities/mines.js'
+import { Mothers, mother } from '../entities/mothers.js'
+import { Mushrooms, mushroom } from '../entities/mushrooms.js'
+import { Pods, pod } from '../entities/pods.js'
+import { Powerups, powerup } from '../entities/powerups.js'
+import { Snakes, snake } from '../entities/snakes.js'
+import { Spacemen, spaceman } from '../entities/spacemen.js'
+import { Swarmers, swarmer } from '../entities/swarmers.js'
+
 import { BaseState } from './BaseState.js'
-import { Bombers } from '../entities/bombers.js'
-import { defenders as Defenders } from '../entities/defenders.js'
-import { FireBombers } from '../entities/fireBombers.js'
 import { Floaters } from '../entities/floaters.js'
-import { galaxians as Galaxians } from '../entities/galaxians.js'
 import { Hud } from '../entities/hud.js'
-import { Mines } from '../entities/mines.js'
-import { Mothers } from '../entities/mothers.js'
-import { Mushrooms } from '../entities/mushrooms.js'
 import { Particles } from '../entities/particles.js'
-import { Pods } from '../entities/pods.js'
-import { Powerups } from '../entities/powerups.js'
-import { Snakes } from '../entities/snakes.js'
-import { Spacemen } from '../entities/spacemen.js'
 import { spaceship as Spaceship } from '../entities/ship.js'
-import { Swarmers } from '../entities/swarmers.js'
+import { bomb } from '../entities/bombs.js'
+import { bullet } from '../entities/bullet.js'
 import { drawBackground } from '../rendering.js'
+import { shot } from '../entities/shot.js'
 
 export class PlayState extends BaseState {
 	constructor( game ) {
 		super( game )
+
+		// Entity Registry (new system - coexists with managers during migration)
+		this.registry = null
 
 		// Entities (stars are shared via game.stars)
 		this.ship = null
@@ -83,6 +91,41 @@ export class PlayState extends BaseState {
 		this.ship = Spaceship()
 		this.floaters = Floaters()
 
+		// Initialize registry with shared refs
+		this.registry = createRegistry()
+		this.registry.setRefs( {
+			ship: this.ship,
+			floaters: this.floaters,
+			game: this.game,
+			registry: this.registry
+		} )
+
+		// Register all entity factories
+		this.registry.register( [
+			// Primary enemies (must be killed to complete wave)
+			galaxian,
+			defender,
+			pod,
+			mother,
+			bomber,
+			fireBomber,
+			snake,  // snake controller (isPrimaryEnemy: true)
+			// Secondary enemies (spawned, not required for wave)
+			swarmer,
+			// Non-primary enemies/obstacles
+			asteroid,
+			mine,
+			// Projectiles
+			bomb,
+			bullet,
+			shot,
+			// Collectables
+			spaceman,
+			powerup,
+			// Environment
+			mushroom,
+		] )
+
 		this.asteroids = Asteroids()
 		this.asteroids.spawn()
 
@@ -121,6 +164,7 @@ export class PlayState extends BaseState {
 
 		this.ship.spawn( {
 			entities: [
+				// Is order important?
 				this.asteroids,
 				this.mothers,
 				this.bombers,
@@ -138,8 +182,25 @@ export class PlayState extends BaseState {
 			floaters: this.floaters
 		} )
 
+		// Sync manager entity arrays with registry for unified tracking
+		// This allows using registry.allPrimaryEnemiesDead() etc.
+		this.registry.sync( 'galaxian', this.galaxians.galaxians )
+		this.registry.sync( 'defender', this.defenders.defenders )
+		this.registry.sync( 'pod', this.pods.pods )
+		this.registry.sync( 'mother', this.mothers.mothers )
+		this.registry.sync( 'bomber', this.bombers.bombers )
+		this.registry.sync( 'fireBomber', this.fireBombers.fireBombers )
+		this.registry.sync( 'snakeController', this.snakes.snakes )
+		this.registry.sync( 'swarmer', this.swarmers.swarmers )
+		this.registry.sync( 'spaceman', this.spacemen.spacemen )
+		this.registry.sync( 'asteroid', this.asteroids.asteroids )
+		this.registry.sync( 'mine', this.mines.mines )
+		this.registry.sync( 'mushroom', this.mushrooms.mushrooms )
+		this.registry.sync( 'powerup', this.powerups.powerups )
+
 		this.hud = Hud()
 		this.hud.init( this.ship, this.spacemen, [
+			// Is order important?
 			this.mushrooms,
 			this.asteroids,
 			this.mothers,
@@ -153,7 +214,7 @@ export class PlayState extends BaseState {
 			this.spacemen,
 			this.snakes,
 			this.mines
-		] )
+		], this.registry )
 	}
 
 	setupInputHandlers () {
@@ -330,32 +391,16 @@ export class PlayState extends BaseState {
 			return
 		}
 
-		// Collision detection
+		// Collision detection - using registry for entity groups
+		// Ship weapons (bullets/smartbomb) can hit SHOOTABLE entities
 		this.ship.collideWeaponsWithAll( [
-			this.asteroids.asteroids,
-			this.galaxians.galaxians,
-			this.defenders.defenders,
-			this.mothers.mothers,
-			this.bombers.bombers,
-			this.fireBombers.fireBombers,
-			this.pods.pods,
-			this.swarmers.swarmers,
-			this.mushrooms.mushrooms,
-			this.mines.mines,
-			this.spacemen.spacemen
+			this.registry.byGroup( COLLISION.SHOOTABLE )
 		] )
 
+		// Ship can crash into DEADLY entities + enemy projectiles (not in registry)
 		this.ship.crashIntoAll( [
-			this.asteroids.asteroids,
-			this.galaxians.galaxians,
-			this.defenders.defenders,
-			this.mothers.mothers,
-			this.bombers.bombers,
-			this.fireBombers.fireBombers,
-			this.pods.pods,
-			this.swarmers.swarmers,
-			this.mushrooms.mushrooms,
-			this.mines.mines,
+			this.registry.byGroup( COLLISION.DEADLY ),
+			// Enemy projectiles are managed by their spawning managers, not synced to registry
 			this.galaxians.shots,
 			this.defenders.bombs,
 			this.swarmers.bombs,
@@ -364,12 +409,20 @@ export class PlayState extends BaseState {
 			this.snakes.all()
 		] )
 
-		this.ship.collect( this.powerups.powerups )
-		this.ship.collect( this.spacemen.spacemen )
+		// Ship can collect COLLECTABLE entities (powerups, spacemen)
+		this.ship.collect( this.registry.byGroup( COLLISION.COLLECTABLE ) )
 
 		// Update all entities
+		// Order is important, by groups
+		// e.g. you can't update the hud until all the baddies have been moved
+		// UPDATE_GROUP_POWERUPS
 		this.powerups.update( dt )
+		// UPDATE_GROUP_STARS
+		// stars can be moved any time, surey
 		this.game.stars.update( dt )
+		// UPDATE_GROUP_BADDIES
+		// Is order important here?
+		// i.e. do spacemen have to move before snakes?
 		this.asteroids.update( dt )
 		this.mines.update( dt )
 		this.spacemen.update( dt )
@@ -382,10 +435,12 @@ export class PlayState extends BaseState {
 		this.defenders.update( dt )
 		this.galaxians.update( dt )
 		this.snakes.update( dt )
+		// UPDATE_SHIP
 		this.ship.update( dt )
+		// UPDATE_PARTICLES
 		this.game.particles.update( dt )
 		this.floaters.update( dt )
-
+		// UPDATE_UI
 		this.hud.update( dt )
 	}
 
@@ -393,8 +448,20 @@ export class PlayState extends BaseState {
 		drawBackground( this.game.ctx, this.game.canvas )
 
 		// Draw all entities
+		// order is important here as some entities need to be drawn over others, e.g.:-
+		// background is always drawn first
+		// - Floaters always float over other entities
+		// - Explosions always cover other entities
+		// - UI is always drawn last
+		// - etc.
+
+		// DRAW_LAYER_BACKGROUND
 		this.game.stars.draw()
+		// DRAW_LAYER_ENVIRONMENT
+		// Not used yet
+		// DRAW_LAYER_DETRITUS
 		this.mushrooms.draw()
+		// DRAW_LAYER_BADDIES
 		this.snakes.draw()
 		this.asteroids.draw()
 		this.mines.draw()
@@ -406,11 +473,15 @@ export class PlayState extends BaseState {
 		this.swarmers.draw()
 		this.defenders.draw()
 		this.galaxians.draw()
+		// DRAW_LAYER_POWERUPS
 		this.powerups.draw()
+		// DRAW_LAYER_SHIP
 		this.ship.draw()
+		// DRAW_LAYER_PARTICLES
 		this.game.particles.draw()
+		// DRAW_LAYER_FLOATERS
 		this.floaters.draw()
-
+		// DRAW_LAYER_UI
 		this.hud.draw()
 	}
 
@@ -541,21 +612,15 @@ export class PlayState extends BaseState {
 	}
 
 	isWaveComplete () {
-		// Wave is complete when all primary enemies are defeated
-		// Primary enemies: asteroids, galaxians, defenders, mothers, pods, swarmers, mines
-		return (
-			// this.asteroids.asteroids.length === 0 &&
-			this.spacemen.spacemen.length === 0 && // saved are still counted as dead
-			this.galaxians.galaxians.length === 0 &&
-			this.defenders.defenders.length === 0 &&
-			this.mothers.mothers.length === 0 &&
-			this.bombers.bombers.length === 0 &&
-			this.fireBombers.fireBombers.length === 0 &&
-			this.pods.pods.length === 0 &&
-			this.snakes.snakes.length === 0 &&
-			this.swarmers.swarmers.length === 0
-			// this.mines.mines.length === 0
-		)
+		// Wave is complete when all primary enemies are defeated AND
+		// all spacemen are saved/dead (game design: must rescue or lose all)
+		// 
+		// Registry tracks: galaxian, defender, pod, mother, bomber, fireBomber, 
+		// snakeController, swarmer (all synced via registry.sync())
+		const primaryEnemiesDead = this.registry.allPrimaryEnemiesDead()
+		const spacemenCleared = this.spacemen.spacemen.length === 0
+
+		return primaryEnemiesDead && spacemenCleared
 	}
 
 	exit () {

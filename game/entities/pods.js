@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { ctx, game } from "../game.js"
 import { makeN, randInt, stereoFromScreenX } from "/zap/zap.js"
@@ -18,10 +19,13 @@ const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 // ─────────────────────────────────────────────────────────────────────────────
 // Pod Entity
 // ─────────────────────────────────────────────────────────────────────────────
-const pod = () => {
+export const pod = () => {
 	return {
 		...createEntity( {
 			name: "pod",
+			drawLayer: LAYER.BADDIES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: true,
 			width: 48,
 			height: 48,
 			score: 1000,

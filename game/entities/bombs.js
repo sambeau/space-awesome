@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, loadImages, loadSound } from "./Entity.js"
 import { moveDistanceAlongLine, picker, stereoFromScreenX } from "../zap/zap.js"
@@ -29,6 +30,9 @@ export const bomb = () => {
 	return {
 		...createEntity( {
 			name: "bomb",
+			drawLayer: LAYER.PROJECTILES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: false,  // Projectile, not a primary enemy
 			width: bombWidth,
 			height: bombWidth,
 			collider: {
