@@ -20,6 +20,9 @@ const saveSound = loadSound( '/sounds/save.mp3', 0.25 )
 const crySound = loadSound( '/sounds/cry1.mp3', 0.05 )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
 
+// Module-level ID counter for spacemen
+let nextSpacemanId = 0
+
 // Export for use in WaveTransitionState
 export { assets }
 
@@ -58,8 +61,8 @@ export const spaceman = () => {
 			this.ticks = ( this.ticks + 1 ) % 1000
 		},
 
-		spawn ( { floaters, id, x, y, vx, vy } ) {
-			this.id = id
+		spawn ( { floaters, x, y, vx, vy } ) {
+			this.id = ++nextSpacemanId
 			this.floaters = floaters
 			this.images = picker( assets.images )
 			this.image = this.images.first()

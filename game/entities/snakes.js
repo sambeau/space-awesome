@@ -244,7 +244,7 @@ export const snake = () => {
 			this.states.hungry.update = () => {
 				const head = this.snake[ 0 ]
 
-				const closestSpaceman = findClosestThing( head, this.spacemen.spacemen )
+				const closestSpaceman = findClosestThing( head, this.registry.get( 'spaceman' ) )
 
 				if ( !closestSpaceman ) {
 					this.state = this.states.angry
@@ -298,7 +298,7 @@ export const snake = () => {
 			this.states.walking.update = () => {
 				const head = this.snake[ 0 ]
 
-				const closestSpaceman = findClosestThing( head, this.spacemen.spacemen )
+				const closestSpaceman = findClosestThing( head, this.registry.get( 'spaceman' ) )
 
 				if ( !closestSpaceman ) {
 					this.state = this.states.angry
@@ -334,10 +334,9 @@ export const snake = () => {
 		all () {
 			return this.snake
 		},
-		spawn ( { snakes, ship, spacemen, x, y, length, state, floaters, registry } ) {
+		spawn ( { snakes, ship, x, y, length, state, floaters, registry } ) {
 			this.ship = ship
 			this.snakes = snakes
-			this.spacemen = spacemen
 			this.floaters = floaters
 			this.registry = registry
 
@@ -378,7 +377,6 @@ export const snake = () => {
 				this.dead = true
 				this.snakes.spawnSingle( {
 					ship: this.ship,
-					spacemen: this.spacemen,
 					floaters: this.floaters,
 					registry: this.registry,
 					x: x,
@@ -388,7 +386,6 @@ export const snake = () => {
 				} )
 				this.snakes.spawnSingle( {
 					ship: this.ship,
-					spacemen: this.spacemen,
 					floaters: this.floaters,
 					registry: this.registry,
 					x: x,
@@ -500,11 +497,10 @@ export const Snakes = () => {
 			} )
 			return allSnakes
 		},
-		spawn ( { ship, spacemen, floaters, registry } ) {
+		spawn ( { ship, floaters, registry } ) {
 			this.spawnSingle( {
 				ship: ship,
 				snakes: this,
-				spacemen: spacemen,
 				floaters: floaters,
 				registry: registry,
 				x: canvas.width * Math.random(),
@@ -512,10 +508,10 @@ export const Snakes = () => {
 				length: 8
 			} )
 		},
-		spawnSingle ( { ship, spacemen, x, y, length, state, floaters, registry } ) {
+		spawnSingle ( { ship, x, y, length, state, floaters, registry } ) {
 			const newSnake = snake()
 			this.snakes.push( newSnake )
-			newSnake.spawn( { snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, floaters: floaters, registry: registry } )
+			newSnake.spawn( { snakes: this, ship: ship, x: x, y: y, length: length, state: state, floaters: floaters, registry: registry } )
 		},
 		update () {
 			this.snakes = this.snakes.filter( ( x ) => { return x.dead !== true } )

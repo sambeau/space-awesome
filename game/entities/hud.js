@@ -91,10 +91,12 @@ spacemanSavedImage3.src = "/images/spaceman-saved-3.png"
 
 export const Spacemen = () => {
 	return {
-		spacemen: null,
+		registry: null,
+		getSaved: null,
 		savedImages: null,
-		init ( spacemen ) {
-			this.spacemen = spacemen
+		init ( registry, getSaved ) {
+			this.registry = registry
+			this.getSaved = getSaved
 			this.savedImages = picker( [
 				spacemanSavedImage1,
 				spacemanSavedImage2,
@@ -114,10 +116,12 @@ export const Spacemen = () => {
 			const minimapHeight = canvas.height * 4 / 10
 			const y = minimapTop + minimapHeight + gap
 
-			for ( let i = 0; i < this.spacemen.saved; i++ ) {
+			const saved = this.getSaved()
+			const remaining = this.registry.count( 'spaceman' )
+			for ( let i = 0; i < saved; i++ ) {
 				ctx.drawImage( this.savedImages.any(), x - ( i * ( width - 5 ) ), y, width, height )
 			}
-			for ( let i = this.spacemen.saved; i < this.spacemen.count() + this.spacemen.saved; i++ ) {
+			for ( let i = saved; i < remaining + saved; i++ ) {
 				ctx.drawImage( spacemanImage, x - ( i * ( width - 5 ) ), y, width, height )
 			}
 		}
@@ -172,7 +176,7 @@ export const Hud = () => {
 	return {
 		score: null,
 		registry: null,
-		init ( ship, spacemen, ents, registry = null ) {
+		init ( ship, getSavedSpacemen, ents, registry = null ) {
 
 			this.registry = registry
 
@@ -189,7 +193,7 @@ export const Hud = () => {
 			this.smartBombs.init( ship.smartBomb )
 
 			this.spacemen = Spacemen()
-			this.spacemen.init( spacemen )
+			this.spacemen.init( registry, getSavedSpacemen )
 		},
 		update ( dt ) {
 			this.score.update()
