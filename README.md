@@ -181,7 +181,7 @@ Almost none:
 Check out the docs:
 
 - [Entity System](docs/entity-system.md) — How entities work
-- [State Machine](docs/STATE_MACHINE_GUIDE.md) — How game states work  
+- [State Machine](docs/state-machine.md) — How game states work  
 - [zap.js Reference](docs/zap.md) — All the utility functions
 
 Or just read the code. I've tried to keep it simple enough that you can follow along.
