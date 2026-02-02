@@ -3,7 +3,6 @@ import { canvas, ctx, game } from "../game.js"
 import { createEntity, getFrame, loadImages, loadSound } from "./Entity.js"
 import { makeN, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
-import { bomb } from "./bombs.js"
 import { explode } from "./explosions.js"
 
 const assets = loadImages( [ "images/defender1.png", "images/defender2.png", "images/defender3.png" ] )
@@ -31,13 +30,13 @@ export const defender = () => {
 		// Custom properties
 		color: "#06BA01",
 		ship: null,
-		defenders: null,
+		registry: null,
 		vx: ( Math.random() - 0.5 ) * 3,
 		vy: Math.random() * 3 + 1,
 
-		spawn ( { ship, defenders } ) {
+		spawn ( { ship, registry } ) {
 			this.ship = ship
-			this.defenders = defenders
+			this.registry = registry
 			this.x = randInt( canvas.width )
 			this.y = -randInt( canvas.height * 2 )
 			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
@@ -83,9 +82,7 @@ export const defender = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.125 ) return
-			let newbomb = bomb()
-			this.defenders.bombs.push( newbomb )
-			newbomb.spawn( { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.registry.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		}
 	}
 }
@@ -93,27 +90,26 @@ export const defender = () => {
 export const defenders = () => {
 	return {
 		defenders: [],
-		bombs: [],
+		registry: null,
 
 		all () {
 			return this.defenders
 		},
 
-		spawn ( { ship: ship } ) {
+		spawn ( { ship, registry } ) {
+			this.registry = registry
 			this.defenders = makeN( defender, 4 )
-			this.defenders.forEach( ( x ) => x.spawn( { ship: ship, defenders: this } ) )
+			this.defenders.forEach( ( x ) => x.spawn( { ship: ship, registry: registry } ) )
 		},
 
 		update ( dt ) {
-			this.bombs = this.bombs.filter( ( b ) => b.dead !== true )
 			this.defenders = this.defenders.filter( ( b ) => b.dead !== true )
 			this.defenders.forEach( ( x ) => x.update( dt ) )
-			this.bombs.forEach( ( s ) => s.update() )
-			this.noBombs = this.bombs.length
+			// Bombs are now updated via registry.updateType('bomb', dt)
 		},
 
 		draw () {
-			this.bombs.forEach( ( s ) => s.draw() )
+			// Bombs are now drawn via registry.drawType('bomb')
 			this.defenders.forEach( ( x ) => x.draw() )
 		}
 	}

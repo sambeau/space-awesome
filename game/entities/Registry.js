@@ -213,6 +213,49 @@ export function createRegistry () {
 		},
 
 		/**
+		 * Update entities of a specific type (prunes dead first)
+		 * @param {string} type - Entity type name
+		 * @param {number} dt - Delta time
+		 */
+		updateType ( type, dt ) {
+			const entities = this.entities[ type ]
+			if ( !entities ) return
+
+			// Prune dead entities first
+			this.entities[ type ] = entities.filter( e => !e.dead )
+
+			// Update remaining entities
+			for ( const entity of this.entities[ type ] ) {
+				if ( entity.update ) entity.update( dt )
+			}
+		},
+
+		/**
+		 * Draw entities of a specific type
+		 * @param {string} type - Entity type name
+		 */
+		drawType ( type ) {
+			const entities = this.entities[ type ]
+			if ( !entities ) return
+
+			for ( const entity of entities ) {
+				if ( entity.draw && !entity.dead ) {
+					entity.draw()
+				}
+			}
+		},
+
+		/**
+		 * Clear entities of a specific type
+		 * @param {string} type - Entity type name
+		 */
+		clearType ( type ) {
+			if ( this.entities[ type ] ) {
+				this.entities[ type ] = []
+			}
+		},
+
+		/**
 		 * Get all living entities for minimap display
 		 * Returns flat array of all registered entities (excluding dead ones)
 		 * @returns {Array} All living entities

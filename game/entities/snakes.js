@@ -133,7 +133,7 @@ const Segment = () => {
 				type = 'white'
 
 			if ( Math.random() > 0.333 )
-				this.snake.mushrooms.spawnSingle( { cx: this.cx, cy: this.cy, type: type } )
+				this.snake.registry.spawn( 'mushroom', { cx: this.cx, cy: this.cy, type: type } )
 
 			if ( !smartbomb && !crash && !this.isCrashProof() )
 				this.snake.split( this.x, this.y )
@@ -334,12 +334,12 @@ export const snake = () => {
 		all () {
 			return this.snake
 		},
-		spawn ( { snakes, ship, spacemen, x, y, length, state, floaters, mushrooms } ) {
+		spawn ( { snakes, ship, spacemen, x, y, length, state, floaters, registry } ) {
 			this.ship = ship
 			this.snakes = snakes
 			this.spacemen = spacemen
 			this.floaters = floaters
-			this.mushrooms = mushrooms
+			this.registry = registry
 
 			this.x = x
 			this.y = y
@@ -380,7 +380,7 @@ export const snake = () => {
 					ship: this.ship,
 					spacemen: this.spacemen,
 					floaters: this.floaters,
-					mushrooms: this.mushrooms,
+					registry: this.registry,
 					x: x,
 					y: y,
 					length: this.snake.length / 2 - 1,
@@ -390,7 +390,7 @@ export const snake = () => {
 					ship: this.ship,
 					spacemen: this.spacemen,
 					floaters: this.floaters,
-					mushrooms: this.mushrooms,
+					registry: this.registry,
 					x: x,
 					y: y, length: this.snake.length / 2 - 1,
 					state: "fleeRight"
@@ -500,22 +500,22 @@ export const Snakes = () => {
 			} )
 			return allSnakes
 		},
-		spawn ( { ship, spacemen, floaters, mushrooms } ) {
+		spawn ( { ship, spacemen, floaters, registry } ) {
 			this.spawnSingle( {
 				ship: ship,
 				snakes: this,
 				spacemen: spacemen,
 				floaters: floaters,
-				mushrooms: mushrooms,
+				registry: registry,
 				x: canvas.width * Math.random(),
 				y: 200,//Math.random() * (canvas.height / 2 - canvas.height * 3),
 				length: 8
 			} )
 		},
-		spawnSingle ( { ship, spacemen, x, y, length, state, floaters, mushrooms } ) {
+		spawnSingle ( { ship, spacemen, x, y, length, state, floaters, registry } ) {
 			const newSnake = snake()
 			this.snakes.push( newSnake )
-			newSnake.spawn( { snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, floaters: floaters, mushrooms: mushrooms } )
+			newSnake.spawn( { snakes: this, ship: ship, spacemen: spacemen, x: x, y: y, length: length, state: state, floaters: floaters, registry: registry } )
 		},
 		update () {
 			this.snakes = this.snakes.filter( ( x ) => { return x.dead !== true } )

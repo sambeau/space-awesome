@@ -3,7 +3,6 @@ import { canvas, ctx, game } from "../game.js"
 import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "./Entity.js"
 import { makeN, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
-import { bombJack } from "./bombJacks.js"
 import { explode } from "./explosions.js"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -40,13 +39,14 @@ export const bomber = () => {
 
 		// Bomber-specific properties
 		ship: null,
+		registry: null,
 		vx: ( Math.random() * 3 - 1.5 ) * 2,
 		vy: Math.random() * 2 + 6,
 		rotation: 8,
 
-		spawn ( { bombers, ship, floaters, x, y, vx, vy } ) {
+		spawn ( { registry, ship, floaters, x, y, vx, vy } ) {
 
-			this.bombers = bombers
+			this.registry = registry
 			this.ship = ship
 
 			if ( x ) this.x = x
@@ -77,9 +77,7 @@ export const bomber = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.15 ) return
-			const newbomb = bombJack()
-			this.bombers.bombs.push( newbomb )
-			newbomb.spawn( { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.registry.spawn( 'bombJack', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		},
 
 		onHit ( smartbomb ) {
@@ -103,23 +101,22 @@ export const bomber = () => {
 export const Bombers = () => {
 	return {
 		bombers: [],
-		bombs: [], // move to manager so it can be seen by ship
+		registry: null,
 		all () {
 			return this.bombers
 		},
-		spawn ( { bombJacks, ship, floaters } ) {
+		spawn ( { registry, ship, floaters } ) {
+			this.registry = registry
 			this.bombers = makeN( bomber, 10 )
-			this.bombers.forEach( ( x ) => x.spawn( { bombers: this, ship: ship, floaters: floaters } ) )
+			this.bombers.forEach( ( x ) => x.spawn( { registry: registry, ship: ship, floaters: floaters } ) )
 		},
 		update ( dt ) {
-			this.bombs = this.bombs.filter( ( b ) => { return b.dead !== true } )
 			this.bombers = this.bombers.filter( ( b ) => { return b.dead !== true } )
 			this.bombers.forEach( ( x ) => x.update( dt ) )
-			this.bombs.forEach( ( s ) => s.update() )
-			this.noBombs = this.bombs.length
+			// Bombs are now updated via registry.updateType('bombJack', dt)
 		},
 		draw () {
-			this.bombs.forEach( ( s ) => s.draw() )
+			// Bombs are now drawn via registry.drawType('bombJack')
 			this.bombers.forEach( ( x ) => x.draw() )
 		}
 	}

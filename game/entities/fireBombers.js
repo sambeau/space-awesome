@@ -47,7 +47,7 @@ export const fireBomber = () => {
 		rotation: 30,
 		frames: 6,
 
-		spawn ( { bombJacks, ship, floaters, x, y, vx, vy } ) {
+		spawn ( { ship, floaters, x, y, vx, vy } ) {
 			if ( x ) this.x = x
 			else this.x = canvas.width / 2
 
@@ -96,9 +96,9 @@ export const FireBombers = () => {
 		all () {
 			return this.fireBombers
 		},
-		spawn ( { bombJacks, ship, floaters } ) {
+		spawn ( { ship, floaters } ) {
 			this.fireBombers = makeN( fireBomber, 10 )
-			this.fireBombers.forEach( ( x ) => x.spawn( { bombJacks: null, ship: ship, floaters: floaters } ) )
+			this.fireBombers.forEach( ( x ) => x.spawn( { ship: ship, floaters: floaters } ) )
 		},
 		update ( dt ) {
 			this.fireBombers = this.fireBombers.filter( ( b ) => { return b.dead !== true } )

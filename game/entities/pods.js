@@ -45,8 +45,8 @@ export const pod = () => {
 		vy: Math.random() * 3,
 		rotation: Math.random() * 10,
 
-		spawn ( { swarmers, ship, floaters } ) {
-			this.swarmers = swarmers
+		spawn ( { registry, ship, floaters } ) {
+			this.registry = registry
 			this.ship = ship
 			this.floaters = floaters
 			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant * 2 )
@@ -90,7 +90,7 @@ export const pod = () => {
 
 			// Spawn swarmers
 			for ( const offset of [ 5, 0, -5, 10, 0, -10 ] ) {
-				this.swarmers.spawnSingle( {
+				this.registry.spawn( 'swarmer', {
 					ship: this.ship,
 					x: this.x + offset,
 					y: this.y + offset,
@@ -109,9 +109,9 @@ export const Pods = () => {
 		all () {
 			return this.pods
 		},
-		spawn ( { swarmers, ship, floaters } ) {
+		spawn ( { registry, ship, floaters } ) {
 			this.pods = makeN( pod, 2 )
-			this.pods.forEach( ( x ) => x.spawn( { swarmers: swarmers, ship: ship, floaters: floaters } ) )
+			this.pods.forEach( ( x ) => x.spawn( { registry: registry, ship: ship, floaters: floaters } ) )
 		},
 		update ( dt ) {
 			this.pods = this.pods.filter( ( b ) => { return b.dead !== true } )

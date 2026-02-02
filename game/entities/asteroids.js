@@ -73,8 +73,8 @@ export const asteroid = () => {
 		size: "L",
 		closestDistance: 0,
 
-		spawn ( { asteroids, size, x, y, vx, vy } ) {
-			this.asteroids = asteroids
+		spawn ( { registry, size, x, y, vx, vy } ) {
+			this.registry = registry
 
 			if ( size ) this.size = size
 			this.score = scores[ this.size ]
@@ -119,7 +119,8 @@ export const asteroid = () => {
 			let closestDistance1 = Number.MAX_VALUE
 			let closestDistance2 = Number.MAX_VALUE
 
-			this.asteroids.asteroids.forEach( ( a ) => {
+			const asteroids = this.registry ? this.registry.get( 'asteroid' ) : []
+			asteroids.forEach( ( a ) => {
 				if ( a === this ) return
 
 				const d = distanceBetweenPoints( this.x, this.y, a.x, a.y )
@@ -170,28 +171,28 @@ export const asteroid = () => {
 					asteroidLSound.stereo( stereoFromScreenX( screen, this.x ) )
 					explosionSize = 11
 
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
 					} )
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "M",
 						x: this.x,
 						y: this.y,
@@ -205,21 +206,21 @@ export const asteroid = () => {
 					asteroidMSound.stereo( stereoFromScreenX( screen, this.x ) )
 					explosionSize = 7
 
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "S",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() + 2,
 						vy: this.vy + 2,
 					} )
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "S",
 						x: this.x,
 						y: this.y,
 						vx: Math.random() - 2,
 						vy: this.vy + 2,
 					} )
-					this.asteroids.spawnSingle( {
+					this.registry.spawn( 'asteroid', {
 						size: "S",
 						x: this.x,
 						y: this.y,

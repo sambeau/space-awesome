@@ -1,3 +1,4 @@
+import { COLLISION, LAYER } from "./Registry.js"
 import { canvas, ctx, game } from "../game.js"
 import { createEntity, drawRotated, loadImages, loadSound } from "./Entity.js"
 import { picker, stereoFromScreenX } from "../zap/zap.js"
@@ -27,7 +28,10 @@ const bombSpeed = 0
 export const bombJack = () => {
 	return {
 		...createEntity( {
-			name: "bomb",
+			name: "bombJack",
+			drawLayer: LAYER.PROJECTILES,
+			collisionGroups: [ COLLISION.SHOOTABLE, COLLISION.DEADLY ],
+			isPrimaryEnemy: false,
 			width: bombWidth,
 			height: bombWidth,
 			collider: {

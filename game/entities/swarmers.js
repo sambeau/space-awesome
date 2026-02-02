@@ -3,7 +3,6 @@ import { canvas, ctx, game } from "../game.js"
 import { createEntity, loadImages, loadSound } from "./Entity.js"
 import { distanceBetweenPoints, picker, randInt, stereoFromScreenX, thingIsOnScreen } from "/zap/zap.js"
 
-import { bomb } from "./bombs.js"
 import { explode } from "./explosions.js"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -44,13 +43,13 @@ export const swarmer = () => {
 		images: null,
 		closestDistance: 0,
 
-		spawn ( { swarmers, ship, x, y, vx, vy } ) {
+		spawn ( { registry, ship, x, y, vx, vy } ) {
 			swarmerSound.play()
 			swarmerSound.stereo( stereoFromScreenX( screen, this.x ) )
 			swarmerClassicSound.play()
 			swarmerClassicSound.stereo( stereoFromScreenX( screen, this.x ) )
 
-			this.swarmers = swarmers
+			this.registry = registry
 			this.ship = ship
 
 			this.x = x ?? randInt( canvas.width )
@@ -92,7 +91,7 @@ export const swarmer = () => {
 			let dist2 = dist1
 
 			// Find the two closest swarmers (or ship)
-			for ( const other of this.swarmers.swarmers ) {
+			for ( const other of this.registry.get( 'swarmer' ) ) {
 				if ( other === this ) continue
 				const d = distanceBetweenPoints( this.x, this.y, other.x, other.y )
 				if ( d === 0 ) continue
@@ -147,9 +146,7 @@ export const swarmer = () => {
 
 		fire () {
 			if ( !thingIsOnScreen( this, screen ) || Math.random() > 0.15 ) return
-			const newbomb = bomb()
-			this.swarmers.bombs.push( newbomb )
-			newbomb.spawn( { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
+			this.registry.spawn( 'bomb', { atx: this.x + this.width / 2, aty: this.y, ship: this.ship, bomber: this } )
 		}
 	}
 }
@@ -158,31 +155,26 @@ export const swarmer = () => {
 export const Swarmers = () => {
 	return {
 		swarmers: [],
-		bombs: [], // move to manager so it can be seen by ship
+		registry: null,
 		all () {
 			return this.swarmers
 		},
-		spawnSingle ( { ship, x, y, vx, vy } ) {
+		spawnSingle ( { ship, x, y, vx, vy, registry } ) {
 			let a = swarmer()
 			this.swarmers.push( a )
-			a.spawn( { swarmers: this, ship: ship, x: x, y: y, vx: vx, vy: vy } )
+			a.spawn( { registry: registry || this.registry, ship: ship, x: x, y: y, vx: vx, vy: vy } )
 		},
-		spawn () {
+		spawn ( { registry } ) {
+			this.registry = registry
 			// this.spawnSingle({})
 		},
 		update ( dt ) {
-			this.bombs = this.bombs.filter( ( b ) => { return b.dead !== true } )
-
 			this.swarmers = this.swarmers.filter( ( b ) => { return b.dead !== true } )
 			this.swarmers.forEach( ( x ) => x.update( dt ) )
-
-			this.bombs.forEach( ( s ) => s.update() )
-			this.noBombs = this.bombs.length
-
+			// Bombs are now updated via registry.updateType('bomb', dt)
 		},
 		draw () {
-			this.bombs.forEach( ( s ) => s.draw() )
-
+			// Bombs are now drawn via registry.drawType('bomb')
 			this.swarmers.forEach( ( x ) => x.draw() )
 		}
 	}

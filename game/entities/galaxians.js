@@ -58,15 +58,15 @@ export const galaxian = () => {
 
 		color: "#FF0000",
 		ship: null,
-		galaxians: null,
+		registry: null,
 		vx: 0,
 		vy: Math.random() * 3 + 3,
 		shots: 0,
 		maxShots: 4,
 
-		spawn ( { ship, galaxians } ) {
+		spawn ( { ship, registry } ) {
 			this.ship = ship
-			this.galaxians = galaxians
+			this.registry = registry
 			this.x = randInt( canvas.width )
 			this.y = -randInt( canvas.height * 4 )
 			this.collider.area = Math.round( Math.PI * this.collider.r * this.collider.r / game.massConstant )
@@ -106,15 +106,13 @@ export const galaxian = () => {
 
 		fire () {
 			if (
-				this.galaxians.shots.length < maxShots &&
+				this.registry.count( 'shot' ) < maxShots &&
 				this.shots < this.maxShots &&
 				this.ship.y - this.y < canvas.height * 0.9
 			) {
 				fireSound.play()
 				fireSound.stereo( ( this.x - screen.width / 2 ) / screen.width )
-				const newshot = shot()
-				this.galaxians.shots.push( newshot )
-				newshot.spawn( { atx: this.x + this.width / 2, aty: this.y, shooter: this } )
+				this.registry.spawn( 'shot', { atx: this.x + this.width / 2, aty: this.y, shooter: this } )
 			}
 		},
 
@@ -143,36 +141,34 @@ export const galaxian = () => {
 export const galaxians = () => {
 	return {
 		galaxians: [],
-		shots: [],
-		noShots: 0,
+		registry: null,
 
 		all () {
 			return this.galaxians
 		},
 
-		spawnSingle ( { ship } ) {
+		spawnSingle ( { ship, registry } ) {
 			const x = galaxian()
 			this.galaxians.push( x )
-			x.spawn( { ship: ship, galaxians: this } )
+			x.spawn( { ship: ship, registry: registry } )
 		},
 
-		spawn ( { ship } ) {
-			this.spawnSingle( { ship: ship } )
-			this.spawnSingle( { ship: ship } )
-			this.spawnSingle( { ship: ship } )
-			this.spawnSingle( { ship: ship } )
+		spawn ( { ship, registry } ) {
+			this.registry = registry
+			this.spawnSingle( { ship: ship, registry: registry } )
+			this.spawnSingle( { ship: ship, registry: registry } )
+			this.spawnSingle( { ship: ship, registry: registry } )
+			this.spawnSingle( { ship: ship, registry: registry } )
 		},
 
 		update ( dt ) {
-			this.shots = this.shots.filter( b => b.dead !== true )
 			this.galaxians = this.galaxians.filter( b => b.dead !== true )
 			this.galaxians.forEach( x => x.update( dt ) )
-			this.shots.forEach( s => s.update() )
-			this.noShots = this.shots.length
+			// Shots are now updated via registry.updateType('shot', dt)
 		},
 
 		draw () {
-			this.shots.forEach( s => s.draw() )
+			// Shots are now drawn via registry.drawType('shot')
 			this.galaxians.forEach( x => x.draw() )
 		}
 	}
