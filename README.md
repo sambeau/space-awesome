@@ -198,13 +198,13 @@ Almost none:
 
 ## Zap — A Minimal Game Library
 
-[**v1.0.0-beta**](game/zap/README.md)
+[**v1.0.0-beta**](game/zap/)
 
 I've extracted the reusble parts of Space Awesome (Entities, collisions etc) and made a tiny, dependency-free, JavaScript library of helpers for making 2D canvas games.
 
 No build step. No framework. No NPM. Just functions you can copy into any Javascript project.
 
-I've called it [Zap.js](game/zap/README.md)
+I've called it [Zap.js](game/zap/)
 
 ---
 
