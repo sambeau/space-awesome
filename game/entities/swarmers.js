@@ -146,32 +146,3 @@ export const swarmer = () => {
 		}
 	}
 }
-
-
-export const Swarmers = () => {
-	return {
-		swarmers: [],
-		director: null,
-		all () {
-			return this.swarmers
-		},
-		spawnSingle ( { ship, x, y, vx, vy, director } ) {
-			let a = swarmer()
-			this.swarmers.push( a )
-			a.spawn( { director: director || this.director, ship: ship, x: x, y: y, vx: vx, vy: vy } )
-		},
-		spawn ( { director } ) {
-			this.director = director
-			// this.spawnSingle({})
-		},
-		update ( dt ) {
-			this.swarmers = this.swarmers.filter( ( b ) => { return b.dead !== true } )
-			this.swarmers.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via director.updateType('bomb', dt)
-		},
-		draw () {
-			// Bombs are now drawn via director.drawType('bomb')
-			this.swarmers.forEach( ( x ) => x.draw() )
-		}
-	}
-}

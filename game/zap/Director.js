@@ -223,6 +223,7 @@ export function createDirector () {
 		/**
 		 * Get all living entities for minimap display
 		 * Returns flat array of all registered entities (excluding dead ones)
+		 * For controllers with an all() method, includes their children instead of the controller itself
 		 * @returns {Array} All living entities
 		 */
 		allForMinimap () {
@@ -230,7 +231,17 @@ export function createDirector () {
 			for ( const entities of Object.values( this.entities ) ) {
 				for ( const entity of entities ) {
 					if ( !entity.dead ) {
-						result.push( entity )
+						// If entity has an all() method, include its children instead of itself
+						// (e.g., snake controllers manage segments internally)
+						if ( typeof entity.all === 'function' ) {
+							for ( const child of entity.all() ) {
+								if ( !child.dead ) {
+									result.push( child )
+								}
+							}
+						} else {
+							result.push( entity )
+						}
 					}
 				}
 			}

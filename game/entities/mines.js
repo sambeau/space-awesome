@@ -186,33 +186,3 @@ export const mine = () => {
 	}
 }
 
-// MINES MANAGER
-
-export const Mines = () => {
-	return {
-		mines: [],
-
-		all () {
-			return this.mines
-		},
-
-		spawnSingle ( { floaters, ship, x, y, vx, vy } ) {
-			const a = mine()
-			this.mines.push( a )
-			a.spawn( { floaters, ship, x, y, vx, vy } )
-		},
-
-		spawn ( { ship, floaters } ) {
-			this.spawnSingle( { ship, floaters } )
-		},
-
-		update ( dt ) {
-			this.mines = this.mines.filter( x => x.dead !== true )
-			this.mines.forEach( x => x.update( dt ) )
-		},
-
-		draw () {
-			this.mines.forEach( x => x.draw() )
-		}
-	}
-}

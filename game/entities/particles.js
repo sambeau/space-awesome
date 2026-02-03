@@ -1,21 +1,22 @@
-import { ctx, game } from "../game.js";
-import { picker } from "/zap/zap.js";
+import { ctx, game } from "../game.js"
+
+import { picker } from "/zap/zap.js"
 
 const debug = false
 
-function circleOfPoints() {
+function circleOfPoints () {
 	let points = []
-	for (let i = 0; i < n; i++) {
-		points[i] = {
-			x: centerX + radius * Math.cos((i * 2 * Math.PI) / n),
-			y: centerY + radius * -Math.sin((i * 2 * Math.PI) / n),
+	for ( let i = 0; i < n; i++ ) {
+		points[ i ] = {
+			x: centerX + radius * Math.cos( ( i * 2 * Math.PI ) / n ),
+			y: centerY + radius * -Math.sin( ( i * 2 * Math.PI ) / n ),
 		}
 	}
 	return points
 }
 
-const randomColors = picker(["#ffffff", "#00ffff", "#ff00ff", "#ffff00"])
-const glitterColors = picker(["#ffffff", "#ffffff", "#ffffff", "#00ffff", "#ff00ff", "#ffff00"])
+const randomColors = picker( [ "#ffffff", "#00ffff", "#ff00ff", "#ffff00" ] )
+const glitterColors = picker( [ "#ffffff", "#ffffff", "#ffffff", "#00ffff", "#ff00ff", "#ffff00" ] )
 
 export const Particle = () => {
 	return {
@@ -28,7 +29,7 @@ export const Particle = () => {
 		lifespan: 10,
 		fillStyle: "white",
 		dead: false,
-		spawn({ x, y, width, height, vx, vy, lifespan, fillStyle }) {
+		spawn ( { x, y, width, height, vx, vy, lifespan, fillStyle } ) {
 			this.x = x
 			this.y = y
 			this.width = width
@@ -38,30 +39,30 @@ export const Particle = () => {
 			this.lifespan = lifespan
 			this.tick = lifespan
 			this.fillStyle = fillStyle
-			if (this.fillStyle == "random")
+			if ( this.fillStyle == "random" )
 				this.fillStyle = randomColors.any()
 		},
-		update(/*dt*/) {
+		update (/*dt*/ ) {
 			this.tick--
-			if (this.tick === 0) {
+			if ( this.tick === 0 ) {
 				this.dead = true
 			} else {
 				this.x += this.vx
-				this.y += this.vy + game.speed;
+				this.y += this.vy + game.speed
 			}
 
 		},
-		draw() {
-			if (this.dead) return
-			if (this.lifespan <= 0) return
+		draw () {
+			if ( this.dead ) return
+			if ( this.lifespan <= 0 ) return
 
 			ctx.save()
-			if (this.fillStyle == "glitter")
+			if ( this.fillStyle == "glitter" )
 				ctx.fillStyle = glitterColors.any()
 			else
 				ctx.fillStyle = this.fillStyle
 			ctx.globalAlpha = this.tick / this.lifespan
-			ctx.fillRect(this.x, this.y, this.width, this.height);
+			ctx.fillRect( this.x, this.y, this.width, this.height )
 			ctx.globalAlpha = 1.0
 			ctx.restore()
 		},
@@ -72,10 +73,10 @@ export const Particles = () => {
 	return {
 		particles: [],
 		noParticles: 0,
-		spawnSingle({ x, y, width, height, vx, vy, lifespan, style }) {
+		spawnSingle ( { x, y, width, height, vx, vy, lifespan, style } ) {
 			const particle = Particle()
-			this.particles.push(particle)
-			particle.spawn({
+			this.particles.push( particle )
+			particle.spawn( {
 				x: x,
 				y: y,
 				width: width,
@@ -84,15 +85,15 @@ export const Particles = () => {
 				vy: vy,
 				lifespan: lifespan,
 				fillStyle: style
-			})
+			} )
 		},
-		spawnCircle({ points, cx, cy, width, height, speed, lifespan, style }) {
+		spawnCircle ( { points, cx, cy, width, height, speed, lifespan, style } ) {
 			speed = speed ? speed : 1
 			// console.log("spawnCircle", { points, cx, cy, width, height, speed, lifespan, style })
 			let radius = 1
-			for (let i = 0; i < points; i++) {
-				let vx = radius * Math.cos((i * 2 * Math.PI) / points)
-				let vy = radius * -Math.sin((i * 2 * Math.PI) / points)
+			for ( let i = 0; i < points; i++ ) {
+				let vx = radius * Math.cos( ( i * 2 * Math.PI ) / points )
+				let vy = radius * -Math.sin( ( i * 2 * Math.PI ) / points )
 				// console.log(
 				// 	"spawnSingle", {
 				// 	x: cx,
@@ -104,7 +105,7 @@ export const Particles = () => {
 				// 	lifespan: lifespan,
 				// 	style: style,
 				// })
-				this.spawnSingle({
+				this.spawnSingle( {
 					x: cx,
 					y: cy,
 					width: width,
@@ -113,16 +114,16 @@ export const Particles = () => {
 					vy: vy * speed,
 					lifespan: lifespan,
 					style: style,
-				})
+				} )
 			}
 		},
-		update(dt) {
-			this.particles = this.particles.filter((b) => { return b.dead !== true })
-			this.particles.forEach((x) => x.update(dt))
+		update ( dt ) {
+			this.particles = this.particles.filter( ( b ) => { return b.dead !== true } )
+			this.particles.forEach( ( x ) => x.update( dt ) )
 			this.noParticles = this.particles.length
 		},
-		draw() {
-			this.particles.forEach((x) => x.draw())
+		draw () {
+			this.particles.forEach( ( x ) => x.draw() )
 		}
 	}
 }

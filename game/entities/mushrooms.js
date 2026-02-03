@@ -146,29 +146,3 @@ export const mushroom = () => {
 		}
 	}
 }
-
-// Mushroom Manager
-export const Mushrooms = () => {
-	return {
-		mushrooms: [],
-
-		all () {
-			return this.mushrooms
-		},
-
-		spawnSingle ( { cx, cy, type } ) {
-			let m = mushroom()
-			this.mushrooms.push( m )
-			m.spawn( { cx: cx, cy: cy, type: type } )
-		},
-
-		update ( dt ) {
-			this.mushrooms = this.mushrooms.filter( ( b ) => { return b.dead !== true } )
-			this.mushrooms.forEach( ( x ) => x.update( dt ) )
-		},
-
-		draw () {
-			this.mushrooms.forEach( ( x ) => x.draw() )
-		}
-	}
-}

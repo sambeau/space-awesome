@@ -237,35 +237,3 @@ export const asteroid = () => {
 		},
 	}
 }
-
-// ASTEROIDS COLLECTION
-export const asteroids = () => {
-	return {
-		asteroids: [],
-
-		all () {
-			return this.asteroids
-		},
-
-		spawnSingle ( { size, x, y, vx, vy } ) {
-			const a = asteroid()
-			this.asteroids.push( a )
-			a.spawn( { asteroids: this, size, x, y, vx, vy } )
-		},
-
-		spawn () {
-			this.spawnSingle( { size: "L" } )
-			this.spawnSingle( { size: "L" } )
-			this.spawnSingle( { size: "L" } )
-		},
-
-		update ( dt ) {
-			this.asteroids = this.asteroids.filter( ( b ) => b.dead !== true )
-			this.asteroids.forEach( ( x ) => x.update( dt ) )
-		},
-
-		draw () {
-			this.asteroids.forEach( ( x ) => x.draw() )
-		},
-	}
-}

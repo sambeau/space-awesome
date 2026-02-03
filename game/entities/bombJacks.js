@@ -45,6 +45,7 @@ export const bombJack = () => {
 		ship: null,
 		images: null,
 		rotation: 10,
+		noMap: true,
 
 		spawn ( { ship, atx, aty, bomber } ) {
 			this.ship = ship

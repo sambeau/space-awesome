@@ -87,31 +87,3 @@ export const defender = () => {
 		}
 	}
 }
-
-export const defenders = () => {
-	return {
-		defenders: [],
-		director: null,
-
-		all () {
-			return this.defenders
-		},
-
-		spawn ( { ship, director } ) {
-			this.director = director
-			this.defenders = makeN( defender, 4 )
-			this.defenders.forEach( ( x ) => x.spawn( { ship: ship, director: director } ) )
-		},
-
-		update ( dt ) {
-			this.defenders = this.defenders.filter( ( b ) => b.dead !== true )
-			this.defenders.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via director.updateType('bomb', dt)
-		},
-
-		draw () {
-			// Bombs are now drawn via director.drawType('bomb')
-			this.defenders.forEach( ( x ) => x.draw() )
-		}
-	}
-}

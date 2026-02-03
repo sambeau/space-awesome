@@ -45,6 +45,7 @@ export const bomb = () => {
 		bomber: null,
 		ship: null,
 		images: null,
+		noMap: true,
 
 		spawn ( { ship, atx, aty, bomber } ) {
 			this.ship = ship

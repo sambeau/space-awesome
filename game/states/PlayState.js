@@ -15,6 +15,7 @@ import { bullet } from '../entities/bullet.js'
 import { createDirector } from '../zap/Director.js'
 import { defender } from '../entities/defenders.js'
 import { drawBackground } from '../rendering.js'
+import { fireBomb } from '../entities/fireBomb.js'
 import { fireBomber } from '../entities/fireBombers.js'
 import { galaxian } from '../entities/galaxians.js'
 import { mine } from '../entities/mines.js'
@@ -111,6 +112,7 @@ export class PlayState extends BaseState {
 			bombJack,
 			bullet,
 			shot,
+			fireBomb,
 			// Collectables
 			spaceman,
 			powerup,

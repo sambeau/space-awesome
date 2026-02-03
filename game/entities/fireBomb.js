@@ -1,26 +1,36 @@
 import { COLLISION, LAYER } from "./constants.js"
 import { canvas, ctx, game } from "../game.js"
-import { createEntity, loadImages } from "../zap/Entity.js"
+import { createEntity, getFrame, loadImages } from "../zap/Entity.js"
 
 import { explode } from "./explosions.js"
 
 const debug = false
 
-const { images: [ shotImage ], loaded } = loadImages( [ "images/shot.png" ] )
+const { images: fireBombImages, loaded } = loadImages( [
+	"images/firebomb-1.png",
+	"images/firebomb-2.png",
+	"images/firebomb-3.png",
+	"images/firebomb-4.png",
+	"images/firebomb-5.png",
+	"images/firebomb-6.png",
+	"images/firebomb-7.png",
+	"images/firebomb-8.png",
+] )
 
-export const shot = () => {
+export const fireBomb = () => {
 	return {
 		...createEntity( {
-			name: "shot",
+			name: "fireBomb",
 			drawLayer: LAYER.PROJECTILES,
-			collisionGroups: [ COLLISION.DEADLY ],  // enemy shots can kill the player
-			width: 6,
-			height: 35,
+			collisionGroups: [ COLLISION.DEADLY ],  // enemy fireBombs can kill the player
+			width: 40,
+			height: 33,
 			collider: {
-				type: "circle",
-				ox: 3,
-				oy: 32,
-				r: 3,
+				type: "rect",
+				ox: 2,
+				oy: 2,
+				w: 38,
+				h: 41,
 				area: 5,
 				colliding: false
 			}
@@ -29,16 +39,18 @@ export const shot = () => {
 		y: 0,
 		vx: 0,
 		vy: 0,
-		speed: 10,
+		speed: 20,
 		shooter: null,
 		dead: false,
-		noMap: true,
-		spawn ( { atx, aty, shooter } ) {
+		direction: 1,
+		spawn ( { atx, aty, shooter, direction, vy } ) {
 			this.x = atx - this.width / 2
 			this.y = aty + this.height / 4
-			this.vy = this.speed
+			this.vx = this.speed
+			this.vy = vy
 			this.shooter = shooter
-			this.shooter.shots++
+			this.shooter.fireBombs++
+			this.direction = direction
 		},
 		outOfBounds () {
 			if ( this.y >= canvas.height ) return true
@@ -55,16 +67,17 @@ export const shot = () => {
 				this.y = 0
 				this.vy = 0
 				this.dead = true
-				this.shooter.shots--
+				this.shooter.fireBombs--
 				// this.shooter.removeShot()
-			} else
+			} else {
 				this.y += this.vy + game.speed
-
+				this.x += this.vx * this.direction
+			}
 			this.syncCollider()
 		},
 		onHit () {
 			this.dead = true
-			this.shooter.shots--
+			this.shooter.fireBombs--
 			explode( {
 				x: this.x + this.collider.ox,
 				y: this.y + this.collider.oy,
@@ -82,7 +95,8 @@ export const shot = () => {
 		draw () {
 			if ( this.dead ) return
 			if ( loaded() ) {
-				ctx.drawImage( shotImage, this.x, this.y, this.width, this.height )
+				const frame = getFrame( this.ticks, 8, 5 )
+				ctx.drawImage( fireBombImages[ frame ], this.x, this.y, this.width, this.height )
 			}
 		},
 	}

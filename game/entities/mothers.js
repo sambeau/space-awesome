@@ -138,33 +138,3 @@ export const mother = () => {
 		}
 	}
 }
-
-
-export const Mothers = () => {
-	return {
-		mothers: [],
-		director: null,
-
-		all () {
-			return this.mothers
-		},
-		spawnSingle ( { director, floaters, ship, x, y, vx, vy } ) {
-			let a = mother()
-			this.mothers.push( a )
-			a.spawn( { director: director || this.director, floaters: floaters, ship: ship, x: x, y: y, vx: vx, vy: vy } )
-		},
-		spawn ( { director, ship, floaters } ) {
-			this.director = director
-			this.spawnSingle( { director: director, ship: ship, floaters: floaters } )
-		},
-		update ( dt ) {
-			this.mothers = this.mothers.filter( ( x ) => { return x.dead !== true } )
-			this.mothers.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via director.updateType('bomb', dt)
-		},
-		draw () {
-			// Bombs are now drawn via director.drawType('bomb')
-			this.mothers.forEach( ( x ) => x.draw() )
-		}
-	}
-}

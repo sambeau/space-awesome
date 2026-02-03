@@ -95,6 +95,7 @@ export let Minimap = () => {
 				: entities.flatMap( type => type.all() )
 
 			allEnts.forEach( ( ent ) => {
+				if ( ent.noMap ) return
 				if ( ent.y > canvas.height * -3 && ent.y < canvas.height && !ent.dead ) {
 					if ( ent.color )
 						ctx.fillStyle = ent.color
@@ -103,7 +104,13 @@ export let Minimap = () => {
 					if ( ent.color == "random" ) {
 						ctx.fillStyle = this.randomColor
 					}
-					ctx.fillRect( ent.x / scale + x, ( ent.y + 3 * canvas.height ) / scale + y, 4, 4 )
+					if ( ent.name == "spaceman" ) {
+						const sx = ent.x / scale + x
+						const sy = ( ent.y + 3 * canvas.height ) / scale + y
+						ctx.fillRect( sx - 1, sy - 2, 4 + 2, 4 + 4 )
+					}
+					else
+						ctx.fillRect( ent.x / scale + x, ( ent.y + 3 * canvas.height ) / scale + y, 4, 4 )
 				}
 			} )
 			ctx.fillStyle = "white"

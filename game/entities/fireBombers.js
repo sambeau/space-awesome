@@ -15,6 +15,9 @@ const assets = loadImages( [
 	"images/fireBomber-6.png",
 ] )
 const bangSound = loadSound( '/sounds/bang.mp3', 0.25 )
+const fireSound = loadSound( "/sounds/pyeeow.wav", 0.1 ) // TODO: change this for something more firey
+
+const maxFireBombs = 5
 
 // FireBomber Entity
 export const fireBomber = () => {
@@ -42,8 +45,14 @@ export const fireBomber = () => {
 		vy: Math.random() * 2 + 6,
 		rotation: 30,
 		frames: 6,
+		fireBombs: 0,
+		maxFireBombs: 4,
+		color: "#0000FF",
 
-		spawn ( { ship, floaters, x, y, vx, vy } ) {
+		spawn ( { director, ship, floaters, x, y, vx, vy } ) {
+			this.ship = ship
+			this.director = director
+
 			if ( x ) this.x = x
 			else this.x = canvas.width / 2
 
@@ -56,8 +65,12 @@ export const fireBomber = () => {
 
 		update (/*dt*/ ) {
 			this.tick()
+
+			if ( this.ticks % 6 === 0 && Math.random() < 0.25 ) this.fire()
+
 			this.x += this.vx
 			this.y += this.vy + game.speed
+
 			this.syncCollider()
 			this.wrapScreen()
 		},
@@ -81,27 +94,22 @@ export const fireBomber = () => {
 				styles: [ "white", "white", "#ff00ff", "#00ffff", "#FFFF00", "#ff0000", "#00ff00", "#0000ff" ],
 				size: 12,
 			} )
-		}
-	}
-}
+		},
 
-
-export const FireBombers = () => {
-	return {
-		fireBombers: [],
-		all () {
-			return this.fireBombers
+		fire () {
+			console.log( "fire!" )
+			if (
+				this.director.count( 'fireBomb' ) < maxFireBombs &&
+				this.fireBombs < this.maxFireBombs &&
+				this.ship.y - this.y < canvas.height * 0.9
+			) {
+				console.log( "FIRE!" )
+				fireSound.play()
+				fireSound.stereo( ( this.x - screen.width / 2 ) / screen.width )
+				let direction = 1
+				if ( this.ship.x < this.x ) direction = -1
+				this.director.spawn( 'fireBomb', { atx: this.x + this.width / 2, aty: this.y, shooter: this, direction, vy: this.vy } )
+			}
 		},
-		spawn ( { ship, floaters } ) {
-			this.fireBombers = makeN( fireBomber, 10 )
-			this.fireBombers.forEach( ( x ) => x.spawn( { ship: ship, floaters: floaters } ) )
-		},
-		update ( dt ) {
-			this.fireBombers = this.fireBombers.filter( ( b ) => { return b.dead !== true } )
-			this.fireBombers.forEach( ( x ) => x.update( dt ) )
-		},
-		draw () {
-			this.fireBombers.forEach( ( x ) => x.draw() )
-		}
 	}
 }

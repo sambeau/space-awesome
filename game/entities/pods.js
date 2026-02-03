@@ -97,24 +97,3 @@ export const pod = () => {
 		}
 	}
 }
-
-
-export const Pods = () => {
-	return {
-		pods: [],
-		all () {
-			return this.pods
-		},
-		spawn ( { director, ship, floaters } ) {
-			this.pods = makeN( pod, 2 )
-			this.pods.forEach( ( x ) => x.spawn( { director: director, ship: ship, floaters: floaters } ) )
-		},
-		update ( dt ) {
-			this.pods = this.pods.filter( ( b ) => { return b.dead !== true } )
-			this.pods.forEach( ( x ) => x.update( dt ) )
-		},
-		draw () {
-			this.pods.forEach( ( x ) => x.draw() )
-		}
-	}
-}

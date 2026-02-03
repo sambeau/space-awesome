@@ -39,6 +39,7 @@ export const bomber = () => {
 		vx: ( Math.random() * 3 - 1.5 ) * 2,
 		vy: Math.random() * 2 + 6,
 		rotation: 8,
+		color: "#ffff00",
 
 		spawn ( { director, ship, floaters, x, y, vx, vy } ) {
 
@@ -89,31 +90,6 @@ export const bomber = () => {
 				styles: [ "white", "white", "#ff00ff", "#00ffff", "#FFFF00" ],
 				size: 12,
 			} )
-		}
-	}
-}
-
-
-export const Bombers = () => {
-	return {
-		bombers: [],
-		director: null,
-		all () {
-			return this.bombers
-		},
-		spawn ( { director, ship, floaters } ) {
-			this.director = director
-			this.bombers = makeN( bomber, 10 )
-			this.bombers.forEach( ( x ) => x.spawn( { director: director, ship: ship, floaters: floaters } ) )
-		},
-		update ( dt ) {
-			this.bombers = this.bombers.filter( ( b ) => { return b.dead !== true } )
-			this.bombers.forEach( ( x ) => x.update( dt ) )
-			// Bombs are now updated via director.updateType('bombJack', dt)
-		},
-		draw () {
-			// Bombs are now drawn via director.drawType('bombJack')
-			this.bombers.forEach( ( x ) => x.draw() )
 		}
 	}
 }

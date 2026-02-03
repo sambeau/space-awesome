@@ -4,7 +4,6 @@ import { createEntity, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { randInt, stereoFromScreenX } from "/zap/zap.js"
 
 import { explode } from "./explosions.js"
-import { shot } from "./shot.js"
 
 // GALAXIAN ENTITY
 // Seeking enemies that track and fire at the player
@@ -134,42 +133,4 @@ export const galaxian = () => {
 	}
 }
 
-// GALAXIANS MANAGER
-// Manages collection of galaxian entities and their shots
-
-export const galaxians = () => {
-	return {
-		galaxians: [],
-		director: null,
-
-		all () {
-			return this.galaxians
-		},
-
-		spawnSingle ( { ship, director } ) {
-			const x = galaxian()
-			this.galaxians.push( x )
-			x.spawn( { ship: ship, director: director } )
-		},
-
-		spawn ( { ship, director } ) {
-			this.director = director
-			this.spawnSingle( { ship: ship, director: director } )
-			this.spawnSingle( { ship: ship, director: director } )
-			this.spawnSingle( { ship: ship, director: director } )
-			this.spawnSingle( { ship: ship, director: director } )
-		},
-
-		update ( dt ) {
-			this.galaxians = this.galaxians.filter( b => b.dead !== true )
-			this.galaxians.forEach( x => x.update( dt ) )
-			// Shots are now updated via director.updateType('shot', dt)
-		},
-
-		draw () {
-			// Shots are now drawn via director.drawType('shot')
-			this.galaxians.forEach( x => x.draw() )
-		}
-	}
-}
 
