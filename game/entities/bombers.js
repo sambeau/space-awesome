@@ -23,7 +23,7 @@ export const bomber = () => {
 			isPrimaryEnemy: true,
 			width: 66,
 			height: 67,
-			score: 1000,
+			score: 250,
 			collider: {
 				type: "circle",
 				ox: 33,
