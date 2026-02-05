@@ -23,6 +23,7 @@ import { mother } from '../entities/mothers.js'
 import { mushroom } from '../entities/mushrooms.js'
 import { pod } from '../entities/pods.js'
 import { powerup } from '../entities/powerups.js'
+import { screamer } from '../entities/screamers.js'
 import { shot } from '../entities/shot.js'
 import { snake } from '../entities/snakes.js'
 import { spaceman } from '../entities/spacemen.js'
@@ -101,6 +102,7 @@ export class PlayState extends BaseState {
 			mother,
 			bomber,
 			fireBomber,
+			screamer,
 			snake,  // snake controller (isPrimaryEnemy: true)
 			// Secondary enemies (spawned, not required for wave)
 			swarmer,
