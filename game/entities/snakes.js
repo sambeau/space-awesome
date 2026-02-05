@@ -43,6 +43,8 @@ const Segment = () => {
 			this.snake = snake
 			this.x = x
 			this.y = y
+			this.cx = x + this.width / 2
+			this.cy = y + this.height / 2
 			this.collider = {
 				type: "circle",
 				x: this.cx,
@@ -181,19 +183,40 @@ export const snake = () => {
 				if ( game.over )
 					this.states.walking.update()
 
-				let cohesion = 0.1
 				const head = this.snake[ 0 ]
 
+				// If too far from ship, just drift slowly until closer
+				if ( distanceBetweenPoints( head.x, head.y, this.ship.x, this.ship.y ) > canvas.height ) {
+					head.vx = 0
+					head.vy = 3
+					return
+				}
+
+				let cohesion = 0.1
+
+				// Chase the ship when angry
 				head.vx -= ( head.x - this.ship.x ) * cohesion
 				head.vy -= ( head.y - this.ship.y ) * cohesion
+				// Repel from other snakes to avoid clumping (use actual head positions)
+				let tooClose = false
 				this.director.get( 'snakeController' ).forEach( ( s ) => {
-					head.vx += ( head.x - s.x ) * cohesion / 100
-					head.vy += ( head.y - s.y ) * cohesion / 100
+					if ( s === this || !s.snake || !s.snake[ 0 ] ) return
+					const otherHead = s.snake[ 0 ]
+					const dist = distanceBetweenPoints( head.x, head.y, otherHead.x, otherHead.y )
+					if ( dist < 100 ) tooClose = true
+					if ( dist < 300 && dist > 0 ) {
+						const repel = ( 300 - dist ) / 300 * 3.0
+						head.vx += ( head.x - otherHead.x ) / dist * repel
+						head.vy += ( head.y - otherHead.y ) / dist * repel
+					}
 				} )
-				if ( head.vx > 5 ) head.vx = 5
-				if ( head.vx < -5 ) head.vx = -5
-				if ( head.vy > 5 ) head.vy = 5
-				if ( head.vy < -4 ) head.vy = -4
+				// Use higher velocity limits when too close to allow faster separation
+				const maxV = tooClose ? 8 : 5
+				const minVy = tooClose ? -6 : -4
+				if ( head.vx > maxV ) head.vx = maxV
+				if ( head.vx < -maxV ) head.vx = -maxV
+				if ( head.vy > maxV ) head.vy = maxV
+				if ( head.vy < minVy ) head.vy = minVy
 			}
 			//
 			this.states.fleeLeft = {}
@@ -257,7 +280,7 @@ export const snake = () => {
 						closestSpaceman.cx,
 						closestSpaceman.cy,
 						head.cx,
-						head.cy ) > screen.height ) {
+						head.cy ) > canvas.height ) {
 					head.vx = 0
 					head.vy = 3
 					return
@@ -276,9 +299,16 @@ export const snake = () => {
 
 				head.vx -= ( head.x - closestSpaceman.x ) * cohesion
 				head.vy -= ( head.y - closestSpaceman.y ) * cohesion
+				// Repel from other snakes to avoid clumping (use actual head positions)
 				this.director.get( 'snakeController' ).forEach( ( s ) => {
-					head.vx += ( head.x - s.x ) * cohesion / 100
-					head.vy += ( head.y - s.y ) * cohesion / 100
+					if ( s === this || !s.snake || !s.snake[ 0 ] ) return
+					const otherHead = s.snake[ 0 ]
+					const dist = distanceBetweenPoints( head.x, head.y, otherHead.x, otherHead.y )
+					if ( dist < 200 && dist > 0 ) {
+						const repel = ( 200 - dist ) / 200 * 0.3
+						head.vx += ( head.x - otherHead.x ) / dist * repel
+						head.vy += ( head.y - otherHead.y ) / dist * repel
+					}
 				} )
 
 				if ( head.vx > 5 ) head.vx = 5
@@ -311,22 +341,34 @@ export const snake = () => {
 						closestSpaceman.cx,
 						closestSpaceman.cy,
 						head.cx,
-						head.cy ) <= screen.height ) {
+						head.cy ) <= canvas.height ) {
 					this.state = this.states.hungry
 					return
 				}
 
-				if ( this.ticker % 25 == 0 ) {
-					head.vx = randInt( 8 ) - 4
-					head.vy = randInt( 4 )
+				// Random movement biased downward
+				if ( this.ticker % 15 == 0 ) {
+					head.vx = randInt( 12 ) - 6
+					head.vy = randInt( 6 ) + 3
 				}
-				let cohesion = 0.05
 
+				// Repel from other snakes to avoid clumping (use actual head positions)
 				this.director.get( 'snakeController' ).forEach( ( s ) => {
-					head.vx += ( head.x - s.x ) * cohesion / 100
-					head.vy += ( head.y - s.y ) * cohesion / 100
+					if ( s === this || !s.snake || !s.snake[ 0 ] ) return
+					const otherHead = s.snake[ 0 ]
+					const dist = distanceBetweenPoints( head.x, head.y, otherHead.x, otherHead.y )
+					if ( dist < 200 && dist > 0 ) {
+						const repel = ( 200 - dist ) / 200 * 0.4
+						head.vx += ( head.x - otherHead.x ) / dist * repel
+						head.vy += ( head.y - otherHead.y ) / dist * repel
+					}
 				} )
 
+				// Clamp velocity
+				if ( head.vx > 7 ) head.vx = 7
+				if ( head.vx < -7 ) head.vx = -7
+				if ( head.vy > 7 ) head.vy = 7
+				if ( head.vy < -4 ) head.vy = -4
 			}
 
 			this.state = this.states.walking
@@ -350,6 +392,11 @@ export const snake = () => {
 				this.snake[ i ] = Segment()
 				this.snake[ i ].spawn( { snake: this, x: this.x, y: this.y } )
 			}
+
+			// Give initial velocity so snakes don't just sit there
+			const head = this.snake[ 0 ]
+			head.vx = randInt( 10 ) - 5
+			head.vy = randInt( 6 ) + 3
 
 			if ( state == "fleeLeft" ) this.state = this.states.fleeLeft
 			if ( state == "fleeRight" ) this.state = this.states.fleeRight
@@ -422,11 +469,29 @@ export const snake = () => {
 					this.snake[ i ].x = 0 - this.snake[ i ].width
 			}
 
-			let lowestSnakeY = head.y
-			this.snake.forEach( ( s ) => { if ( s.y < lowestSnakeY ) lowestSnakeY = s.y } )
-			if ( lowestSnakeY > canvas.height + head.height ) {
+			// Wrap snake when it goes off the bottom of the screen
+			let minSnakeY = head.y
+			let maxSnakeY = head.y
+			this.snake.forEach( ( s ) => {
+				if ( s.y < minSnakeY ) minSnakeY = s.y
+				if ( s.y > maxSnakeY ) maxSnakeY = s.y
+			} )
+
+			// If entire snake is below the screen, wrap to top of game area
+			if ( minSnakeY > canvas.height + head.height ) {
+				// Wrap to 3 screen heights above visible area (same as other entities)
+				const wrapOffset = minSnakeY + canvas.height * 3
 				for ( let i = 0; i < this.snake.length; i++ ) {
-					this.snake[ i ].y = 0 - canvas.height * 3 + ( this.snake[ i ].y - canvas.height / 3 ) - lowestSnakeY
+					this.snake[ i ].y -= wrapOffset
+				}
+			}
+
+			// If entire snake is too far above the screen, pull it back
+			// This prevents snakes from flying off into space
+			if ( maxSnakeY < -canvas.height * 4 ) {
+				const offset = maxSnakeY + canvas.height * 3
+				for ( let i = 0; i < this.snake.length; i++ ) {
+					this.snake[ i ].y -= offset
 				}
 			}
 
@@ -435,7 +500,6 @@ export const snake = () => {
 			let dead = 0
 			for ( let i = 0; i < this.snake.length; i++ ) {
 				if ( this.snake[ i ].dead ) dead++
-				this.snake[ i ].dead = false
 			}
 			if ( dead > 0 ) {
 				this.lastHead = this.snake[ 0 ]
