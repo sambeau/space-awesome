@@ -7,6 +7,10 @@
 		"/^cd /Users/samphillips/Dev/zap && node --experimental-loader \\./tests/loader\\.js tests/run\\.js 2>&1$/": {
 			"approve": true,
 			"matchCommandLine": true
+		},
+		"/^node --experimental-loader \\./tests/loader\\.js tests/run\\.js 2>/dev/null \\| tail -10$/": {
+			"approve": true,
+			"matchCommandLine": true
 		}
 	}
 }
