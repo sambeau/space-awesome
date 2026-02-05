@@ -180,20 +180,37 @@ export function createEntity ( config = {} ) {
 // DRAW HELPERS
 // Common drawing patterns
 
+// Reusable offscreen canvas for rotated drawing (avoids creating new canvas every frame)
+let _rotationCanvas = null
+let _rotationCtx = null
+
+function getRotationCanvas ( width, height ) {
+	if ( !_rotationCanvas ) {
+		_rotationCanvas = document.createElement( "canvas" )
+		_rotationCtx = _rotationCanvas.getContext( "2d" )
+	}
+	// Resize only if needed (resizing clears the canvas)
+	if ( _rotationCanvas.width !== width || _rotationCanvas.height !== height ) {
+		_rotationCanvas.width = width
+		_rotationCanvas.height = height
+	}
+	return { canvas: _rotationCanvas, ctx: _rotationCtx }
+}
+
 /**
  * Draw a sprite with rotation based on ticks.
- * Creates an offscreen canvas, applies rotation, draws image, then blits to main ctx.
+ * Uses a cached offscreen canvas to avoid allocation every frame.
  * 
  * @param {CanvasRenderingContext2D} ctx - Main canvas context
  * @param {Object} entity - Entity with x, y, width, height, ticks, rotation
  * @param {Image} image - Image to draw
  */
 export function drawRotated ( ctx, entity, image ) {
-	const offscreen = document.createElement( "canvas" )
-	offscreen.width = entity.width
-	offscreen.height = entity.height
-	const offCtx = offscreen.getContext( "2d" )
+	const { canvas: offscreen, ctx: offCtx } = getRotationCanvas( entity.width, entity.height )
 
+	// Clear and set up rotation
+	offCtx.setTransform( 1, 0, 0, 1, 0, 0 )  // Reset transform
+	offCtx.clearRect( 0, 0, entity.width, entity.height )
 	offCtx.translate( entity.width / 2, entity.height / 2 )
 	offCtx.rotate( ( ( entity.ticks / 1000 ) * entity.rotation ) * Math.PI * 2 )
 	offCtx.translate( -entity.width / 2, -entity.height / 2 )

@@ -1,5 +1,5 @@
 import { COLLISION, LAYER } from "./constants.js"
-import { createEntity, getFrame, loadImages, loadSound } from "../zap/Entity.js"
+import { createEntity, drawRotated, getFrame, loadImages, loadSound } from "../zap/Entity.js"
 import { ctx, game } from "../game.js"
 import { picker, randInt, stereoFromScreenX } from "/zap/zap.js"
 
@@ -109,19 +109,7 @@ export const mine = () => {
 
 		draw () {
 			if ( !mineAssets.loaded() ) return
-
-			const offscreen = document.createElement( "canvas" )
-			offscreen.width = this.width
-			offscreen.height = this.height
-			const icon = offscreen.getContext( "2d" )
-
-			icon.translate( this.width / 2, this.height / 2 )
-			icon.rotate( ( ( this.ticks / 1000 ) * this.rotation ) * Math.PI * 2 )
-			icon.translate( -this.width / 2, -this.height / 2 )
-
-			icon.drawImage( this.image, 0, 0, this.width, this.height )
-
-			ctx.drawImage( offscreen, this.x, this.y, this.width, this.height )
+			drawRotated( ctx, this, this.image )
 		},
 
 		animate () {

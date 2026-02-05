@@ -46,6 +46,8 @@ export function createDirector () {
 					isPrimaryEnemy: isPrimaryEnemy ?? false
 				}
 			}
+			// Invalidate cached draw order when new types are registered
+			this._typeDrawOrder = null
 		},
 
 		/**
@@ -102,6 +104,21 @@ export function createDirector () {
 			return result
 		},
 
+		// Cached type order for drawing (sorted by drawLayer)
+		_typeDrawOrder: null,
+
+		/**
+		 * Get entity types sorted by draw layer (cached)
+		 * @returns {string[]} Type names sorted by draw layer
+		 */
+		getTypeDrawOrder () {
+			if ( !this._typeDrawOrder ) {
+				this._typeDrawOrder = Object.keys( this.meta )
+					.sort( ( a, b ) => this.meta[ a ].drawLayer - this.meta[ b ].drawLayer )
+			}
+			return this._typeDrawOrder
+		},
+
 		/**
 		 * Get all entities sorted by draw layer
 		 * @returns {Array} All entities sorted for drawing
@@ -150,13 +167,16 @@ export function createDirector () {
 		},
 
 		/**
-		 * Draw all entities in layer order
+		 * Draw all entities in layer order (optimized - no per-frame sort)
 		 */
 		drawAll () {
-			const sorted = this.allByLayer()
-			for ( const entity of sorted ) {
-				if ( entity.draw && !entity.dead ) {
-					entity.draw()
+			// Use cached type order instead of sorting all entities every frame
+			for ( const type of this.getTypeDrawOrder() ) {
+				const entities = this.entities[ type ]
+				for ( const entity of entities ) {
+					if ( entity.draw && !entity.dead ) {
+						entity.draw()
+					}
 				}
 			}
 		},
